@@ -667,7 +667,7 @@ ${cardCount} کارت
 و بیش از
 
 <span class="highlight">
-22000 خط کد
+32000 خط کد
 </span>
 
 تشکیل شده است.
