@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3ecdf">
+<title>اگر همه دایناسورها با هم بپرند چه می‌شود؟</title>
+<style>
+  :root {
+    --paper: #f3ecdf; --ink: #241c16; --ink-soft: #5c4e43; --line: rgba(36,28,22,.14);
+    --accent: #9a3b24; --accent-2: #2f4f45; --gold: #b0893e; --card: #fffaf2; --paper-2: #efe6d4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: Tahoma, "Segoe UI", sans-serif;
+    background: radial-gradient(ellipse at 8% 0%, rgba(176,137,62,.11), transparent 40%), var(--paper);
+    color: var(--ink); line-height: 1.95; overflow-x: hidden;
+  }
+  .bar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(243,236,223,.94);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-in {
+    width: min(760px, calc(100% - 24px));
+    margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; font-size: 13px; gap: 10px;
+  }
+  .bar a { color: var(--accent-2); text-decoration: none; white-space: nowrap; }
+  .wrap { width: min(760px, calc(100% - 24px)); margin: 0 auto; padding: 18px 0 92px; }
+  .kicker { color: var(--accent); font-size: 12px; }
+  h1 { font-size: clamp(22px, 6.4vw, 40px); line-height: 1.4; margin: 8px 0 10px; }
+  .meta { color: var(--ink-soft); font-size: 13px; margin-bottom: 14px; }
+  .lead { font-size: clamp(15px, 3.6vw, 18px); color: var(--ink-soft); margin-bottom: 16px; }
+  h2 { font-size: clamp(18px, 4.5vw, 22px); margin: 26px 0 8px; }
+  p { margin-bottom: 12px; font-size: clamp(15px, 3.5vw, 16px); }
+  .frame {
+    width: 100%;
+    margin: 14px 0 20px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+  }
+  .frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .photo-slot {
+    width: 100%;
+    margin: 14px 0 20px;
+    border: 1px dashed rgba(154,59,36,.35);
+    background: repeating-linear-gradient(-45deg, rgba(176,137,62,.06), rgba(176,137,62,.06) 8px, transparent 8px, transparent 16px), #fffaf2;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 12px;
+    color: var(--ink-soft);
+  }
+  .photo-slot b { color: var(--accent); display: block; margin-bottom: 4px; font-size: 14px; }
+  .photo-slot span { font-size: 12px; line-height: 1.7; }
+  .photo-slot:has(img) {
+    aspect-ratio: auto;
+    height: auto;
+    padding: 0;
+    border-style: solid;
+    background: var(--paper-2);
+    display: block;
+  }
+  .photo-slot img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .note {
+    background: var(--card); border: 1px solid var(--line); border-right: 4px solid var(--gold);
+    padding: 12px 14px; margin: 8px 0 18px; font-size: 14px;
+  }
+  .home-btn {
+    position: fixed; z-index: 40; top: 52px; left: 10px;
+    padding: 8px 12px; background: var(--ink); color: #f3ecdf;
+    text-decoration: none; font-weight: 700; font-size: 12px; border-radius: 12px;
+  }
+  @media (min-width: 700px) {
+    .wrap { padding: 28px 0 90px; }
+    .home-btn { top: auto; bottom: 18px; left: 0; border-radius: 0 14px 14px 0; padding: 11px 18px; }
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-in">
+      <span>زمین‌شناسی</span>
+      <a href="../Maghalat.html">بازگشت به مقاله‌ها</a>
+    </div>
+  </div>
+  <article class="wrap">
+    <div class="kicker">زمین‌شناسی · آزمایش فکری</div>
+    <h1>اگر همه دایناسورها با هم بپرند چه می‌شود؟</h1>
+    <div class="meta">یک میلیارد پرش، یک صحنهٔ هالیوودی، و یک پوستهٔ خیلی صبور</div>
+    <div class="frame">
+      <img src="images/PareshDaiinasor.png" alt="دایناسورها">
+    </div>
+    <p class="lead">اگر همهٔ دایناسورهای دنیا یک‌جا جمع می‌شدند و هم‌زمان روی زمین می‌پریدند، چه می‌شد؟ خیلی باحال است. یک صحنهٔ کاملاً هالیوودی را تصور کن؛ از تیرانوسورهای غول تا دایناسورهایی کوچک‌تر از یک مرغ امروزی، همه سر و صدا می‌کنند و برای یک پرش بزرگ آماده می‌شوند.</p>
+    <p>می‌خواهیم تعداد تقریبی دایناسورهای گذشته، وزن احتمالی‌شان، مساحت لازم برای جمع کردنشان، ضخامت پوسته در همان نقطه، و در آخر اثر این پرش عظیم روی سیارهٔ عزیزمان را ببینیم.</p>
+
+    <h2>چند دایناسور روی زمین بوده‌اند؟</h2>
+    <p>شمار دقیق دایناسورهایی که از حدود ۲۳۰ تا ۶۶ میلیون سال پیش زندگی کرده‌اند غیرممکن است. میلیون‌ها نسل آمده‌اند و رفته‌اند. دانشمندها می‌گویند شاید هزاران گونه بوده و در هر دوره شمارشان به میلیاردها می‌رسیده. الان حدود ۸ میلیارد آدم روی زمین است و میانگین وزن هر کدام نزدیک ۷۰ کیلو؛ دایناسورها اما خیلی سنگین‌ترند. برای همین عدد <b>یک میلیارد</b> را فرضی برمی‌داریم.</p>
+    <h2>چقدر وزن داشته‌اند؟</h2>
+    <p>از لحاظ وزن خیلی متنوع بوده‌اند. غول‌هایی مثل آرژانتی‌نوسوروس حدود ۷۰ تن بوده‌اند و دایناسورهای ریز حتی کمتر از یک کیلو. اگر بخواهیم یک میانگین تقریبی بگیریم، وزن متوسط یک دایناسور فرضی را حدود <b>یک تن</b> می‌گذاریم. این عدد یک جور میانگین ساده است بین آن غول‌های چندده‌تنی و مینی‌دایناسورهای سبک؛ فقط برای اینکه حساب کردن راحت باشد.</p>
+    <p>اندازه‌ها هم از چند متر تا ده‌ها متر فرق داشته. باز میانگین می‌گیریم و فرض می‌کنیم هر کدام یک مربع <b>۲ در ۲ متر</b> را اشغال کند. می‌شود ۴ میلیارد متر مربع، یعنی <b>۴۰۰۰ کیلومتر مربع</b>.</p>
+    <p>۴۰۰۰ کیلومتر مربع چقدر است؟ جزیرهٔ مادیرا در پرتغال حدود ۸۰۰ کیلومتر مربع است، پس این مساحت نزدیک پنج برابر آن جزیره می‌شود. در مقیاس یک کشور بزرگ، منطقهٔ نسبتاً کوچکی است؛ بخشی از یک ایالت آمریکا یا تکه‌ای از دشت‌های استرالیا می‌تواند همه را جا بدهد. ما یک بخش ۴۰۰۰ کیلومتری از بیابان‌های مرکزی استرالیا را محل گردهمایی انتخاب می‌کنیم.</p>
+    <h2>پوسته آنجا چقدر ضخیم است؟</h2>
+    <p>حالا سؤال این است که عمق پوسته در همان نقطه چقدر است و آیا چنین نیرویی را تحمل می‌کند. در مناطق قاره‌ای ضخامت پوسته بین ۳۰ تا ۵۰ کیلومتر است. برای استرالیا می‌شود حدود <b>۳۵ کیلومتر</b> در نظر گرفت.</p>
+    <p>گفتیم هر دایناسور میانگین یک تن وزن دارد. با شتاب گرانش ۹٫۸ متر بر مجذور ثانیه، نیروی وزن یکی از آن‌ها حدود ۱۰ هزار نیوتن است. برای یک میلیارد تا، این تازه فقط وزن ایستاده‌شان است. وقتی می‌پرند، دو تا سه برابر وزن خودشان را به زمین وارد می‌کنند. اگر سه برابر بگیریم، به نیرویی حدود <b>۳ × ۱۰<sup>۱۳</sup> نیوتن</b> می‌رسیم. عدد خیلی بزرگی است. به محض پرش، صدای گوش‌خراش و خیلی خیلی بلندی بلند می‌شود؛ چیزی در حد انفجارهای واقعاً بزرگ.</p>
+
+    <h2>زمین زیر پایشان دوام می‌آورد؟</h2>
+    <p>به نظرت زمین چنین فشاری را تحمل می‌کند؟ گفتیم پوسته آنجا حدود ۳۵ کیلومتر ضخامت دارد. بچه‌ها، پوسته یک لایهٔ جامد و پایدار است که نیروهای خیلی عظیم‌تر را هم تاب می‌آورد؛ فشار حرکت صفحه‌ها، فوران آتشفشان و زمین‌لرزه‌های بزرگ، همه شدیدتر از ضربهٔ این پرش جمعی‌اند، حتی با جمعیت یک‌میلیاردی.</p>
+    <p>البته بی‌اثر هم نیست. احتمالاً یک موج لرزه‌ای ضعیف درست می‌شود، طوری که لرزه‌نگارهای دقیق بتوانند اندازه‌اش را بگیرند. اما این موج در مقیاس زمین واقعاً ناچیز است. جرم زمین حدود <b>۵٫۹۷ × ۱۰<sup>۲۴</sup> کیلوگرم</b> است؛ عدد خیلی بزرگی. حتی یک زمین‌لرزهٔ متوسط پنج ریشتری انرژی خیلی بیشتری از این پرش دارد.</p>
+    <p>متأسفانه این پرش جز یک صدای مهیب چیز دیگری ندارد. نه تنها پوسته را نمی‌شکافد، روی محور زمین و چرخشش هم کوچک‌ترین اثری نمی‌گذارد. مثل این است که صدها مورچه بخواهند روی یک کامیون بپرند و تکانش بدهند؛ اصلاً تأثیری ندارد. حتی اگر آن یک میلیارد را به ده میلیارد برسانیم، باز هم زمین را تکان نمی‌دهند و فقط صدای مهیب‌تری درمی‌آورند.</p>
+    <p>پس صحنه هالیوودی می‌ماند، غبار پا می‌شود، گوش‌ها زنگ می‌زنند، ولی سیاره همان سیاره است. تا فکر بعدی، کنجکاو بمان.</p>
+  </article>
+  <a class="home-btn" href="../Maghalat.html">بازگشت به مقاله‌ها</a>
+<script src="../MusicPlayer.js"></script>
+</body>
+</html>

@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<style>
+:root{--p:#00d2ff;--bg:#0a0c10}
+body{background:var(--bg);color:#fff;font-family:Tahoma;margin:0;padding:10px;overflow:hidden}
+.grid{display:grid;grid-template-columns:180px 1fr 250px;gap:10px;height:96vh}
+.shelf{background:#161b22;padding:10px;border-radius:10px;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid #333}
+.el-btn{background:#21262d;padding:5px;border-radius:5px;border:1px solid #444;cursor:pointer;text-align:center;font-size:10px}
+.el-btn:hover{border-color:var(--p)}
+.furnace{background:#000;border:3px solid #444;border-radius:15px;position:relative;display:flex;flex-wrap:wrap;align-content:flex-start;padding:15px;flex:1}
+.door{position:absolute;top:0;left:0;width:100%;height:0;background:#222;z-index:10;transition:.6s;display:flex;align-items:center;justify-content:center;color:var(--p);overflow:hidden}
+.door.open{height:100%}
+.ball{width:18px;height:18px;border-radius:50%;margin:3px}
+.rock {
+z-index:5;
+width:200px;
+height:180px;
+position:absolute;
+top:50%;
+left:35%;
+transform:translate(-50%,-50%);
+display:none;
+align-items:center;
+justify-content:center;
+text-align:center;
+filter:drop-shadow(0 0 20px rgba(255,255,255,.15));
+}
+.rock-text {
+    display: none;
+    position: absolute;
+    right: 220px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 260px;
+    min-height: 150px;
+    background: rgba(0,0,0,.75);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid var(--p);
+    text-align: right;
+    z-index: 5;
+}
+.side{display:flex;flex-direction:column;gap:10px}
+.box{background:#161b22;border-radius:8px;padding:8px;border:1px solid #333;font-size:11px}
+.btn-m{background:#f0610e;color:white;border:none;padding:10px;border-radius:8px;cursor:pointer;font-weight:bold}
+.match{background:#0d1117;padding:5px;margin-top:5px;border-radius:5px;border-right:3px solid var(--p)}
+.clear-btn{
+    width:100%;
+    margin-top:12px;
+    padding:10px 0;
+    background:linear-gradient(135deg,#ff4d4d,#c62828);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.25s;
+    box-shadow:0 0 12px rgba(255,77,77,.35);
+}
+
+.clear-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 18px rgba(255,77,77,.7);
+    background:linear-gradient(135deg,#ff6666,#e53935);
+}
+
+.clear-btn:active{
+    transform:scale(.96);
+}
+#officialAlloys{
+margin-top:10px;
+max-height:250px;
+overflow-y:auto;
+}
+
+#officialAlloys .match{
+border-right:3px solid #00ff88;
+}
+.home-btn{
+    position:fixed;
+    top:500px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+</style>
+</head>
+<body>
+<div class="grid">
+<div class="shelf" id="shelf"></div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div id="furnace" class="furnace">
+<div id="door" class="door"><h2>در حال ذوب و ترکیب...</h2></div>
+<div id="alloyRock" class="rock"></div>
+<div class="rock-text" id="rockTxt"></div>
+</div>
+<button class="btn-m" onclick="melt()">⚡ ترکیب نهایی</button>
+</div>
+<div class="side">
+<div class="box" id="elInf"><b>عنصر:</b> انتخاب کنید</div>
+<div class="box" style="flex:1">
+<b style="color:#00d2ff">آلیاژ های مشابه:</b>
+<div id="res"></div>
+
+<button onclick="clearF()" class="clear-btn">
+    🗑️ تخلیه کوره
+</button>
+
+<br><br>
+
+<b style="color:#00ff88">
+🧪 ترکیب آلیاژهای رسمی
+</b>
+
+<div id="officialAlloys"></div>
+
+</div>
+</div>
+</div>
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+<script>
+
+const elements={
+Fe:["آهن","#a1a1a1",1538],
+C:["کربن","#333333",3550],
+Cu:["مس","#b87333",1085],
+Zn:["روی","#8c92ac",419],
+Sn:["قلع","#d3d3d3",231],
+Ni:["نیکل","#d4d8d9",1455],
+Cr:["کروم","#e5e4e2",1907],
+Al:["آلومینیوم","#e0e0e0",660],
+Mg:["منیزیم","#888888",650],
+W:["تنگستن","#4d4d4d",3422],
+Ti:["تیتانیوم","#7d7d7d",1668],
+Si:["سیلیسیم","#555555",1414],
+Pb:["سرب","#575d63",327]
+};
+
+const alloys=[
+{
+n:"استیل ضدزنگ",
+r:{Fe:72,Cr:18,Ni:10},
+properties:["مقاوم در برابر زنگ زدگی","استحکام بالا","مقاوم در دمای زیاد"]
+},
+{
+n:"برنج",
+r:{Cu:70,Zn:30},
+properties:["رسانایی خوب","شکل پذیری بالا","مقاومت خوردگی"]
+},
+{
+n:"برنز",
+r:{Cu:88,Sn:12},
+properties:["سخت تر از مس","مقاوم در برابر سایش"]
+},
+{
+n:"لحیم",
+r:{Sn:60,Pb:40},
+properties:["دمای ذوب پایین","مناسب اتصال فلزات"]
+},
+{
+n:"مگنالیوم",
+r:{Al:95,Mg:5},
+properties:["سبک","مقاوم نسبت به وزن"]
+},
+{
+n:"فولاد سخت",
+r:{Fe:98,C:2},
+properties:["سختی بالا","مقاومت فشار"]
+},
+{
+n:"نیکروم",
+r:{Ni:80,Cr:20},
+properties:[
+"مقاومت حرارتی بالا",
+"مناسب المنت‌های گرمایشی"
+]
+},
+
+{
+n:"دورالومین",
+r:{Al:95,Cu:4,Mg:1},
+properties:[
+"وزن کم",
+"استحکام بالا",
+"کاربرد در هواپیما"
+]
+},
+
+{
+n:"فولاد تنگستن",
+r:{Fe:85,W:10,C:5},
+properties:[
+"سختی بسیار بالا",
+"مقاوم در برابر سایش"
+]
+},
+
+{
+n:"برنز آلومینیومی",
+r:{Cu:85,Al:15},
+properties:[
+"مقاومت خوردگی بالا",
+"سختی مناسب"
+]
+},
+
+{
+n:"برنج نیکل‌دار",
+r:{Cu:60,Zn:30,Ni:10},
+properties:[
+"مقاومت خوردگی",
+"ظاهر براق"
+]
+},
+
+{
+n:"آلیاژ تیتانیوم",
+r:{Ti:90,Al:6,Ni:4},
+properties:[
+"استحکام زیاد",
+"وزن کم"
+]
+}
+];
+
+let fItems=[];
+
+const shelf=document.getElementById("shelf");
+
+for(let id in elements){
+let btn=document.createElement("div");
+btn.className="el-btn";
+btn.innerHTML="<b>"+id+"</b><br>"+elements[id][0];
+btn.onclick=function(){
+document.getElementById("elInf").innerHTML="<b>"+elements[id][0]+"</b><br>نقطه ذوب: "+elements[id][2]+"°C";
+add(id);
+};
+shelf.appendChild(btn);
+}
+function add(id){
+if(fItems.includes(id))return;
+fItems.push(id);
+let p=document.createElement("div");
+p.className="ball";
+p.style.background=elements[id][1];
+p.onclick=function(){
+fItems=fItems.filter(x=>x!==id);
+p.remove();
+};
+document.getElementById("furnace").appendChild(p);
+document.getElementById("alloyRock").style.display="none";
+}
+function showOfficialAlloys(){
+
+let box=document.getElementById("officialAlloys");
+
+let html="";
+
+
+alloys.forEach(a=>{
+
+html+=`
+<div class="match">
+
+<b>${a.n}</b>
+<br>
+ترکیب:
+<br>
+`;
+
+Object.keys(a.r).forEach(x=>{
+
+html+=`
+• ${elements[x][0]}
+<br>
+`;
+
+});
+
+
+html+=`
+</div>
+`;
+
+});
+
+
+box.innerHTML=html;
+
+}
+
+
+showOfficialAlloys();
+
+showOfficialAlloys();
+function melt(){
+if (fItems.length === 1) {
+    const id = fItems[0];
+
+    document.getElementById("rockTxt").style.display = "block";
+    document.getElementById("rockTxt").innerHTML = `
+        🧪 فقط یک عنصر انتخاب شده است.
+        <br><br>
+        <b>${elements[id][0]}</b>
+        <br><br>
+        برای ساخت آلیاژ باید حداقل دو فلز را با هم ترکیب کنید.
+    `;
+
+    return;
+}
+if(fItems.length===0)return;
+let d=document.getElementById("door");
+d.classList.add("open");
+setTimeout(()=>{
+d.classList.remove("open");
+calc(fItems);
+},1200);
+}
+
+function calc(act){
+let best=null;
+
+alloys.forEach(a=>{
+let extra=[];
+let missing=[];
+let score=100;
+
+Object.keys(a.r).forEach(x=>{
+if(!act.includes(x)){
+missing.push(x);
+score-=30;
+}
+});
+
+act.forEach(x=>{
+if(!a.r[x]){
+extra.push(x);
+score-=50;
+}
+});
+
+if(extra.length===0 &&missing.length===0 &&(!best || score>best.score)){
+best={
+alloy:a,
+score:score,
+extra:extra,
+missing:missing
+};
+}
+
+});
+
+if(!best){
+best={
+alloy:null,
+score:0,
+extra:act,
+missing:[]
+};
+}
+
+showResult(best);
+}
+
+function createName(items){
+
+let name="";
+
+items.forEach(x=>{
+
+    let metal=elements[x][0];
+
+    // گرفتن حدود ۲۰ درصد اول اسم فلز
+    let part=Math.max(2,Math.ceil(metal.length*0.2));
+
+    name+=metal.substring(0,part);
+
+});
+
+
+// تبدیل به اسم آلیاژی
+
+let endings=[
+"یوم",
+"کس",
+"ال",
+"ون",
+"یکس",
+"ایت"
+];
+
+
+name+=endings[Math.floor(Math.random()*endings.length)];
+
+return name;
+
+}
+
+function showResult(best){
+
+document.querySelectorAll(".ball").forEach(x=>x.style.display="none");
+
+let rock=document.getElementById("alloyRock");
+rock.style.display="flex";
+
+let colors=fItems.map(x=>elements[x][1]);
+rock.style.background=`radial-gradient(circle,${colors.join(",")})`;
+
+let txt="";
+
+if(best.alloy){
+
+txt+=`
+✅ آلیاژ شناسایی شد
+<br><br>
+<b>${best.alloy.n}</b>
+<br><br>
+خواص:
+<br>
+`;
+
+best.alloy.properties.forEach(x=>{
+txt+="• "+x+"<br>";
+});
+
+}else{
+
+txt+=`
+❌ آلیاژ رسمی نیست
+<br><br>
+نام احتمالی:
+<br>
+<b>${createName(fItems)}</b>
+<br><br>
+`;
+
+if(best.extra.length){
+txt+="فلز اضافی:<br>";
+best.extra.forEach(x=>{
+txt+="⚠ "+elements[x][0]+"<br>";
+});
+}
+
+}
+
+document.getElementById("rockTxt").innerHTML=txt;
+
+document.getElementById("res").innerHTML=
+`
+<div class="match">
+نزدیک‌ترین بررسی انجام شد
+<br>
+امتیاز:
+${Math.round(best.score)}٪
+</div>
+`;
+
+}
+function clearF(){
+
+fItems=[];
+
+document.getElementById("furnace").innerHTML=
+`
+<div id="door" class="door">
+<h2>در حال ذوب و ترکیب...</h2>
+</div>
+
+<div id="alloyRock" class="rock"></div>
+
+<div class="rock-text" id="rockTxt"></div>
+`;
+
+document.getElementById("res").innerHTML="";
+
+}
+
+function getPercent(items){
+
+let result={};
+
+let p=Math.round(100/items.length);
+
+items.forEach(x=>{
+result[x]=p;
+});
+
+return result;
+
+}
+
+
+
+// ساخت توضیح برای آلیاژهای جدید
+
+function guessProperties(items){
+
+let t="";
+
+if(items.includes("Fe")&&items.includes("C"))
+t+="• سختی و مقاومت بالا<br>";
+
+if(items.includes("Cu"))
+t+="• رسانایی الکتریکی مناسب<br>";
+
+if(items.includes("Al"))
+t+="• وزن کم<br>";
+
+if(items.includes("Ti"))
+t+="• مقاومت زیاد و وزن مناسب<br>";
+
+if(items.includes("Cr"))
+t+="• مقاومت در برابر خوردگی<br>";
+
+if(t==="")
+t="• خواص دقیق مشخص نیست و نیاز به آزمایش دارد<br>";
+
+return t;
+
+}
+
+
+
+
+// جایگزین کردن نمایش نتیجه کامل‌تر
+
+function showResult(best){
+
+document.getElementById("rockTxt").style.position="fixed";
+document.getElementById("rockTxt").style.zIndex="9999";
+
+let rock=document.getElementById("alloyRock");
+let rockTxt=document.getElementById("rockTxt");
+
+
+
+rock.style.display="flex";
+
+
+let colors=fItems.map(x=>elements[x][1]);
+
+rock.style.background=
+`radial-gradient(circle at 30% 30%,${colors.join(",")})`;
+// ساخت فرم سنگ چندضلعی تصادفی
+
+let pts=[];
+
+let sides=6+Math.floor(Math.random()*8); // 6 تا 13 ضلع
+let start=Math.random()*Math.PI*2;
+
+for(let i=0;i<sides;i++){
+
+    let angle=start+(i/sides)*Math.PI*2;
+
+    // فاصله تصادفی هر گوشه
+    let radius=35+Math.random()*25;
+
+    let x=50+Math.cos(angle)*radius;
+    let y=50+Math.sin(angle)*radius;
+
+    pts.push(`${x}% ${y}%`);
+}
+
+rock.style.clipPath=`polygon(${pts.join(",")})`;
+
+
+let txt="";
+
+
+
+if(best.alloy){
+
+
+txt+=`
+🟢 آلیاژ رسمی
+
+<br><br>
+
+<b>${best.alloy.n}</b>
+
+<br><br>
+
+ترکیب واقعی:
+
+<br>
+`;
+
+
+Object.keys(best.alloy.r).forEach(x=>{
+
+txt+=`
+${elements[x][0]} :
+${best.alloy.r[x]}٪
+<br>
+`;
+
+});
+
+
+txt+=`
+
+<br>
+
+⚙ خواص:
+
+<br>
+`;
+
+best.alloy.properties.forEach(x=>{
+
+txt+="• "+x+"<br>";
+
+});
+
+
+
+}else{
+
+
+let percent=getPercent(fItems);
+
+
+txt+=`
+
+🔴 آلیاژ رسمی نیست
+
+<br><br>
+
+ترکیب وارد شده:
+
+<br>
+
+`;
+
+
+
+Object.keys(percent).forEach(x=>{
+
+txt+=`
+${elements[x][0]} :
+${percent[x]}٪
+<br>
+`;
+
+});
+
+
+
+txt+=`
+
+<br>
+
+🧪 نام پیشنهادی:
+
+<br>
+
+<b>
+${createName(fItems)}
+</b>
+
+<br><br>
+
+خواص احتمالی:
+
+<br>
+
+${guessProperties(fItems)}
+
+`;
+
+
+
+
+
+}
+
+
+
+
+document.getElementById("rockTxt").innerHTML = txt;
+document.getElementById("rockTxt").style.display="block";
+
+
+const res = document.getElementById("res");
+res.innerHTML = "";
+
+// محاسبه میزان شباهت هر آلیاژ
+let similar = alloys
+    .filter(a => !best.alloy || a.n !== best.alloy.n)
+    .map(a => {
+
+        let score = 0;
+
+        Object.keys(a.r).forEach(el => {
+            if (fItems.includes(el)) score++;
+        });
+
+        return {
+            alloy: a,
+            score: score
+        };
+    })
+    .filter(x => x.score > 0)      // فقط آلیاژهایی که حداقل یک عنصر مشترک دارند
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);                  // فقط 3 مورد اول
+
+similar.forEach(item => {
+    res.innerHTML += `
+        <div class="match">
+            <b>${item.alloy.n}</b><br>
+            شباهت: ${item.score} عنصر مشترک
+        </div>
+    `;
+});
+
+
+}
+</script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

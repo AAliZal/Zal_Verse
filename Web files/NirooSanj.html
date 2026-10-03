@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <style>
+        :root { --p: #00d2ff; --bg: #090b10; }
+        body { background: var(--bg); color: white; font-family: Tahoma; display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; overflow: hidden; user-select: none; }
+
+        .p-bar { display: flex; gap: 8px; margin-bottom: 10px; z-index: 100; }
+        .btn { padding: 8px 15px; border-radius: 20px; border: none; cursor: pointer; background: #222; color: #fff; }
+        .active { background: var(--p); color: #000; font-weight: bold; box-shadow: 0 0 15px var(--p); }
+
+.lab{
+    width:min(95vw,950px);
+    height:min(78vh,580px);
+    background:#161b22;
+    border-radius:25px;
+    border:2px solid #333;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+}
+
+        .top { flex: 1.1; border-bottom: 1px dashed #444; position: relative; display: flex; justify-content: center; overflow: hidden; }
+        .pendul-sys { position: absolute; top: 0; display: flex; flex-direction: column; align-items: center; transform-origin: top center; animation: swing 4s ease-in-out infinite; }
+        .string { width: 2px; height: 40px; background: #aaa; }
+        .dyn-body { width: 40px; background: #333; border: 2px solid #555; border-radius: 5px; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .tag { position: absolute; left: 50px; top: 5px; background: #000; color: #ff4444; padding: 2px 8px; border-radius: 4px; font-family: monospace; border: 1px solid #444; }
+        .spring { width: 8px; background: repeating-linear-gradient(#888, #888 4px, #444 7px); transition: 0.4s; min-height: 30px; display: flex; flex-direction: column; align-items: center; }
+        .hook { width: 20px; height: 18px; border: 3px solid #ff4444; border-top: none; border-radius: 0 0 10px 10px; margin-top: -2px; }
+
+        .bottom { flex: 1; display: flex; justify-content: space-around; align-items: flex-end; padding: 20px; }
+        .tank { width: 220px; height: 180px; border: 4px solid #555; border-top: none; border-radius: 0 0 20px 20px; position: relative; background: rgba(255,255,255,0.02); }
+        .water { position: absolute; bottom: 0; width: 100%; background: rgba(0,210,255,0.3); border-top: 2px solid var(--p); z-index: 1; transition: height 0.5s; }
+
+        .cube { width: 45px; height: 35px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; position: absolute; z-index: 5; transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+
+
+        .shelf { display: flex; gap: 10px; margin-top: 10px; background: #1a1f26; padding: 12px; border-radius: 15px; }
+        .item { padding: 10px; cursor: grab; border-radius: 8px; font-size: 11px; font-weight: bold; width: 50px; text-align: center; }
+
+        @keyframes swing { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+        @keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-5px) rotate(2deg); } }
+        .floating { animation: bob 3s ease-in-out infinite; }
+        .home-btn{
+    position:fixed;
+    top:15px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+    </style>
+</head>
+<body>
+
+    <div class="p-bar">
+        <button class="btn active" onclick="setG(9.8, this)">🌍 زمین</button>
+        <button class="btn" onclick="setG(1.6, this)">🌑 ماه</button>
+        <button class="btn" onclick="setG(24.8, this)">🪐 مشتری</button>
+    </div>
+
+    <div class="lab">
+        <div class="top" ondragover="event.preventDefault()" ondrop="drop(event,'sp')">
+            <div class="pendul-sys" id="pendul">
+                <div class="string"></div>
+                <div class="dyn-body">
+                    <div class="tag"><span id="wD">0.0</span> N</div>
+                    <div class="spring" id="spring"><div class="hook"></div><div id="spItems" style="display:flex; flex-direction:column; align-items:center;"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom">
+            <div id="scZone" ondragover="event.preventDefault()" ondrop="drop(event,'sc')" style="display:flex; flex-direction:column; align-items:center;">
+                <div id="scItems" style="display:flex; flex-direction:column-reverse; align-items:center;"></div>
+                <div style="width:140px; height:8px; background:#888; border-radius:10px;"></div>
+                <div style="width:120px; height:30px; background:#333; border-radius:5px; border:2px solid #444; color:#0f0; display:flex; justify-content:center; align-items:center; font-family:monospace;" id="mD">0.00 kg</div>
+            </div>
+
+            <div class="tank" id="tank" ondragover="event.preventDefault()" ondrop="drop(event,'tk')">
+                <div id="water" class="water" style="height: 50%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="shelf">
+        <div class="item" draggable="true" ondragstart="drag(event)" data-m="15" data-c="#d4af37" data-n="طلا" data-type="heavy" style="background:#d4af37">طلا</div>
+        <div class="item" draggable="true" ondragstart="drag(event)" data-m="3" data-c="#aaa" data-n="سنگ" data-type="mid" style="background:#aaa">سنگ</div>
+        <div class="item" draggable="true" ondragstart="drag(event)" data-m="0.5" data-c="#8b4513" data-n="چوب" data-type="float" style="background:#8b4513; color:#fff">چوب</div>
+        <button onclick="location.reload()" style="cursor:pointer; background:#444; color:#fff; border:none; padding:10px; border-radius:10px;">Reset</button>
+    </div>
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+    <script>
+        let g=9.8, ms=0, mw=0, vCount=0;
+        const tankItems = [];
+
+        function setG(val, b){ g=val; document.querySelectorAll('.btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); update(); }
+        function drag(e){ e.dataTransfer.setData("j", JSON.stringify(e.target.dataset)); }
+
+        function drop(e, z){
+            e.preventDefault();
+            const d=JSON.parse(e.dataTransfer.getData("j"));
+            handleDrop(d, z, e.clientX);
+        }
+
+        // منطق اصلی رها کردن قطعه؛ هم با ماوس(drag&drop) و هم با لمس استفاده می‌شود
+        function handleDrop(d, z, clientX){
+            const c=document.createElement('div');
+            c.className='cube'; c.style.backgroundColor=d.c; c.innerHTML=`<b>${d.n}</b>`;
+
+            if(z=='sc'){
+                ms+=+d.m; document.getElementById('scItems').appendChild(c); c.style.position="relative";
+            } else if(z=='sp'){
+                mw+=+d.m; document.getElementById('spItems').appendChild(c); c.style.position="relative";
+            } else if(z=='tk'){
+                const tank = document.getElementById('tank');
+                const rect = tank.getBoundingClientRect();
+                let x = (clientX ?? (rect.left+rect.width/2)) - rect.left - 22;
+                x = Math.max(5, Math.min(x, 170));
+
+
+                vCount++;
+                c.style.left = x + "px";
+                c.style.top = "-40px";
+                tank.appendChild(c);
+
+                // فیزیک برخورد و چیدمان
+                setTimeout(() => {
+                    let finalTop;
+                    if(d.type === 'float') {
+                        finalTop = 75; // سطح آب
+                        c.classList.add('floating');
+                    } else {
+                        // چک کردن برخورد با بقیه مکعب‌ها
+                        let stackHeight = 0;
+                        tankItems.forEach(item => {
+                            if(Math.abs(item.x - x) < 40 && item.type !== 'float') stackHeight += 36;
+                        });
+                        finalTop = 140 - stackHeight;
+                        if(finalTop < 80) c.style.filter = "brightness(1.2)"; // بالای آب
+                    }
+
+                    c.style.top = finalTop + "px";
+                    tankItems.push({x: x, type: d.type});
+                }, 50);
+            }
+            update();
+        }
+
+        // =========================================================
+        // نسخه لمسی (گوشی) - چون Drag & Drop اصلی HTML5 روی
+        // صفحه‌های لمسی کار نمی‌کند
+        // =========================================================
+
+        let touchDragEl=null, touchGhost=null;
+
+        function touchZoneAt(x, y){
+            const el = document.elementFromPoint(x, y);
+            if(!el) return null;
+            if(el.closest('#tank')) return 'tk';
+            if(el.closest('#scZone')) return 'sc';
+            if(el.closest('.top')) return 'sp';
+            return null;
+        }
+
+        document.querySelectorAll('.item[draggable="true"]').forEach(it=>{
+            it.addEventListener('touchstart', e=>{
+                if(e.touches.length!==1) return;
+                touchDragEl = it;
+                const touch = e.touches[0];
+                const r = it.getBoundingClientRect();
+
+                touchGhost = it.cloneNode(true);
+                touchGhost.style.position='fixed';
+                touchGhost.style.left=r.left+'px';
+                touchGhost.style.top=r.top+'px';
+                touchGhost.style.width=r.width+'px';
+                touchGhost.style.margin='0';
+                touchGhost.style.opacity='0.85';
+                touchGhost.style.pointerEvents='none';
+                touchGhost.style.zIndex='99999';
+                document.body.appendChild(touchGhost);
+            }, {passive:true});
+        });
+
+        document.addEventListener('touchmove', e=>{
+            if(!touchDragEl || !touchGhost) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchGhost.style.left=(touch.clientX - touchGhost.offsetWidth/2)+'px';
+            touchGhost.style.top=(touch.clientY - touchGhost.offsetHeight/2)+'px';
+        }, {passive:false});
+
+        document.addEventListener('touchend', e=>{
+            if(!touchDragEl) return;
+
+            const touch = e.changedTouches[0];
+            const zone = touchZoneAt(touch.clientX, touch.clientY);
+
+            touchGhost?.remove();
+            touchGhost=null;
+
+            if(zone){
+                const d = {...touchDragEl.dataset};
+                handleDrop(d, zone, touch.clientX);
+            }
+
+            touchDragEl=null;
+        });
+
+        document.addEventListener('touchcancel', ()=>{
+            touchGhost?.remove();
+            touchGhost=null;
+            touchDragEl=null;
+        });
+
+        function update(){
+            document.getElementById('mD').innerText = ms.toFixed(2)+" kg";
+            document.getElementById('water').style.height = (50+(vCount*2))+"%";
+            let w = mw * g;
+            document.getElementById('wD').innerText = w.toFixed(1);
+            document.getElementById('spring').style.height = (30 + Math.min(w * 1.5, 180)) + "px";
+        }
+    </script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

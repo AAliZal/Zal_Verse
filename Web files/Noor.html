@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05070d">
+<title>آزمایشگاه نور — سندباکس</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #05070d; --panel: rgba(16,22,34,0.84); --border: rgba(100,130,170,0.16);
+  --border-hi: rgba(0,210,255,0.5); --accent: #00d2ff; --accent-2: #00ff88;
+  --warn: #ffb84d; --err: #ff4d6d; --text: #e8eef7; --muted: #7c8aa0;
+}
+html, body {
+  height: 100%; overflow: hidden; font-family: Tahoma, sans-serif;
+  background: var(--bg); color: var(--text); overscroll-behavior: none; touch-action: manipulation;
+}
+body {
+  background-image:
+    radial-gradient(ellipse at 12% 8%, rgba(0,210,255,.10), transparent 55%),
+    radial-gradient(ellipse at 88% 92%, rgba(255,184,77,.08), transparent 55%);
+  padding: 6px;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+.app {
+  display: grid; grid-template-columns: 228px 1fr 300px; gap: 10px;
+  height: calc(100dvh - 12px); position: relative; z-index: 1;
+}
+.panel {
+  background: var(--panel); backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: 14px; padding: 12px;
+  overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,.5);
+}
+.panel::-webkit-scrollbar { width: 5px; }
+.panel::-webkit-scrollbar-thumb { background: rgba(0,210,255,.25); border-radius: 3px; }
+.panel-title {
+  font-size: 11.5px; font-weight: 700; color: var(--accent);
+  margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.mode-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.mode-btn {
+  display: flex; align-items: center; gap: 8px; text-align: right;
+  padding: 9px 10px; border-radius: 11px; cursor: pointer; font-family: inherit;
+  background: rgba(8,12,20,.45); border: 1px solid transparent; color: var(--muted); transition: .15s;
+}
+.mode-btn:hover { border-color: var(--border); color: var(--text); }
+.mode-btn.on { border-color: rgba(0,210,255,.45); background: rgba(0,60,90,.42); color: var(--accent); }
+.mode-btn .ico {
+  width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.06); font-size: 14px; flex-shrink: 0;
+}
+.mode-btn .nm { font-size: 12px; font-weight: 700; display: block; }
+.mode-btn .ds { font-size: 9px; color: var(--muted); display: block; margin-top: 1px; }
+.hint-box {
+  background: rgba(8,12,20,.5); border: 1px solid var(--border); border-radius: 10px;
+  padding: 9px; font-size: 10.5px; line-height: 1.8; color: var(--muted);
+}
+.hint-box b { color: var(--text); }
+.stage { display: flex; flex-direction: column; gap: 8px; min-height: 0; min-width: 0; }
+.canvas-wrap {
+  flex: 1; position: relative; min-height: 0; overflow: hidden; border-radius: 14px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(10,14,22,.6), rgba(5,7,13,.92));
+  box-shadow: inset 0 0 80px rgba(0,0,0,.5);
+  display: flex; flex-direction: column;
+}
+.scene-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 6px; gap: 8px; z-index: 2; }
+.badge-q {
+  font-size: 10px; color: var(--accent); font-weight: 700;
+  background: rgba(0,40,60,.85); padding: 4px 11px; border-radius: 7px; border: 1px solid rgba(0,210,255,.4);
+}
+.badge-type-hint {
+  font-size: 10px; color: var(--muted); background: rgba(8,12,20,.75);
+  padding: 4px 9px; border-radius: 7px; border: 1px solid var(--border);
+}
+.opt-stage { flex: 1; min-height: 0; position: relative; }
+#optCanvas { width: 100%; height: 100%; display: block; cursor: grab; }
+#optCanvas.dragging { cursor: grabbing; }
+.overlay-copy { position: absolute; left: 12px; right: 12px; bottom: 10px; text-align: center; pointer-events: none; z-index: 2; }
+.q-title { font-size: 16px; font-weight: 700; text-shadow: 0 2px 12px #000; }
+.q-sub { font-size: 11.5px; color: var(--muted); line-height: 1.65; text-shadow: 0 2px 10px #000; }
+.readouts { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 0 10px 8px; }
+.chip { font-size: 10px; padding: 4px 9px; border-radius: 99px; border: 1px solid var(--border); background: rgba(8,12,20,.72); }
+.chip b { color: var(--accent); }
+.toolbar { display: grid; grid-template-columns: repeat(3,1fr) auto; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 8px 10px; }
+.slider-box { background: rgba(8,12,20,.45); border: 1px solid var(--border); border-radius: 12px; padding: 7px 10px; }
+.slider-box label { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+.slider-box label b { color: var(--text); }
+input[type=range] { width: 100%; accent-color: #00d2ff; cursor: pointer; }
+.reset-mini {
+  min-width: 84px; border-radius: 12px; font-family: inherit; font-weight: 700; font-size: 12px;
+  cursor: pointer; padding: 8px; color: var(--text);
+  border: 1px solid rgba(0,210,255,.35);
+  background: linear-gradient(160deg, rgba(0,90,120,.75), rgba(16,22,34,.9));
+}
+.teacher-panel-box {
+  background: linear-gradient(160deg, rgba(10,24,40,.75), rgba(16,22,34,.8));
+  border: 1px solid rgba(0,210,255,.3); border-radius: 11px; padding: 12px; margin-bottom: 10px; min-height: 168px;
+}
+.teacher-panel-box.heat { border-color: rgba(255,140,40,.4); }
+.teacher-panel-box.reaction { border-color: rgba(0,255,136,.4); }
+.teacher-panel-box.water { border-color: rgba(80,180,255,.45); }
+.teacher-panel-box.lens { border-color: rgba(180,160,255,.45); }
+.teacher-panel-box.prism { border-color: rgba(255,160,200,.45); }
+.tp-title { font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 7px; padding-bottom: 6px; border-bottom: 1px solid rgba(0,210,255,.15); }
+.tp-body { font-size: 11px; line-height: 1.9; }
+.tp-body b { color: var(--accent); }
+.info-box { background: linear-gradient(160deg, rgba(33,42,58,.55), rgba(16,22,34,.7)); border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-size: 10.5px; line-height: 1.8; margin-bottom: 9px; }
+.info-label { display: block; font-size: 10px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+.legend-item { padding: 5px 7px; border-radius: 6px; background: rgba(8,12,20,.5); border-right: 3px solid var(--accent); margin-bottom: 4px; }
+.legend-item b { display: block; font-size: 9.5px; }
+.legend-item span { color: var(--muted); font-size: 9px; }
+.reset-btn { width: 100%; padding: 9px 0; background: linear-gradient(135deg,#ff4d6d,#c62828); color: #fff; border: none; border-radius: 9px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.home-btn {
+  position: fixed; bottom: 18px; left: 0; z-index: 9999; padding: 10px 20px 10px 16px;
+  background: linear-gradient(135deg,#00d2ff,#0066ff); color: #fff; text-decoration: none;
+  font-weight: 700; font-size: 12px; border-radius: 0 13px 13px 0;
+  box-shadow: 0 6px 22px rgba(0,210,255,.4); display: flex; align-items: center; gap: 7px;
+}
+.home-btn:hover { padding-right: 30px; }
+.home-btn svg { width: 14px; height: 14px; }
+.mobile-info-btn {
+  display: none; position: absolute; bottom: 12px; right: 12px; width: 44px; height: 44px;
+  border-radius: 50%; border: none; color: #fff;
+  background: linear-gradient(135deg, rgba(0,210,255,.9), rgba(0,102,255,.9)); font-size: 20px; cursor: pointer; z-index: 100;
+}
+.modal { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,.7); backdrop-filter: blur(6px); padding: 16px; }
+.modal.show { display: flex; align-items: center; justify-content: center; }
+.modal-content { background: var(--panel); border: 1px solid var(--border-hi); border-radius: 16px; padding: 16px; width: 100%; max-width: 460px; max-height: 85vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.modal-header h3 { font-size: 13px; color: var(--accent); }
+.modal-close { background: rgba(255,77,109,.2); border: 1px solid rgba(255,77,109,.4); color: var(--err); width: 30px; height: 30px; border-radius: 8px; font-size: 16px; cursor: pointer; }
+@media (max-width: 1100px) { .app { grid-template-columns: 180px 1fr 230px; } .toolbar { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 768px) {
+  html, body { padding: 0; }
+  .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; gap: 0; height: 100dvh; }
+  .modes-panel { border-radius: 0 0 14px 14px; padding: 8px 10px; background: rgba(12,18,28,.95); padding-top: max(8px, env(safe-area-inset-top,0px)); }
+  .modes-panel .panel-title, .modes-panel .hint-box { display: none; }
+  .mode-list { flex-direction: row; overflow-x: auto; gap: 6px; scrollbar-width: none; }
+  .mode-btn { flex-shrink: 0; }
+  .mode-btn .ds { display: none; }
+  .stage { padding: 6px; gap: 0; }
+  .canvas-wrap { border-radius: 12px; }
+  .toolbar { border-radius: 14px 14px 0 0; padding-bottom: max(8px, env(safe-area-inset-bottom,0px)); grid-template-columns: 1fr 1fr; }
+  .info-panel { display: none; }
+  .mobile-info-btn { display: flex; align-items: center; justify-content: center; }
+  .home-btn { top: max(8px, env(safe-area-inset-top,0px)); right: 8px; bottom: auto; left: auto; padding: 7px 12px; border-radius: 10px; font-size: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="panel modes-panel">
+    <div class="panel-title">🔭 ایستگاه‌ها</div>
+    <div class="mode-list" id="modeList"></div>
+    <div class="hint-box" id="modeHintBox">هر ایستگاه یک سندباکس است.</div>
+  </aside>
+  <main class="stage">
+    <div class="canvas-wrap">
+      <div class="scene-head">
+        <div class="badge-q" id="qBadge">سندباکس نور</div>
+        <div class="badge-type-hint" id="dragHint">بکش و رها کن</div>
+      </div>
+      <div class="opt-stage">
+        <canvas id="optCanvas"></canvas>
+        <div class="overlay-copy">
+          <div class="q-title" id="qTitle"></div>
+          <div class="q-sub" id="qSub"></div>
+        </div>
+      </div>
+      <div class="readouts" id="readouts"></div>
+      <button class="mobile-info-btn" id="mobileInfoBtn">📖</button>
+    </div>
+    <div class="toolbar" id="toolbar"></div>
+  </main>
+  <aside class="panel info-panel">
+    <div class="panel-title">🔦 استاد نور</div>
+    <div class="teacher-panel-box" id="teacherBox">
+      <div class="tp-title" id="tpTitle">راهنما</div>
+      <div class="tp-body" id="tpBody"></div>
+    </div>
+    <div class="info-box" id="lawBox"></div>
+    <button class="reset-btn" onclick="resetStation()">↺ بازنشانی همین ایستگاه</button>
+  </aside>
+</div>
+<div class="modal" id="infoModal">
+  <div class="modal-content">
+    <div class="modal-header"><h3>🔦 استاد نور</h3><button class="modal-close" id="infoModalClose">✕</button></div>
+    <div class="teacher-panel-box" id="teacherBoxMobile">
+      <div class="tp-title" id="tpTitleMobile">راهنما</div>
+      <div class="tp-body" id="tpBodyMobile"></div>
+    </div>
+    <div class="info-box" id="lawBoxMobile"></div>
+  </div>
+</div>
+<a href="../index.html" class="home-btn">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  بازگشت
+</a>
+<script>
+const STATIONS = [
+  { id:'shadow', ico:'🌑', nm:'سایه', ds:'پرتو راست و سایه',
+    title:'پرتو نور و سایه',
+    sub:'لامپ و جعبه را به هر طرف بکش؛ جعبه بالا و پایین هم می‌رود.',
+    hint:'جعبه را بگیر و بالا ببر',
+    teach:{ t:'🌑 سایه', type:'heat', b:'نور خط راست می‌رود. جسم کدر راه را می‌بندد و سایه در <b>سمت مخالف لامپ</b> می‌افتد. اگر لامپ سمت راست باشد، سایه سمت چپ می‌رود. لامپ نزدیک‌تر یا پایین‌تر سایه را کشیده‌تر می‌کند.' },
+    law:'<span class="info-label">قانون</span><div class="legend-item"><b>پشت به نور</b><span>سایه همیشه آن طرفی است که نور به آن نمی‌رسد.</span></div>' },
+  { id:'mirror', ico:'🪞', nm:'آینه', ds:'بازتاب با تغییر زاویه',
+    title:'بازتاب در آینه تخت',
+    sub:'آینه را بچرخان. زاویه تابش و بازتاب برابر می‌مانند.',
+    hint:'آینه را از دسته بچرخان؛ لامپ را بکش',
+    teach:{ t:'🪞 قانون بازتاب', type:'reaction', b:'خط چین‌چین <b>عمود بر آینه</b> است. زاویه پرتو تابشی با این خط = i و زاویه بازتاب = r. در آینه تخت همیشه <b>i = r</b>.' },
+    law:'<span class="info-label">قانون</span><div class="legend-item"><b>i = r</b><span>زاویه از روی خط عمود اندازه گرفته می‌شود.</span></div>' },
+  { id:'water', ico:'💧', nm:'نور در آب', ds:'شکست در سطح آب',
+    title:'پرتو نور در آب',
+    sub:'لامپ زرد را در هوا بکش و نقطه آبی را روی سطح آب جابه‌جا کن.',
+    hint:'دو دستگیره: لامپ و نقطه ورود',
+    teach:{ t:'💧 شکست نور', type:'water', b:'نور از هوا به آب که می‌رود می‌شکند و به <b>خط عمود نزدیک‌تر</b> می‌شود. نقطه آبی جای ورود پرتو به آب است. ضریب شکست آب را هم می‌توانی عوض کنی. قانون: n₁ sin i = n₂ sin r.' },
+    law:'<span class="info-label">قانون</span><div class="legend-item"><b>هوا → آب</b><span>پرتو به عمود نزدیک می‌شود.</span></div><div class="legend-item"><b>بازتاب ضعیف</b><span>بخشی از نور هم از سطح برمی‌گردد.</span></div>' },
+  { id:'lens', ico:'🔍', nm:'عدسی', ds:'کانون و تصویر',
+    title:'عدسی همگرا',
+    sub:'منبع نور زرد را هر جا سمت چپ عدسی بکش؛ پرتوها با آن حرکت می‌کنند.',
+    hint:'لامپ را کامل بالا، پایین، نزدیک و دور کن',
+    teach:{ t:'🔍 عدسی همگرا', type:'lens', b:'سه پرتو را ببین: موازی با محور از کانون آن طرف رد می‌شود؛ پرتو مرکزی راست می‌رود؛ پرتو عبوری از کانون نزدیک بعد از عدسی موازی می‌شود. اگر جسم بیرون کانون باشد تصویر <b>وارونه و واقعی</b> است. اگر داخل کانون باشد تصویر مجازی و بزرگ‌تر است.' },
+    law:'<span class="info-label">یادآوری</span><div class="legend-item"><b>u > f</b><span>تصویر واقعی، وارونه، آن طرف عدسی.</span></div><div class="legend-item"><b>u < f</b><span>تصویر مجازی، مستقیم، همین طرف.</span></div>' },
+  { id:'prism', ico:'🌈', nm:'منشور', ds:'شکست و رنگین‌کمان',
+    title:'منشور و پاشندگی',
+    sub:'پرتو سفید را بالا و پایین ببر و منشور را بچرخان تا رنگ‌ها جدا شوند.',
+    hint:'ارتفاع پرتو و چرخش منشور',
+    teach:{ t:'🌈 منشور', type:'prism', b:'پرتو سفید دو بار می‌شکند: ورود به شیشه و خروج. بنفش بیشتر از قرمز خم می‌شود؛ برای همین رنگ‌ها از هم باز می‌شوند. اگر زاویه مناسب نباشد پرتو ممکن است از وجه دیگری بیرون برود.' },
+    law:'<span class="info-label">قانون</span><div class="legend-item"><b>پاشندگی</b><span>هر رنگ ضریب شکست کمی متفاوت دارد.</span></div>' }
+];
+
+const S = {
+  mode:'shadow',
+  lamp:{x:110,y:70},
+  box:{x:250,y:180,w:56,h:90},
+  mirror:{x:420,y:170,ang:-20},
+  hitX: 320,
+  nWater: 1.33,
+  lensF: 95,
+  objX: 200,
+  objH: 72,
+  prismAng: 8,
+  beamY: 150,
+  beamX: 40,
+  drag:null,
+  photons:[],
+  live:{}
+};
+
+const canvas = document.getElementById('optCanvas');
+const ctx = canvas.getContext('2d');
+let W=800,H=420;
+
+function station(){ return STATIONS.find(s=>s.id===S.mode); }
+function resize(){
+  const r=canvas.parentElement.getBoundingClientRect();
+  const dpr=Math.min(2, window.devicePixelRatio||1);
+  W=Math.max(320,r.width); H=Math.max(220,r.height);
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize', resize);
+
+function setTeacher(title,body,type){
+  document.getElementById('teacherBox').className='teacher-panel-box '+(type||'');
+  document.getElementById('teacherBoxMobile').className='teacher-panel-box '+(type||'');
+  document.getElementById('tpTitle').textContent=title;
+  document.getElementById('tpTitleMobile').textContent=title;
+  document.getElementById('tpBody').innerHTML=body;
+  document.getElementById('tpBodyMobile').innerHTML=body;
+}
+function renderModes(){
+  document.getElementById('modeList').innerHTML=STATIONS.map(s=>`
+    <button class="mode-btn ${s.id===S.mode?'on':''}" onclick="setMode('${s.id}')">
+      <span class="ico">${s.ico}</span>
+      <span><span class="nm">${s.nm}</span><span class="ds">${s.ds}</span></span>
+    </button>`).join('');
+}
+function setMode(id){ S.mode=id; S.drag=null; S.photons=[]; applyStation(); }
+function resetStation(){ S.photons=[]; resetDefaults(); applyStation(false); }
+function applyStation(reset=true){
+  if(reset) resetDefaults();
+  const st=station();
+  document.getElementById('qBadge').textContent='سندباکس · '+st.nm;
+  document.getElementById('dragHint').textContent=st.hint;
+  document.getElementById('qTitle').textContent=st.title;
+  document.getElementById('qSub').textContent=st.sub;
+  document.getElementById('modeHintBox').innerHTML='<b>'+st.nm+':</b> '+st.sub;
+  setTeacher(st.teach.t,st.teach.b,st.teach.type);
+  document.getElementById('lawBox').innerHTML=st.law;
+  document.getElementById('lawBoxMobile').innerHTML=st.law;
+  renderModes(); buildToolbar(); resize();
+}
+function resetDefaults(){
+  if(S.mode==='shadow'){ S.lamp={x:120,y:64}; S.box={x:260,y:Math.max(80,H-160),w:56,h:90}; }
+  if(S.mode==='mirror'){ S.lamp={x:100,y:200}; S.mirror={x:Math.max(300,W*0.62),y:H*0.48,ang:-22}; }
+  if(S.mode==='water'){ S.lamp={x:140,y:70}; S.hitX=W*0.5; S.nWater=1.33; }
+  if(S.mode==='lens'){ S.lensF=95; S.lamp={x:Math.max(90,W*0.22),y:H*0.38}; }
+  if(S.mode==='prism'){ S.prismAng=8; S.beamY=H*0.42; S.beamX=36; }
+}
+function sl(id,label,min,max,val,step=1){
+  return `<div class="slider-box"><label>${label} <b id="${id}Val">${val}</b></label>
+    <input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
+}
+function buildToolbar(){
+  let html='';
+  if(S.mode==='shadow') html=sl('slLY','ارتفاع لامپ',28,H-50,Math.round(S.lamp.y))+sl('slLX','جای لامپ',40,W-40,Math.round(S.lamp.x))+sl('slBYB','ارتفاع جسم',20,H-80,Math.round(S.box.y));
+  else if(S.mode==='mirror') html=sl('slMA','زاویه آینه',-70,70,Math.round(S.mirror.ang))+sl('slLY','ارتفاع لامپ',40,H-40,Math.round(S.lamp.y))+sl('slLX','جای لامپ',40,240,Math.round(S.lamp.x));
+  else if(S.mode==='water') html=sl('slHX','نقطه ورود',60,W-60,Math.round(S.hitX))+sl('slN','ضریب آب',1.1,1.7,S.nWater.toFixed(2),0.01)+sl('slLX','جای لامپ',40,W-40,Math.round(S.lamp.x));
+  else if(S.mode==='lens') html=sl('slF','فاصله کانونی',50,160,S.lensF)+sl('slLX','جای نور',40,Math.round(W*0.5),Math.round(S.lamp.x))+sl('slLY','ارتفاع نور',30,H-30,Math.round(S.lamp.y));
+  else html=sl('slPA','چرخش منشور',-28,28,S.prismAng)+sl('slBY','ارتفاع پرتو',50,H-50,Math.round(S.beamY))+sl('slBX2','شروع پرتو',16,160,Math.round(S.beamX));
+  html+=`<button class="reset-mini" onclick="resetStation()">بازنشانی</button>`;
+  document.getElementById('toolbar').innerHTML=html;
+  const on=(id,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',()=>fn(el)); };
+  on('slLY',el=>{ S.lamp.y=+el.value; setTxt(el.id+'Val',Math.round(+el.value)); });
+  on('slLX',el=>{ S.lamp.x=+el.value; setTxt(el.id+'Val',Math.round(+el.value)); });
+  on('slBX',el=>{ S.box.x=+el.value; setTxt('slBXVal',Math.round(+el.value)); });
+  on('slBYB',el=>{ S.box.y=+el.value; setTxt('slBYBVal',Math.round(+el.value)); });
+  on('slMA',el=>{ S.mirror.ang=+el.value; setTxt('slMAVal',Math.round(+el.value)+'°'); });
+  on('slHX',el=>{ S.hitX=+el.value; setTxt('slHXVal',Math.round(+el.value)); });
+  on('slN',el=>{ S.nWater=+el.value; setTxt('slNVal',(+el.value).toFixed(2)); });
+  on('slF',el=>{ S.lensF=+el.value; setTxt('slFVal',Math.round(+el.value)); });
+  on('slOX',el=>{ S.objX=+el.value; setTxt('slOXVal',Math.round(+el.value)); });
+  on('slOH',el=>{ S.objH=+el.value; setTxt('slOHVal',Math.round(+el.value)); });
+  on('slPA',el=>{ S.prismAng=+el.value; setTxt('slPAVal',Math.round(+el.value)+'°'); });
+  on('slBY',el=>{ S.beamY=+el.value; setTxt('slBYVal',Math.round(+el.value)); });
+  on('slBX2',el=>{ S.beamX=+el.value; setTxt('slBX2Val',Math.round(+el.value)); });
+}
+function setTxt(id,t){ const n=document.getElementById(id); if(n) n.textContent=t; }
+
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function norm(v){ const l=Math.hypot(v.x,v.y)||1; return {x:v.x/l,y:v.y/l}; }
+function dot(a,b){ return a.x*b.x+a.y*b.y; }
+function add(a,b,s=1){ return {x:a.x+b.x*s,y:a.y+b.y*s}; }
+function room(){ return { L:28, R:W-28, T:16, B:H-34 }; }
+
+function glowLine(x1,y1,x2,y2,color,a=0.28,w=2){
+  ctx.strokeStyle=color; ctx.globalAlpha=a; ctx.lineWidth=7;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.globalAlpha=1; ctx.lineWidth=w;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+}
+function dashLine(x1,y1,x2,y2,color){
+  ctx.save(); ctx.setLineDash([6,6]); ctx.strokeStyle=color; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore();
+}
+function lamp(x,y){
+  const g=ctx.createRadialGradient(x,y,2,x,y,48);
+  g.addColorStop(0,'rgba(255,220,120,.9)'); g.addColorStop(1,'rgba(255,160,40,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,48,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#ffd36a'; ctx.beginPath(); ctx.arc(x,y,12,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(255,240,180,.95)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,16,0,Math.PI*2); ctx.stroke();
+}
+function handle(x,y,color){
+  ctx.fillStyle=color; ctx.strokeStyle='#fff'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill(); ctx.stroke();
+}
+function spawn(x1,y1,x2,y2){
+  if(S.photons.length>30 || Math.random()>0.4) return;
+  S.photons.push({x1,y1,x2,y2,t:Math.random()});
+}
+function drawPhotons(){
+  S.photons.forEach(p=>{
+    p.t+=0.012;
+    const x=p.x1+(p.x2-p.x1)*(p.t%1), y=p.y1+(p.y2-p.y1)*(p.t%1);
+    ctx.fillStyle='rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(x,y,2.1,0,Math.PI*2); ctx.fill();
+  });
+  if(S.photons.length>28) S.photons.splice(0,8);
+}
+
+function extendToRoom(P, Q){
+  const {L,R,T,B}=room();
+  const D={x:Q.x-P.x,y:Q.y-P.y};
+  let best=1e9, hit=null;
+  const tryX=x=>{
+    if(Math.abs(D.x)<1e-6) return;
+    const t=(x-P.x)/D.x;
+    if(t>1.002){ const y=P.y+t*D.y; if(y>=T&&y<=B&&t<best){ best=t; hit={x,y}; } }
+  };
+  const tryY=y=>{
+    if(Math.abs(D.y)<1e-6) return;
+    const t=(y-P.y)/D.y;
+    if(t>1.002){ const x=P.x+t*D.x; if(x>=L&&x<=R&&t<best){ best=t; hit={x,y}; } }
+  };
+  tryX(L); tryX(R); tryY(T); tryY(B);
+  return hit;
+}
+
+function drawShadow(){
+  const {L,R,T,B} = room();
+  ctx.fillStyle='#0b1018'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#171e2c'; ctx.fillRect(0,B,W,H-B);
+  ctx.fillStyle='#141a26'; ctx.fillRect(0,T,L,B-T); ctx.fillRect(R,T,W-R,B-T);
+  ctx.strokeStyle='rgba(100,130,170,.28)'; ctx.strokeRect(L,T,R-L,B-T);
+
+  // ---- جای‌گذاری جسم ----
+  const b = S.box;
+  b.h = clamp(b.h, 46, 140);
+  if(b.y == null) b.y = B - b.h;
+  const box = {
+    x: clamp(b.x, L+8, R-b.w-8),
+    y: clamp(b.y, T+8, B-b.h-4),
+    w: b.w, h: b.h
+  };
+  S.box.x = box.x; S.box.y = box.y;
+
+  S.lamp.x = clamp(S.lamp.x, L+16, R-16);
+  S.lamp.y = clamp(S.lamp.y, T+16, B-16);
+
+  // ============================================================
+  // فاصلهٔ ایمن: لامپ را حداقل ۳۶ پیکسل از جسم دور نگه دار
+  // و در نزدیک‌ترین جهتِ معتبر (که داخل اتاق است) هل بده
+  // ============================================================
+  const SAFE = 36;
+  const dzX1 = box.x - SAFE;
+  const dzX2 = box.x + box.w + SAFE;
+  const dzY1 = box.y - SAFE;
+  const dzY2 = box.y + box.h + SAFE;
+
+  if(S.lamp.x > dzX1 && S.lamp.x < dzX2 &&
+     S.lamp.y > dzY1 && S.lamp.y < dzY2){
+
+    const candidates = [
+      { d: Math.abs(S.lamp.x - dzX1), x: dzX1, y: S.lamp.y },   // چپ
+      { d: Math.abs(S.lamp.x - dzX2), x: dzX2, y: S.lamp.y },   // راست
+      { d: Math.abs(S.lamp.y - dzY1), x: S.lamp.x, y: dzY1 },   // بالا
+      { d: Math.abs(S.lamp.y - dzY2), x: S.lamp.x, y: dzY2 }    // پایین
+    ].filter(c =>
+      c.x >= L+16 && c.x <= R-16 &&
+      c.y >= T+16 && c.y <= B-16
+    );
+
+    if(candidates.length > 0){
+      candidates.sort((a,b) => a.d - b.d);
+      S.lamp.x = candidates[0].x;
+      S.lamp.y = candidates[0].y;
+    }
+  }
+
+  // ---- چهار گوشهٔ جسم ----
+  const corners = [
+    {x:box.x,           y:box.y},           // 0: TL
+    {x:box.x+box.w,     y:box.y},           // 1: TR
+    {x:box.x+box.w,     y:box.y+box.h},     // 2: BR
+    {x:box.x,           y:box.y+box.h}      // 3: BL
+  ];
+
+  // ============================================================
+  // تشخیص رأس‌های سیلوئت با بزرگ‌ترین شکاف زاویه‌ای
+  // ============================================================
+  const angles = corners.map((p, i) => ({
+    idx: i,
+    a: Math.atan2(p.y - S.lamp.y, p.x - S.lamp.x)
+  })).sort((u,v) => u.a - v.a);
+
+  let maxGap = -1, gapAfter = 0;
+  for(let i = 0; i < 4; i++){
+    const next = (i + 1) % 4;
+    let gap = angles[next].a - angles[i].a;
+    if(gap < 0) gap += Math.PI * 2;
+    if(gap > maxGap){ maxGap = gap; gapAfter = i; }
+  }
+  const iSilA = angles[(gapAfter + 1) % 4].idx;
+  const iSilB = angles[gapAfter].idx;
+  const silA  = corners[iSilA];
+  const silB  = corners[iSilB];
+
+  // ============================================================
+  // مسیر پشتی جسم (طرف دور از لامپ)
+  // ============================================================
+  const pathFwd = [iSilB];
+  { let i = iSilB; while(i !== iSilA && pathFwd.length <= 5){ i = (i+1)%4; pathFwd.push(i); } }
+  const pathBwd = [iSilB];
+  { let i = iSilB; while(i !== iSilA && pathBwd.length <= 5){ i = (i-1+4)%4; pathBwd.push(i); } }
+
+  const dLamp = c => Math.hypot(c.x - S.lamp.x, c.y - S.lamp.y);
+  const sumD  = p => p.slice(1,-1).reduce((s,i) => s + dLamp(corners[i]), 0);
+  const backPath = sumD(pathFwd) > sumD(pathBwd) ? pathFwd : pathBwd;
+
+  // ============================================================
+  // رسم سایه با کلیپ روی اتاق + امتداد پرتوها تا بی‌نهایت
+  // این روش دیگر نیازی به محاسبهٔ گوشه‌های مخفی اتاق ندارد
+  // ============================================================
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(L, T, R-L, B-T);
+  ctx.clip();
+
+  const FAR = 6000;
+  const dAx = silA.x - S.lamp.x, dAy = silA.y - S.lamp.y;
+  const nA  = Math.hypot(dAx, dAy) || 1;
+  const farAx = silA.x + dAx/nA * FAR;
+  const farAy = silA.y + dAy/nA * FAR;
+
+  const dBx = silB.x - S.lamp.x, dBy = silB.y - S.lamp.y;
+  const nB  = Math.hypot(dBx, dBy) || 1;
+  const farBx = silB.x + dBx/nB * FAR;
+  const farBy = silB.y + dBy/nB * FAR;
+
+  ctx.fillStyle = 'rgba(0,0,0,.55)';
+  ctx.beginPath();
+  ctx.moveTo(silA.x, silA.y);
+  ctx.lineTo(farAx, farAy);
+  ctx.lineTo(farBx, farBy);
+  ctx.lineTo(silB.x, silB.y);
+  for(let k = 1; k < backPath.length - 1; k++){
+    const c = corners[backPath[k]];
+    ctx.lineTo(c.x, c.y);
+  }
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+
+  // ============================================================
+  // پرتوهای مرزی (خط‌چین)
+  // ============================================================
+  [silA, silB].forEach(sil => {
+    dashLine(S.lamp.x, S.lamp.y, sil.x, sil.y, 'rgba(255,210,120,.55)');
+  });
+
+  // ============================================================
+  // رسم جسم
+  // ============================================================
+  ctx.save();
+  ctx.shadowColor = 'rgba(127,215,255,.35)';
+  ctx.shadowBlur = 22;
+  ctx.fillStyle = '#2a3348';
+  ctx.strokeStyle = '#7fd7ff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  const rr = 8;
+  ctx.moveTo(box.x+rr, box.y);
+  ctx.arcTo(box.x+box.w, box.y, box.x+box.w, box.y+box.h, rr);
+  ctx.arcTo(box.x+box.w, box.y+box.h, box.x, box.y+box.h, rr);
+  ctx.arcTo(box.x, box.y+box.h, box.x, box.y, rr);
+  ctx.arcTo(box.x, box.y, box.x+box.w, box.y, rr);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  // دو مربع تزئینی روی جسم
+  ctx.fillStyle = '#ff7a45';
+  ctx.fillRect(box.x+10, box.y+16, 14, 14);
+  ctx.fillStyle = '#00d2ff';
+  ctx.fillRect(box.x+30, box.y+16, 14, 14);
+
+  // ============================================================
+  // لامپ + فوتون‌ها
+  // ============================================================
+  lamp(S.lamp.x, S.lamp.y);
+  spawn(S.lamp.x, S.lamp.y, box.x + box.w/2, box.y + 10);
+
+  // ============================================================
+  // اطلاعات زنده
+  // ============================================================
+  const boxCx = box.x + box.w/2;
+  const boxCy = box.y + box.h/2;
+  const side  = S.lamp.x < boxCx ? 'راست جسم' : 'چپ جسم';
+  const dist  = Math.hypot(S.lamp.x - boxCx, S.lamp.y - boxCy);
+  const deg   = Math.round(Math.atan2(boxCy - S.lamp.y, boxCx - S.lamp.x) * 180 / Math.PI);
+
+  S.live.read = [
+    ['سایه می‌افتد سمت', side],
+    ['فاصله لامپ', Math.round(dist)],
+    ['زاویه', deg + '°']
+  ];
+}
+
+function refract(I,N,n1,n2){
+  let n={x:N.x,y:N.y};
+  let cosi=clamp(-dot(I,n),-1,1);
+  if(cosi<0){ n={x:-n.x,y:-n.y}; cosi=-cosi; }
+  const eta=n1/n2;
+  const k=1-eta*eta*(1-cosi*cosi);
+  if(k<0) return null;
+  const b=eta*cosi-Math.sqrt(k);
+  return norm({x:eta*I.x+b*n.x, y:eta*I.y+b*n.y});
+}
+function reflectVec(I,N){
+  let n={x:N.x,y:N.y};
+  if(dot(I,n)>0) n={x:-n.x,y:-n.y};
+  const d=dot(I,n);
+  return norm({x:I.x-2*d*n.x, y:I.y-2*d*n.y});
+}
+function angFrom(a,b){
+  return Math.abs(Math.acos(clamp(dot(norm(a),norm(b)),-1,1))*180/Math.PI);
+}
+
+function drawMirror(){
+  const {L,R,T,B}=room();
+  ctx.fillStyle='#070b14'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#121826'; ctx.fillRect(0,B,W,H-B);
+  const m=S.mirror;
+  m.x=clamp(m.x,260,R-40); m.y=clamp(m.y,T+50,B-50);
+  const rad=m.ang*Math.PI/180, len=96;
+  const A={x:m.x-Math.cos(rad)*len,y:m.y-Math.sin(rad)*len};
+  const C={x:m.x+Math.cos(rad)*len,y:m.y+Math.sin(rad)*len};
+  let N={x:Math.sin(rad),y:-Math.cos(rad)};
+  ctx.strokeStyle='rgba(200,230,255,.95)'; ctx.lineWidth=7; ctx.lineCap='round';
+  ctx.shadowColor='#7fd7ff'; ctx.shadowBlur=16;
+  ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(C.x,C.y); ctx.stroke(); ctx.shadowBlur=0;
+  dashLine(m.x-N.x*50,m.y-N.y*50,m.x+N.x*70,m.y+N.y*70,'rgba(255,255,255,.35)');
+  ctx.fillStyle='#9eb0c8'; ctx.font='10px Tahoma'; ctx.textAlign='center';
+  ctx.fillText('عمود', m.x+N.x*82, m.y+N.y*82);
+  const I=norm({x:m.x-S.lamp.x,y:m.y-S.lamp.y});
+  if(dot(I,N)>0) N={x:-N.x,y:-N.y};
+  const Rdir=reflectVec(I,N);
+  glowLine(S.lamp.x,S.lamp.y,m.x,m.y,'#00d2ff');
+  glowLine(m.x,m.y,m.x+Rdir.x*560,m.y+Rdir.y*560,'#00ff88');
+  const iAng=angFrom({x:-I.x,y:-I.y},N);
+  const rAng=angFrom(Rdir,N);
+  lamp(S.lamp.x,S.lamp.y);
+  handle(m.x,m.y,'#7fd7ff');
+  ctx.fillStyle='#c8e8ff'; ctx.font='11px Tahoma'; ctx.fillText('آینه', m.x, Math.min(A.y,C.y)-14);
+  spawn(S.lamp.x,S.lamp.y,m.x,m.y); spawn(m.x,m.y,m.x+Rdir.x*180,m.y+Rdir.y*180);
+  S.live.read=[['تابش i',iAng.toFixed(0)+'°'],['بازتاب r',rAng.toFixed(0)+'°'],['آینه',Math.round(m.ang)+'°']];
+}
+
+function drawWater(){
+  const surf=H*0.48;
+  ctx.fillStyle='#071018'; ctx.fillRect(0,0,W,H);
+  const wg=ctx.createLinearGradient(0,surf,0,H);
+  wg.addColorStop(0,'rgba(30,110,180,.42)'); wg.addColorStop(1,'rgba(8,28,58,.78)');
+  ctx.fillStyle=wg; ctx.fillRect(0,surf,W,H-surf);
+  ctx.strokeStyle='rgba(140,210,255,.75)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(0,surf); ctx.lineTo(W,surf); ctx.stroke();
+  ctx.fillStyle='rgba(190,230,255,.8)'; ctx.font='11px Tahoma'; ctx.textAlign='right';
+  ctx.fillText('هوا', W-14, surf-8);
+  ctx.fillText('آب', W-14, surf+18);
+
+  S.lamp.y=clamp(S.lamp.y,24,surf-18);
+  S.lamp.x=clamp(S.lamp.x,30,W-30);
+  S.hitX=clamp(S.hitX,50,W-50);
+  const hit={x:S.hitX,y:surf};
+
+  dashLine(hit.x, surf-78, hit.x, surf+96, 'rgba(255,255,255,.28)');
+  ctx.fillStyle='#9eb0c8'; ctx.font='10px Tahoma'; ctx.textAlign='left';
+  ctx.fillText('عمود', hit.x+8, surf-64);
+
+  const I=norm({x:hit.x-S.lamp.x,y:hit.y-S.lamp.y});
+  const Nair={x:0,y:-1};
+  const T=refract(I,Nair,1,S.nWater);
+  const Rfl=reflectVec(I,Nair);
+  glowLine(S.lamp.x,S.lamp.y,hit.x,hit.y,'#ffd27a',0.32,3);
+  glowLine(hit.x,hit.y, hit.x+Rfl.x*120, hit.y+Rfl.y*120, 'rgba(255,255,255,.7)',0.14,1.5);
+  if(T){
+    glowLine(hit.x,hit.y, hit.x+T.x*340, hit.y+T.y*340, '#4db7ff',0.34,3);
+    spawn(hit.x,hit.y,hit.x+T.x*180,hit.y+T.y*180);
+  }
+  spawn(S.lamp.x,S.lamp.y,hit.x,hit.y);
+  lamp(S.lamp.x,S.lamp.y);
+  handle(hit.x,hit.y,'#4db7ff');
+
+  const iAng=angFrom({x:-I.x,y:-I.y},Nair);
+  const rAng=T?angFrom(T,{x:0,y:1}):0;
+  S.live.read=[['تابش i',iAng.toFixed(0)+'°'],['شکست r',T?rAng.toFixed(0)+'°':'—'],['n آب',S.nWater.toFixed(2)]];
+}
+
+function lineIntersect(p,d,q,s){
+  const rxs=d.x*s.y-d.y*s.x;
+  if(Math.abs(rxs)<1e-8) return null;
+  const qp={x:q.x-p.x,y:q.y-p.y};
+  const t=(qp.x*s.y-qp.y*s.x)/rxs;
+  const u=(qp.x*d.y-qp.y*d.x)/rxs;
+  if(t>0.4 && u>=-0.02 && u<=1.02) return {x:p.x+d.x*t,y:p.y+d.y*t,t};
+  return null;
+}
+
+function drawLens(){
+  const {L,R,T,B}=room();
+  ctx.fillStyle='#080c16'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#121826'; ctx.fillRect(0,B,W,H-B);
+  const cx=W*0.56, cy=H*0.50, f=S.lensF, ap=80;
+  dashLine(L,cy,R,cy,'rgba(180,200,255,.28)');
+  ctx.strokeStyle='rgba(200,215,255,.9)'; ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy-ap); ctx.quadraticCurveTo(cx+20,cy,cx,cy+ap); ctx.quadraticCurveTo(cx-20,cy,cx,cy-ap);
+  ctx.stroke();
+  ctx.fillStyle='rgba(160,190,255,.10)';
+  ctx.beginPath();
+  ctx.moveTo(cx,cy-ap); ctx.quadraticCurveTo(cx+20,cy,cx,cy+ap); ctx.quadraticCurveTo(cx-20,cy,cx,cy-ap);
+  ctx.fill();
+  ctx.fillStyle='#ffb84d';
+  [[cx-f,cy,'F'],[cx+f,cy,'F'],[cx-2*f,cy,'2F'],[cx+2*f,cy,'2F']].forEach(p=>{
+    if(p[0]>L+8 && p[0]<R-8){
+      ctx.beginPath(); ctx.arc(p[0],p[1],4,0,Math.PI*2); ctx.fill();
+      ctx.font='10px Tahoma'; ctx.textAlign='center'; ctx.fillText(p[2], p[0], p[1]+16);
+    }
+  });
+
+  S.lamp.x=clamp(S.lamp.x, L+24, cx-40);
+  S.lamp.y=clamp(S.lamp.y, T+20, B-20);
+  const u=cx-S.lamp.x;
+  let v=null;
+  if(Math.abs(u-f)>1.5) v=(u*f)/(u-f);
+  else v=4000;
+  const m=-v/u;
+  const img={x:cx+v, y:cy + m*(S.lamp.y-cy)};
+
+  const ys=[-60,-30,0,30,60].map(d=>cy+d);
+  const cols=['#00d2ff','#7fd7ff','#e8eef7','#7fd7ff','#00d2ff'];
+  ys.forEach((yL,i)=>{
+    glowLine(S.lamp.x,S.lamp.y, cx,yL, cols[i], 0.2, 1.8);
+    let d={x:img.x-cx, y:img.y-yL};
+    if(d.x<0) d={x:-d.x,y:-d.y};
+    d=norm(d);
+    glowLine(cx,yL, cx+d.x*640, yL+d.y*640, '#00ff88', 0.2, 1.8);
+    spawn(S.lamp.x,S.lamp.y,cx,yL);
+  });
+
+  if(Math.abs(v)<3000){
+    if(v>0){
+      ctx.fillStyle='#00ff88'; ctx.strokeStyle='#00ff88';
+      ctx.beginPath(); ctx.arc(img.x,img.y,6,0,Math.PI*2); ctx.fill();
+      ctx.font='10px Tahoma'; ctx.textAlign='center';
+      ctx.fillText('تصویر', img.x, img.y-12);
+    } else {
+      ctx.save(); ctx.setLineDash([5,4]);
+      ctx.strokeStyle='rgba(0,255,136,.55)'; ctx.lineWidth=1.4;
+      ys.forEach(yL=>{ ctx.beginPath(); ctx.moveTo(cx,yL); ctx.lineTo(img.x,img.y); ctx.stroke(); });
+      ctx.restore();
+      ctx.fillStyle='#00ff88';
+      ctx.beginPath(); ctx.arc(img.x,img.y,6,0,Math.PI*2); ctx.fill();
+      ctx.font='10px Tahoma'; ctx.textAlign='center';
+      ctx.fillText('تصویر مجازی', img.x, img.y-12);
+    }
+  }
+
+  lamp(S.lamp.x,S.lamp.y);
+  ctx.fillStyle='#e8eef7'; ctx.font='11px Tahoma'; ctx.textAlign='center';
+  ctx.fillText('عدسی همگرا', cx, cy-ap-12);
+  ctx.fillText('منبع نور را کامل بکش', S.lamp.x, S.lamp.y+28);
+  S.live.read=[
+    ['u فاصله نور', Math.round(u)],
+    ['v تصویر', Math.abs(v)>2000?'∞':Math.round(v)],
+    ['نوع', Math.abs(v)>2000?'در کانون':(v>0?'واقعی':'مجازی')]
+  ];
+}
+
+function prismPts(){
+  const cx=W*0.50, cy=H*0.52, rot=S.prismAng*Math.PI/180, size=100;
+  const raw=[{x:0,y:-size},{x:size*0.92,y:size*0.62},{x:-size*0.92,y:size*0.62}];
+  const pts=raw.map(p=>({
+    x:cx+p.x*Math.cos(rot)-p.y*Math.sin(rot),
+    y:cy+p.x*Math.sin(rot)+p.y*Math.cos(rot)
+  }));
+  const edges=[[0,1],[1,2],[2,0]].map(([i,j])=>{
+    const a=pts[i], b=pts[j];
+    const t=norm({x:b.x-a.x,y:b.y-a.y});
+    let N={x:t.y,y:-t.x};
+    const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+    if(dot(N,{x:mid.x-cx,y:mid.y-cy})<0) N={x:-N.x,y:-N.y};
+    return {a,b,N};
+  });
+  return {pts,edges,cx,cy};
+}
+function firstHit(P,D,edges,skip){
+  let best=null;
+  edges.forEach((e,i)=>{
+    if(i===skip) return;
+    const s={x:e.b.x-e.a.x,y:e.b.y-e.a.y};
+    const h=lineIntersect(P,D,e.a,s);
+    if(h && (!best || h.t<best.t)) best={...h, edge:i, N:e.N};
+  });
+  return best;
+}
+
+function drawPrism(){
+  ctx.fillStyle='#070910'; ctx.fillRect(0,0,W,H);
+  const {pts,edges,cx,cy}=prismPts();
+  ctx.fillStyle='rgba(180,220,255,.12)';
+  ctx.strokeStyle='rgba(210,235,255,.9)'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y); pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  const start={x:S.beamX,y:clamp(S.beamY,40,H-40)};
+  const dir0={x:1,y:0};
+  glowLine(start.x,start.y, start.x+90, start.y, '#f4f7ff',0.35,4);
+
+  const colors=[
+    ['#ff4d4d',1.514],['#ff8a2a',1.517],['#ffe14d',1.522],
+    ['#4dff88',1.526],['#4db7ff',1.531],['#6a7bff',1.536],['#c06bff',1.541]
+  ];
+  const inHit=firstHit(start,dir0,edges,-1);
+  if(inHit){
+    glowLine(start.x,start.y,inHit.x,inHit.y,'#f4f7ff',0.4,3);
+    colors.forEach(c=>{
+      const T1=refract(dir0,inHit.N,1,c[1]);
+      if(!T1) return;
+      const h2=firstHit({x:inHit.x+T1.x*2,y:inHit.y+T1.y*2},T1,edges,inHit.edge);
+      if(!h2){
+        glowLine(inHit.x,inHit.y,inHit.x+T1.x*220,inHit.y+T1.y*220,c[0],0.25,2);
+        return;
+      }
+      glowLine(inHit.x,inHit.y,h2.x,h2.y,c[0],0.28,2);
+      const T2=refract(T1,h2.N,c[1],1);
+      const out=T2 || reflectVec(T1,h2.N);
+      glowLine(h2.x,h2.y,h2.x+out.x*420,h2.y+out.y*420,c[0],0.4,2.3);
+    });
+  } else {
+    glowLine(start.x,start.y,W-20,start.y,'#f4f7ff',0.25,3);
+  }
+  handle(start.x+10,start.y,'#fff');
+  ctx.fillStyle='#e8eef7'; ctx.font='11px Tahoma'; ctx.textAlign='center';
+  ctx.fillText('منشور شیشه‌ای', cx, Math.min(...pts.map(p=>p.y))-12);
+  ctx.fillStyle='#9eb0c8'; ctx.font='10px Tahoma'; ctx.textAlign='left';
+  ctx.fillText('نور سفید', start.x, start.y-12);
+  S.live.read=[['چرخش',S.prismAng+'°'],['بیشترین خم', 'بنفش'],['کم‌ترین خم','قرمز']];
+}
+
+function drawReadouts(){
+  document.getElementById('readouts').innerHTML=(S.live.read||[]).map(p=>`<span class="chip">${p[0]}: <b>${p[1]}</b></span>`).join('');
+}
+function draw(){
+  if(S.mode==='shadow') drawShadow();
+  else if(S.mode==='mirror') drawMirror();
+  else if(S.mode==='water') drawWater();
+  else if(S.mode==='lens') drawLens();
+  else drawPrism();
+  drawPhotons(); drawReadouts();
+}
+function loop(){ draw(); requestAnimationFrame(loop); }
+
+function canvasPos(e){
+  const r=canvas.getBoundingClientRect();
+  const p=e.touches?e.touches[0]:e;
+  return {x:p.clientX-r.left,y:p.clientY-r.top};
+}
+function near(a,b,d){ return Math.hypot(a.x-b.x,a.y-b.y)<d; }
+function pick(p){
+  if(S.mode==='shadow'){
+    if(near(p,S.lamp,26)) return 'lamp';
+    const bx=S.box;
+    if(p.x>bx.x-10&&p.x<bx.x+bx.w+10&&p.y>bx.y-10&&p.y<bx.y+bx.h+10) return 'box';
+  } else if(S.mode==='mirror'){
+    if(near(p,S.lamp,26)) return 'lamp';
+    if(near(p,S.mirror,42)) return 'mirror';
+  } else if(S.mode==='water'){
+    if(near(p,S.lamp,26)) return 'lampAir';
+    if(Math.abs(p.x-S.hitX)<18 && Math.abs(p.y-H*0.48)<22) return 'hit';
+  } else if(S.mode==='lens'){
+    if(near(p,S.lamp,34)) return 'lamp';
+  } else if(S.mode==='prism'){
+    if(p.x<W*0.32) return 'beam';
+    return 'prismRot';
+  }
+  return null;
+}
+canvas.addEventListener('pointerdown',e=>{
+  S.drag=pick(canvasPos(e));
+  if(S.drag){ canvas.classList.add('dragging'); canvas.setPointerCapture(e.pointerId); }
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!S.drag) return;
+  const p=canvasPos(e);
+  if(S.drag==='lamp' || S.drag==='lampAir'){ S.lamp.x=p.x; S.lamp.y=p.y; }
+  if(S.drag==='box'){ S.box.x=p.x-S.box.w/2; S.box.y=p.y-S.box.h/2; }
+  if(S.drag==='mirror') S.mirror.ang=clamp(Math.atan2(p.y-S.mirror.y,p.x-S.mirror.x)*180/Math.PI,-70,70);
+  if(S.drag==='hit') S.hitX=p.x;
+  if(S.drag==='obj') S.objX=p.x;
+  if(S.drag==='beam'){ S.beamY=p.y; S.beamX=clamp(p.x,16,160); }
+  if(S.drag==='prismRot') S.prismAng=clamp((p.y-H*0.52)*0.2,-28,28);
+});
+canvas.addEventListener('pointerup',()=>{ S.drag=null; canvas.classList.remove('dragging'); });
+canvas.addEventListener('pointercancel',()=>{ S.drag=null; canvas.classList.remove('dragging'); });
+
+document.getElementById('mobileInfoBtn').onclick=()=>document.getElementById('infoModal').classList.add('show');
+document.getElementById('infoModalClose').onclick=()=>document.getElementById('infoModal').classList.remove('show');
+document.getElementById('infoModal').onclick=e=>{ if(e.target.id==='infoModal') e.target.classList.remove('show'); };
+
+applyStation();
+requestAnimationFrame(loop);
+</script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آزمایشگاه شیمی هوشمند</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:tahoma,sans-serif}
+body{min-height:100vh;background:radial-gradient(circle at top,#164b6d,#02050b 75%);color:white;overflow-x:hidden}
+.laboratory{width:100%;min-height:100vh;padding:15px}
+header{text-align:center;margin-bottom:15px}
+header h1{font-size:clamp(22px,3vw,32px);color:#65eaff;text-shadow:0 0 10px #00d9ff,0 0 25px #00d9ff}
+header p{color:#b8edff;font-size:14px}
+
+.lab-container{
+    width:100%;
+    display:grid;
+    grid-template-columns:minmax(200px,1fr) minmax(350px,1.5fr) minmax(220px,1fr);
+    gap:15px;align-items:start;
+}
+.materials-panel,.experiment,.info-panel{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:22px;padding:15px;
+    backdrop-filter:blur(12px);
+    box-shadow:0 0 25px rgba(0,220,255,.15);
+}
+h2{text-align:center;font-size:20px;color:#8ff6ff;margin-bottom:15px}
+
+/* پنل مواد */
+.materials-grid{display:grid;grid-template-columns:1fr;gap:6px}
+.material{
+    height:44px;border-radius:12px;display:flex;align-items:center;
+    justify-content:flex-start;gap:10px;padding:0 12px;cursor:pointer;
+    background:linear-gradient(120deg,rgba(0,220,255,.22),rgba(0,80,255,.14));
+    border:1px solid rgba(80,230,255,.65);transition:.2s;
+    font-size:13px;
+}
+.material:hover{transform:translateX(-3px);box-shadow:0 0 15px #00d9ff;border-color:#5ff0ff}
+.material:active{transform:scale(.97)}
+.material.flash{
+    animation:flashAdd .6s ease;
+}
+@keyframes flashAdd{
+    0%{background:linear-gradient(120deg,#00ff88,rgba(0,220,255,.22));transform:scale(1.05)}
+    100%{background:linear-gradient(120deg,rgba(0,220,255,.22),rgba(0,80,255,.14));transform:scale(1)}
+}
+.material .emoji{font-size:22px}
+.material .name{font-weight:bold}
+
+/* میز آزمایش */
+.table{height:280px;display:flex;justify-content:center;align-items:center;position:relative}
+.beaker{
+    width:160px;height:210px;position:relative;overflow:hidden;
+    border-radius:15px 15px 40px 40px;
+    border:4px solid rgba(255,255,255,.8);
+    background:rgba(255,255,255,.1);
+    box-shadow:inset 0 0 25px white,0 0 35px #00ddff;
+}
+.liquid{
+    position:absolute;bottom:0;left:0;width:100%;height:0%;
+    background:linear-gradient(#50eaff,#0066ff);
+    transition:height .8s,background .8s;
+}
+.bubbles{position:absolute;bottom:20px;left:0;width:100%;height:100%;pointer-events:none}
+.bubble{
+    position:absolute;bottom:0;width:12px;height:12px;border-radius:50%;
+    background:white;box-shadow:0 0 10px white;animation:rise 3s linear infinite;
+}
+@keyframes rise{
+    0%{transform:translateY(50px) scale(.5);opacity:0}
+    30%{opacity:1}
+    100%{transform:translateY(-180px) scale(1.2);opacity:0}
+}
+.sediment{
+    position:absolute;bottom:0;left:0;width:100%;height:0;
+    background:linear-gradient(#b45309,#78350f);
+    transition:height 1s;box-shadow:inset 0 4px 8px rgba(0,0,0,.4);
+}
+.steam{
+    position:absolute;top:-90px;left:0;width:100%;height:100px;
+    opacity:0;pointer-events:none;transition:opacity .5s;
+}
+.steam::before,.steam::after{
+    content:"";position:absolute;bottom:0;width:35px;height:80px;border-radius:50%;
+    background:rgba(255,255,255,.35);filter:blur(12px);animation:steamMove 3s infinite;
+}
+.steam::before{left:45px}
+.steam::after{right:45px;animation-delay:1s}
+@keyframes steamMove{
+    0%{transform:translateY(40px) scale(.7);opacity:0}
+    40%{opacity:1}
+    100%{transform:translateY(-80px) scale(1.2);opacity:0}
+}
+.controls{text-align:center;margin-top:10px}
+button{
+    border:none;padding:10px 16px;margin:5px;border-radius:14px;cursor:pointer;
+    color:white;font-size:14px;font-weight:bold;
+    background:linear-gradient(45deg,#00c6ff,#0066ff);
+    box-shadow:0 0 12px #00d9ff;transition:.25s;
+}
+button:hover{transform:scale(1.05)}
+button.warm{background:linear-gradient(45deg,#ff6b00,#d64545);box-shadow:0 0 12px #ff6b00}
+button.cold{background:linear-gradient(45deg,#4fc3f7,#0288d1);box-shadow:0 0 12px #4fc3f7}
+button.reset{background:linear-gradient(45deg,#78909c,#37474f);box-shadow:0 0 12px #78909c}
+
+.flame{text-align:center;font-size:45px;margin-top:-5px;opacity:.3;transition:.5s;animation:fire 1s infinite}
+@keyframes fire{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+
+.boiling{animation:boiling .25s infinite}
+@keyframes boiling{
+    0%{transform:translateY(0)}
+    50%{transform:translateY(-4px)}
+    100%{transform:translateY(0)}
+}
+.shake{animation:shake .2s infinite}
+@keyframes shake{
+    0%{transform:translateX(0)}
+    25%{transform:translateX(3px)}
+    50%{transform:translateX(-3px)}
+    75%{transform:translateX(3px)}
+    100%{transform:translateX(0)}
+}
+
+.report{
+    margin-top:15px;padding:10px;border-radius:15px;
+    background:rgba(0,0,0,.3);font-size:13px;color:#c8f7ff;
+    min-height:80px;
+}
+.report h3{color:#8ff6ff;font-size:15px;margin-bottom:6px}
+.report p{margin:4px 0}
+
+.thermometer{
+    width:35px;height:150px;margin:15px auto;border-radius:25px;
+    background:#111;border:3px solid white;position:relative;overflow:hidden;
+}
+.temperature-bar{
+    position:absolute;bottom:0;width:100%;height:40%;
+    background:linear-gradient(red,orange);transition:.8s;
+}
+.info{background:rgba(0,0,0,.25);padding:12px;border-radius:18px}
+.info p{
+    margin:10px 0;padding-bottom:7px;
+    border-bottom:1px solid rgba(255,255,255,.15);font-size:14px;
+}
+.info span{color:#6deaff;font-weight:bold}
+
+@media(max-width:1100px){
+    .lab-container{grid-template-columns:1fr 1fr}
+    .info-panel{grid-column:1 / -1}
+    .materials-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+    body{overflow:auto}
+    .lab-container{grid-template-columns:1fr}
+    .materials-grid{grid-template-columns:1fr 1fr}
+    .table{height:240px}
+    .beaker{width:140px;height:190px}
+    .materials-panel,.experiment,.info-panel{padding:10px}
+}
+.home-btn{
+    position:fixed;top:15px;left:0;z-index:9999;padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);color:white;
+    text-decoration:none;font-weight:bold;border-radius:0 15px 15px 0;
+    box-shadow:0 0 15px rgba(0,210,255,.5);transition:.3s;
+}
+.home-btn:hover{padding-right:35px;box-shadow:0 0 25px rgba(0,210,255,.9)}
+</style>
+</head>
+<body>
+
+<div class="laboratory">
+<header>
+    <h1>🧪 آزمایشگاه شیمی هوشمند</h1>
+    <p>روی ماده کلیک کن تا خودش داخل بشر برود؛ واکنش‌ها خودکار تشخیص داده می‌شوند</p>
+</header>
+
+<div class="lab-container">
+
+<!-- پنل مواد -->
+<section class="materials-panel">
+    <h2>مواد شیمیایی</h2>
+    <div class="materials-grid" id="materialsGrid"></div>
+</section>
+
+<!-- میز آزمایش -->
+<section class="experiment">
+    <h2>میز آزمایش</h2>
+    <div class="table">
+        <div class="beaker">
+            <div class="liquid"></div>
+            <div class="bubbles"></div>
+            <div class="steam"></div>
+            <div class="sediment"></div>
+        </div>
+    </div>
+
+    <div class="flame">🔥</div>
+
+    <div class="controls">
+        <button class="warm" onclick="heat()">🔥 گرم کردن</button>
+        <button class="cold" onclick="cool()">❄️ سرد کردن</button>
+        <button class="reset" onclick="resetLab()">🗑 پاک کردن</button>
+    </div>
+
+    <div class="report">
+        <h3>📋 گزارش آزمایش</h3>
+        <p id="reportText">هنوز آزمایشی انجام نشده</p>
+        <p>امتیاز: <span id="score">0</span> ⭐</p>
+    </div>
+</section>
+
+<!-- اطلاعات -->
+<section class="info-panel">
+    <h2>اطلاعات آزمایش</h2>
+    <div class="info">
+        <p>آخرین ماده افزوده: <span id="lastAdded">-</span></p>
+        <p>مواد داخل ظرف: <span id="inside">-</span></p>
+        <p>دما: <span id="temp">25°C</span></p>
+        <p>رنگ محلول: <span id="color">شفاف</span></p>
+        <p>گاز تولید شده: <span id="gas">ندارد</span></p>
+        <p>رسوب: <span id="solid">ندارد</span></p>
+        <p>وضعیت واکنش: <span id="status">آماده آزمایش</span></p>
+    </div>
+    <div class="thermometer">
+        <div class="temperature-bar" id="tempBar"></div>
+    </div>
+</section>
+
+</div>
+</div>
+
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">بازگشت به صفحه اصلی</a>
+</div>
+
+<script>
+// ================== داده‌ها ==================
+
+const MATERIALS = [
+    {name:'آب',               emoji:'💧'},
+    {name:'سرکه',             emoji:'🧴'},
+    {name:'جوش شیرین',        emoji:'⚪'},
+    {name:'نمک',              emoji:'🧂'},
+    {name:'فلز روی',          emoji:'⚙️'},
+    {name:'آهن',              emoji:'🔩'},
+    {name:'اسید',             emoji:'🧪'},
+    {name:'شناساگر pH',       emoji:'🟣'},
+    {name:'آب اکسیژنه',       emoji:'🫧'},
+    {name:'منگنز دی‌اکسید',   emoji:'🟤'},
+    {name:'یدید پتاسیم',      emoji:'⚗️'},
+    {name:'نشاسته',           emoji:'🌾'},
+    {name:'سولفات مس',        emoji:'🔵'},
+    {name:'آمونیاک',          emoji:'🟢'},
+    {name:'منیزیم',           emoji:'✨'},
+    {name:'کلسیم کلرید',      emoji:'🧊'},
+    {name:'سدیم هیدروکسید',   emoji:'🧫'},
+    {name:'مس',               emoji:'🥉'},
+];
+
+// هر واکنش: needs = لیست مواد لازم، بقیه اثرات
+const REACTIONS = [
+    {
+        name:'سرکه + جوش شیرین',
+        needs:['سرکه','جوش شیرین'],
+        gas:'CO₂ دی‌اکسید کربن',
+        color:'سفید کف‌آلود',
+        colorHex:'linear-gradient(#ffffff,#c8e6c9)',
+        tempDelta:-5,
+        bubbles:true,
+        message:'واکنش اسید و باز: تولید گاز CO₂ و کف'
+    },
+    {
+        name:'روی + اسید',
+        needs:['فلز روی','اسید'],
+        gas:'H₂ هیدروژن',
+        bubbles:true,
+        tempDelta:+10,
+        message:'تولید گاز هیدروژن و گرم شدن محلول'
+    },
+    {
+        name:'منیزیم + اسید',
+        needs:['منیزیم','اسید'],
+        gas:'H₂ هیدروژن',
+        bubbles:true,
+        tempDelta:+22,
+        message:'واکنش شدید منیزیم با اسید و گرمای زیاد'
+    },
+    {
+        name:'آهن + اسید',
+        needs:['آهن','اسید'],
+        gas:'H₂ هیدروژن',
+        bubbles:true,
+        tempDelta:+5,
+        message:'واکنش کندتر آهن با اسید'
+    },
+    {
+        name:'آب اکسیژنه + منگنز دی‌اکسید',
+        needs:['آب اکسیژنه','منگنز دی‌اکسید'],
+        gas:'O₂ اکسیژن',
+        bubbles:true,
+        tempDelta:+15,
+        message:'تجزیه سریع آب اکسیژنه با کاتالیزور منگنز دی‌اکسید'
+    },
+    {
+        name:'یدید پتاسیم + آب اکسیژنه',
+        needs:['یدید پتاسیم','آب اکسیژنه'],
+        color:'زرد روشن',
+        colorHex:'linear-gradient(#fff176,#fbc02d)',
+        bubbles:true,
+        tempDelta:+8,
+        message:'تولید ید و تغییر رنگ محلول به زرد'
+    },
+    {
+        name:'نشاسته + یدید پتاسیم',
+        needs:['نشاسته','یدید پتاسیم'],
+        color:'آبی تیره',
+        colorHex:'linear-gradient(#3f51b5,#1a237e)',
+        message:'تشکیل کمپلکس نشاسته-ید: رنگ آبی تیره'
+    },
+    {
+        name:'سولفات مس + آهن',
+        needs:['سولفات مس','آهن'],
+        color:'قهوه‌ای-مسی',
+        colorHex:'linear-gradient(#c62828,#5d4037)',
+        sediment:true,
+        message:'واکنش جانشینی: رسوب مس قرمز-قهوه‌ای'
+    },
+    {
+        name:'سولفات مس + آمونیاک',
+        needs:['سولفات مس','آمونیاک'],
+        color:'آبی روشن',
+        colorHex:'linear-gradient(#64b5f6,#0d47a1)',
+        sediment:true,
+        message:'تشکیل رسوب آبی مس هیدروکسید'
+    },
+    {
+        name:'نمک + شناساگر pH',
+        needs:['نمک','شناساگر pH'],
+        color:'بنفش',
+        colorHex:'linear-gradient(#bb66ff,#5500ff)',
+        message:'تغییر رنگ شناساگر در حضور نمک'
+    },
+    {
+        name:'سدیم هیدروکسید + اسید',
+        needs:['سدیم هیدروکسید','اسید'],
+        tempDelta:+28,
+        message:'واکنش خنثی‌سازی: تولید گرما (گرماده)'
+    },
+    {
+        name:'کلسیم کلرید + آب',
+        needs:['کلسیم کلرید','آب'],
+        tempDelta:+15,
+        message:'حل شدن گرمادهٔ کلسیم کلرید در آب'
+    },
+    {
+        name:'پرمنگنات پتاسیم + اسید',
+        needs:['پرمنگنات پتاسیم','اسید'],
+        color:'بی‌رنگ',
+        colorHex:'linear-gradient(#e3f2fd,#90caf9)',
+        message:'احیای پرمنگنات و بی‌رنگ شدن محلول'
+    },
+];
+
+// پرمنگنات و مس نیستند ولی اسمشون در واکنش‌ها آمده؛ برای رفع اشکال، به لیست اضافه کنیم
+MATERIALS.push({name:'پرمنگنات پتاسیم', emoji:'🟪'});
+
+// ================== وضعیت ==================
+
+let insideMaterials = [];
+let temperature = 25;
+let totalScore = 0;
+let triggered = new Set();
+
+const $ = id => document.getElementById(id);
+
+const liquid    = document.querySelector(".liquid");
+const gasBox    = document.querySelector(".bubbles");
+const sediment  = document.querySelector(".sediment");
+const steam     = document.querySelector(".steam");
+const flame     = document.querySelector(".flame");
+const beaker    = document.querySelector(".beaker");
+
+// ================== ساخت دکمه‌های مواد ==================
+
+const grid = $("materialsGrid");
+MATERIALS.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "material";
+    div.innerHTML = `<span class="emoji">${m.emoji}</span><span class="name">${m.name}</span>`;
+    div.onclick = () => addMaterialToBeaker(m.name, div);
+    grid.appendChild(div);
+});
+
+// ================== افزودن ماده ==================
+
+function addMaterialToBeaker(name, el){
+    insideMaterials.push(name);
+
+    // افکت فلش
+    if(el){
+        el.classList.remove("flash");
+        void el.offsetWidth;
+        el.classList.add("flash");
+    }
+
+    // به‌روزرسانی نمایش‌ها
+    $("inside").innerHTML = insideMaterials.join(" + ");
+    $("lastAdded").innerHTML = name;
+
+    // افزایش حجم مایع
+    let h = 45 + insideMaterials.length * 6;
+    if(h > 88) h = 88;
+    liquid.style.height = h + "%";
+
+    // بررسی واکنش‌ها
+    checkForReactions();
+}
+
+// ================== بررسی خودکار واکنش‌ها ==================
+
+function checkForReactions(){
+    let anyTriggered = false;
+
+    REACTIONS.forEach((rxn, idx) => {
+        if(triggered.has(idx)) return;
+
+        const ok = rxn.needs.every(n => insideMaterials.includes(n));
+        if(ok){
+            triggered.add(idx);
+            runReaction(rxn);
+            anyTriggered = true;
+        }
+    });
+
+    if(!anyTriggered && insideMaterials.length > 0){
+        // اگر هیچ واکنشی نیفتاد، پیام انتظار
+        const hasReactivePair = REACTIONS.some(r =>
+            !triggered.has(REACTIONS.indexOf(r)) &&
+            r.needs.some(n => insideMaterials.includes(n))
+        );
+        if(!hasReactivePair){
+            $("status").innerHTML = "ماده جدید اضافه شد (بدون واکنش)";
+        } else {
+            $("status").innerHTML = "منتظر ماده دیگر برای واکنش...";
+        }
+    }
+}
+
+function runReaction(rxn){
+    // گاز
+    if(rxn.gas) $("gas").innerHTML = rxn.gas;
+
+    // رنگ
+    if(rxn.color){
+        $("color").innerHTML = rxn.color;
+        liquid.style.background = rxn.colorHex;
+    }
+
+    // دما
+    if(rxn.tempDelta){
+        temperature += rxn.tempDelta;
+        if(temperature < 0) temperature = 0;
+        $("temp").innerHTML = temperature + "°C";
+        updateTempBar();
+    }
+
+    // حباب
+    if(rxn.bubbles){
+        createBubbles();
+    }
+
+    // رسوب
+    if(rxn.sediment){
+        sediment.style.height = "35px";
+        $("solid").innerHTML = "رسوب تشکیل شد";
+    }
+
+    // لرزش
+    beaker.classList.add("shake");
+    setTimeout(()=>beaker.classList.remove("shake"), 1500);
+
+    // وضعیت و گزارش
+    $("status").innerHTML = "✅ " + rxn.name;
+    $("reportText").innerHTML = "🧪 " + rxn.message;
+
+    // امتیاز
+    totalScore += 20;
+    $("score").innerHTML = totalScore;
+}
+
+// ================== حباب‌ها ==================
+
+function createBubbles(){
+    for(let i=0;i<25;i++){
+        const b = document.createElement("div");
+        b.className = "bubble";
+        b.style.left = Math.random()*90 + "%";
+        b.style.animationDelay = Math.random()*2 + "s";
+        gasBox.appendChild(b);
+        setTimeout(()=>b.remove(), 4000);
+    }
+}
+
+// ================== دما ==================
+
+function updateTempBar(){
+    let h = 40 + (temperature - 25) * 2;
+    if(h < 5) h = 5;
+    if(h > 95) h = 95;
+    $("tempBar").style.height = h + "%";
+}
+
+function heat(){
+    temperature += 10;
+    updateTempBar();
+    $("temp").innerHTML = temperature + "°C";
+    $("status").innerHTML = "🔥 در حال گرم شدن";
+    flame.style.opacity = "1";
+
+    if(temperature >= 60){
+        steam.style.opacity = "1";
+    }
+    if(temperature >= 80){
+        $("status").innerHTML = "♨️ مایع به جوش آمد";
+        createBubbles();
+        liquid.classList.add("boiling");
+    }
+    if(temperature >= 100){
+        $("status").innerHTML = "♨️ جوش کامل";
+    }
+}
+
+function cool(){
+    temperature -= 10;
+    if(temperature < 0) temperature = 0;
+    updateTempBar();
+    $("temp").innerHTML = temperature + "°C";
+    $("status").innerHTML = "❄️ در حال سرد شدن";
+    flame.style.opacity = "0.3";
+
+    if(temperature < 60){
+        steam.style.opacity = "0";
+    }
+    if(temperature < 80){
+        liquid.classList.remove("boiling");
+    }
+}
+
+// ================== ریست ==================
+
+function resetLab(){
+    insideMaterials = [];
+    temperature = 25;
+    triggered.clear();
+
+    $("inside").innerHTML = "-";
+    $("lastAdded").innerHTML = "-";
+    $("temp").innerHTML = "25°C";
+    $("color").innerHTML = "شفاف";
+    $("gas").innerHTML = "ندارد";
+    $("solid").innerHTML = "ندارد";
+    $("status").innerHTML = "آماده آزمایش";
+    $("reportText").innerHTML = "هنوز آزمایشی انجام نشده";
+    $("score").innerHTML = "0";
+    totalScore = 0;
+
+    liquid.style.height = "0%";
+    liquid.style.background = "linear-gradient(#50eaff,#0066ff)";
+    liquid.classList.remove("boiling");
+
+    sediment.style.height = "0px";
+    steam.style.opacity = "0";
+    flame.style.opacity = "0.3";
+    gasBox.innerHTML = "";
+
+    updateTempBar();
+}
+
+// راه‌اندازی اولیه
+updateTempBar();
+</script>
+
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

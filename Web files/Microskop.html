@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>میکروسکوپ </title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:radial-gradient(circle at top,#101827,#030303 70%);
+    color:white;
+    font-family:tahoma;
+    height:100vh;
+    display:flex;
+    overflow:hidden;
+}
+
+
+#side{
+
+    width:250px;
+    background:#0d0d0d;
+    border-left:1px solid #00d9ff55;
+    overflow:auto;
+    padding:10px;
+
+}
+
+
+.item{
+
+    padding:12px;
+    margin-bottom:8px;
+    border-radius:12px;
+    background:#151515;
+    cursor:pointer;
+    border:1px solid #222;
+    text-align:center;
+    transition:.2s;
+
+}
+
+
+.item:hover{
+
+    border-color:#00e5ff;
+    transform:translateX(-4px);
+
+}
+
+
+.active{
+
+    background:#00d9ff;
+    color:black;
+    font-weight:bold;
+
+}
+
+
+#main{
+
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+}
+
+
+.scope{
+
+    width:540px;
+    height:540px;
+    border-radius:50%;
+    overflow:hidden;
+    background:black;
+    border:14px solid #111;
+    box-shadow:
+    0 0 80px #000 inset,
+    0 0 30px #00e5ff33;
+
+}
+
+
+.scope canvas{
+
+    width:100%;
+    height:100%;
+
+}
+
+
+.panel{
+
+    width:430px;
+    margin-top:20px;
+    background:#111;
+    padding:18px;
+    border-radius:18px;
+    border:1px solid #222;
+
+}
+
+
+.title{
+
+    text-align:center;
+    color:#00e5ff;
+    font-size:22px;
+    margin-bottom:12px;
+
+}
+
+
+label{
+
+    color:#aaa;
+    font-size:13px;
+
+}
+
+
+.slider{
+
+    width:100%;
+    accent-color:#00e5ff;
+    margin:10px 0;
+
+}
+
+
+button{
+
+    width:100%;
+    padding:12px;
+    border:0;
+    border-radius:12px;
+    background:#00d9ff;
+    cursor:pointer;
+    font-weight:bold;
+
+}
+
+
+.info{
+
+    text-align:center;
+    margin-top:10px;
+    color:#aaa;
+
+}
+.home-btn{
+    position:fixed;
+    top:15px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="side"></div>
+
+
+<div id="main">
+
+
+<div class="scope">
+
+<canvas id="c"></canvas>
+
+</div>
+
+
+<div class="panel">
+
+<div class="title" id="name"></div>
+
+<label>تاری / فوکوس</label>
+
+<input id="blurInput"
+type="range"
+min="0"
+max="20"
+value="3"
+class="slider">
+
+
+<button onclick="changeMaterial()">
+تغییر ماده
+</button>
+
+
+<div class="info" id="materialName">
+ماده فعلی: آب
+</div>
+
+
+</div>
+
+
+</div>
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+
+<script>
+
+const samples = [
+  {
+    n: "گلبول قرمز",
+    image: "Microskop/redcell.png"
+  },
+
+  {
+    n: "باکتری",
+    image: "Microskop/bacteria.png"
+  },
+
+  {
+    n: "DNA",
+    image: "Microskop/dna.png"
+  },
+
+  {
+    n: "بلور نمک",
+    image: "Microskop/salt.png"
+  },
+
+  {
+    n: "ویروس",
+    image: "Microskop/virus.png"
+  },
+
+
+];
+
+
+const materials=[
+
+{
+name:"آب",
+speed:.3,
+glow:1,
+size:1
+},
+
+{
+name:"واکنش شیمیایی",
+speed:1.2,
+glow:1.5,
+size:1.3
+},
+
+{
+name:"واکسن",
+speed:.5,
+glow:1.2,
+size:.8
+},
+
+{
+name:"اسید",
+speed:2,
+glow:2,
+size:1.1
+},
+
+{
+name:"خون",
+speed:.7,
+glow:1,
+size:1.5
+},
+
+// {
+// name:"ماده قدرتمند",
+// speed:7,
+// glow:2.4,
+// size:2
+// }
+
+];
+
+
+
+let current=0;
+
+let materialIndex=0;
+
+let currentImage=new Image();
+
+const particles=[];
+
+
+const side=document.getElementById("side");
+
+const canvas=document.getElementById("c");
+
+const ctx=canvas.getContext("2d");
+
+const blurInput=document.getElementById("blurInput");
+
+const title=document.getElementById("name");
+
+const materialName=document.getElementById("materialName");
+
+
+canvas.width=540;
+canvas.height=540;
+
+
+
+samples.forEach((s,i)=>{
+
+
+let div=document.createElement("div");
+
+div.className="item";
+
+div.innerText=s.n;
+
+
+if(i===0)
+div.classList.add("active");
+
+
+
+div.onclick=()=>{
+
+
+current=i;
+
+
+document.querySelectorAll(".item")
+.forEach(e=>e.classList.remove("active"));
+
+
+div.classList.add("active");
+
+
+loadImage();
+
+
+createScene();
+
+
+};
+
+
+side.appendChild(div);
+
+
+});
+
+
+
+
+function loadImage(){
+
+currentImage.src=samples[current].image;
+
+}
+
+
+
+
+function createScene(){
+
+
+particles.length=0;
+
+
+title.innerText=samples[current].n;
+
+
+
+for(let i=0;i<70;i++){
+
+
+particles.push({
+
+x:Math.random()*540,
+
+y:Math.random()*540,
+
+r:Math.random()*15+8,
+
+dx:(Math.random()-.5),
+
+dy:(Math.random()-.5),
+
+rot:Math.random()*6.28
+
+});
+
+
+}
+
+
+}
+
+
+
+
+
+function changeMaterial(){
+
+materialIndex++;
+
+if(materialIndex>=materials.length)
+materialIndex=0;
+
+
+materialName.innerText=
+"ماده فعلی: "+
+materials[materialIndex].name;
+
+
+}
+
+
+
+
+function draw(){
+
+
+requestAnimationFrame(draw);
+
+
+let mat=materials[materialIndex];
+
+
+ctx.clearRect(0,0,540,540);
+
+
+
+ctx.filter=
+`blur(${blurInput.value}px) brightness(${mat.glow})`;
+
+
+
+particles.forEach(p=>{
+
+
+p.x+=p.dx*mat.speed;
+
+p.y+=p.dy*mat.speed;
+
+
+
+if(p.x<0 || p.x>540)
+p.dx*=-1;
+
+
+if(p.y<0 || p.y>540)
+p.dy*=-1;
+
+
+
+ctx.save();
+
+
+
+ctx.translate(p.x,p.y);
+
+ctx.rotate(p.rot);
+
+
+ctx.scale(mat.size,mat.size);
+
+
+
+ctx.drawImage(
+
+currentImage,
+
+-p.r,
+
+-p.r,
+
+p.r*2,
+
+p.r*2
+
+);
+
+
+
+ctx.restore();
+
+
+
+});
+
+
+}
+
+
+
+loadImage();
+
+createScene();
+
+draw();
+
+
+</script>
+
+
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

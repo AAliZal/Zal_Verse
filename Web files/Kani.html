@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05070d">
+<title>آزمایشگاه کانی — خراش و سختی</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #05070d;
+  --panel: rgba(16, 22, 34, 0.9);
+  --border: rgba(100, 130, 170, 0.18);
+  --border-hi: rgba(0, 210, 255, 0.55);
+  --accent: #00d2ff;
+  --accent-2: #00ff88;
+  --gold: #d4a840;
+  --err: #ff4d6d;
+  --text: #e8eef7;
+  --muted: #8896ab;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: Tahoma, sans-serif;
+  background: var(--bg); color: var(--text);
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  position: fixed; inset: 0;
+}
+body {
+  background-image:
+    radial-gradient(ellipse at 15% 10%, rgba(212, 168, 64, 0.06), transparent 55%),
+    radial-gradient(ellipse at 85% 90%, rgba(0, 210, 255, 0.07), transparent 55%);
+  padding: calc(6px + var(--safe-top)) 6px calc(6px + var(--safe-bottom)) 6px;
+}
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 6px;
+  height: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ============ HEADER ============ */
+.header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px;
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+}
+.header-title {
+  font-size: 12.5px; font-weight: 700; color: var(--accent);
+  display: flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+}
+.header-info {
+  font-size: 10.5px; color: var(--muted);
+  padding: 4px 10px;
+  background: rgba(8,12,20,0.7);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  margin-right: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  min-width: 0; flex: 1;
+}
+.header-info b { color: var(--gold); }
+.act-btn {
+  padding: 6px 10px;
+  background: rgba(33,42,58,0.9);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 10px; font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.act-btn:active { transform: scale(0.94); }
+.act-btn.primary {
+  color: #8cd0ff;
+  border-color: rgba(0,210,255,0.35);
+  background: linear-gradient(160deg, rgba(0,60,90,0.9), rgba(16,22,34,0.95));
+}
+
+/* ============ STAGE ============ */
+.stage {
+  position: relative;
+  background:
+    repeating-linear-gradient(92deg,
+      transparent 0px, transparent 6px,
+      rgba(0,0,0,0.06) 6px, rgba(0,0,0,0.06) 7px,
+      transparent 7px, transparent 13px),
+    repeating-linear-gradient(88deg,
+      transparent 0px, transparent 24px,
+      rgba(255,255,255,0.015) 24px, rgba(255,255,255,0.015) 26px),
+    linear-gradient(180deg, #4a3020, #2a1a10);
+  border: 1px solid rgba(212, 168, 64, 0.25);
+  border-radius: 14px;
+  overflow: hidden;
+  min-height: 0;
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(212,168,64,0.1);
+  touch-action: none;
+}
+.stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(255,220,150,0.10), transparent 55%);
+  pointer-events: none;
+}
+
+/* Empty hint */
+.stage-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(255,235,200,0.5);
+  font-size: 12px;
+  text-align: center;
+  padding: 20px;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.stage-empty.hide { opacity: 0; }
+.stage-empty-icon { font-size: 48px; opacity: 0.6; }
+
+/* Mineral items on stage */
+.item {
+  position: absolute;
+  top: 0; left: 0;
+  width: 120px;
+  height: 120px;
+  cursor: grab;
+  touch-action: none;
+  z-index: 5;
+  will-change: transform;
+  transition: filter 0.2s;
+  animation: itemIn 0.35s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes itemIn {
+  0% { transform: translate(var(--tx), var(--ty)) scale(0.4); opacity: 0; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 1; }
+}
+.item svg {
+  width: 100%; height: 100%;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 14px rgba(0,0,0,0.5));
+  transition: filter 0.2s;
+}
+.item.dragging {
+  cursor: grabbing;
+  z-index: 100 !important;
+}
+.item.dragging svg {
+  filter: drop-shadow(0 16px 22px rgba(0,0,0,0.65)) drop-shadow(0 0 24px rgba(0,210,255,0.45));
+}
+.item.bounce {
+  animation: bounceIt 0.5s ease;
+}
+@keyframes bounceIt {
+  0%, 100% { transform: translate(var(--tx), var(--ty)) scale(1); }
+  50% { transform: translate(var(--tx), var(--ty)) scale(1.12); }
+}
+
+.item-name {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  background: rgba(8,12,20,0.85);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.item:hover .item-name,
+.item.dragging .item-name {
+  opacity: 1;
+}
+
+/* Sparks */
+.spark {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: 0 0 10px rgba(255,255,255,0.9), 0 0 4px rgba(0,255,200,0.9);
+}
+
+/* Result banner */
+.result-banner {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  padding: 8px 16px;
+  background: rgba(8,12,20,0.95);
+  border: 2px solid var(--accent-2);
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--accent-2);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 92%;
+  overflow: hidden; text-overflow: ellipsis;
+  transition: all 0.35s cubic-bezier(.34,1.4,.64,1);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.7), 0 0 30px rgba(0,255,136,0.3);
+}
+.result-banner.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.result-banner.fail {
+  color: var(--err);
+  border-color: var(--err);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.7), 0 0 30px rgba(255,77,109,0.3);
+}
+.result-banner.equal {
+  color: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.7), 0 0 30px rgba(212,168,64,0.3);
+}
+
+/* ============ TRAY ============ */
+.tray {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 2px;
+  -webkit-overflow-scrolling: touch;
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 7px;
+}
+.tray::-webkit-scrollbar { display: none; }
+
+.mcard {
+  flex-shrink: 0;
+  width: 66px;
+  height: 88px;
+  background: linear-gradient(160deg, rgba(33,42,58,0.95), rgba(16,22,34,0.98));
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 3px;
+  transition: all 0.16s;
+  position: relative;
+  font-family: inherit;
+  color: var(--text);
+}
+.mcard:active { transform: scale(0.92); }
+.mcard:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-2px);
+}
+.mcard-svg {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+.mcard-svg svg {
+  width: 100%; height: 100%;
+  display: block;
+}
+.mcard-name {
+  font-size: 8.5px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  line-height: 1.2;
+}
+.mcard-h {
+  font-size: 8px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ============ TOAST ============ */
+.toast {
+  position: fixed;
+  bottom: calc(110px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 9px 16px;
+  background: rgba(8,12,20,0.95);
+  border: 1px solid var(--border-hi);
+  border-radius: 11px;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 700;
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s;
+  max-width: 90%;
+  overflow: hidden; text-overflow: ellipsis;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Home */
+.home-btn {
+  position: fixed;
+  bottom: calc(8px + var(--safe-bottom));
+  left: 0;
+  z-index: 9999;
+  padding: 8px 14px 8px 10px;
+  background: linear-gradient(135deg, #00d2ff, #0066ff);
+  color: #fff; text-decoration: none;
+  font-weight: 700; font-size: 10.5px;
+  border-radius: 0 10px 10px 0;
+  box-shadow: 0 4px 14px rgba(0,210,255,0.4);
+  display: flex; align-items: center; gap: 5px;
+}
+.home-btn svg { width: 12px; height: 12px; }
+
+/* Modal */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal.show { display: flex; }
+.modal-content {
+  max-width: 440px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--border-hi);
+  border-radius: 14px;
+  padding: 18px;
+  font-size: 11.5px;
+  line-height: 1.9;
+}
+.modal-content h3 {
+  font-size: 14px; color: var(--accent);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-content p { margin-bottom: 10px; }
+.modal-content b { color: var(--accent-2); }
+.modal-close {
+  width: 100%; margin-top: 12px; padding: 11px;
+  background: linear-gradient(135deg, var(--accent), #0066ff);
+  color: white; border: none; border-radius: 10px;
+  font-family: inherit; font-size: 12px; font-weight: 700;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .header-title .t { display: none; }
+  .header-info { font-size: 10px; padding: 3px 8px; }
+  .act-btn { padding: 5px 8px; font-size: 9.5px; }
+  .mcard { width: 58px; height: 78px; }
+  .mcard-svg { width: 38px; height: 38px; }
+  .mcard-name { font-size: 8px; }
+  .item { width: 100px; height: 100px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="header-title">💎 <span class="t">آزمایشگاه کانی</span></div>
+    <div class="header-info" id="headerInfo">از پایین کانی‌ها را روی میز بکش</div>
+    <button class="act-btn primary" onclick="showHelp()">؟ راهنما</button>
+    <button class="act-btn" onclick="clearStage()">🗑️ پاک کردن</button>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="stage-empty" id="stageEmpty">
+      <div class="stage-empty-icon">🔬</div>
+      <div>
+        از سینی پایین یک کانی بزن تا روی میز بیاید<br>
+        بعد دو کانی را روی هم بکش تا <b style="color:var(--gold)">آزمون خراش</b> انجام شود
+      </div>
+    </div>
+    <div class="result-banner" id="resultBanner"></div>
+  </div>
+
+  <div class="tray" id="tray"></div>
+</div>
+
+<a href="../index.html" class="home-btn">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7"/>
+  </svg>
+  بازگشت
+</a>
+
+<div class="modal" id="helpModal">
+  <div class="modal-content">
+    <h3>📖 راهنمای آزمایشگاه</h3>
+    <p><b>۱.</b> از سینی پایین، روی هر کانی بزن تا روی میز بیاید.</p>
+    <p><b>۲.</b> کانی‌ها را با انگشت یا ماوس بکش و جابه‌جا کن.</p>
+    <p><b>۳.</b> یک کانی را روی کانی دیگر بکش تا آن‌ها را به هم بسایی. اگر سختی یکی بیشتر باشد، روی دیگری <b>خش</b> می‌اندازد و جرقه تولید می‌شود!</p>
+    <p><b>۴.</b> اگر سختی دو کانی برابر باشد، هر دو کمی خش برمی‌دارند.</p>
+    <p><b>۵.</b> برای حذف یک کانی، دوبار روی آن بزن. یا از دکمه «پاک کردن» استفاده کن.</p>
+    <p style="color:var(--gold);font-weight:700">مقیاس سختی موس: تالک ۱ ← الماس ۱۰</p>
+    <button class="modal-close" onclick="hideHelp()">فهمیدم</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   MINERALS — 15 real minerals with distinct crystal shapes
+   ============================================================ */
+const MINERALS = [
+  { id:'talc',     name:'تالک',      en:'Talc',      hardness:1,   color:'#b8d4a8', shape:'lump' },
+  { id:'graphite', name:'گرافیت',    en:'Graphite',  hardness:1.5, color:'#3a3a3a', shape:'plates' },
+  { id:'gypsum',   name:'گچ',        en:'Gypsum',    hardness:2,   color:'#f0ede0', shape:'blade' },
+  { id:'halite',   name:'هالیت',     en:'Halite',    hardness:2.5, color:'#e8eef5', shape:'cube' },
+  { id:'calcite',  name:'کلسیت',     en:'Calcite',   hardness:3,   color:'#f5ebd8', shape:'rhombo' },
+  { id:'fluorite', name:'فلوریت',    en:'Fluorite',  hardness:4,   color:'#8a5ce0', shape:'cube' },
+  { id:'apatite',  name:'آپاتیت',    en:'Apatite',   hardness:5,   color:'#4db8a0', shape:'hexPrism' },
+  { id:'hematite', name:'هماتیت',    en:'Hematite',  hardness:5.5, color:'#7a2018', shape:'kidney' },
+  { id:'feldspar', name:'فلدسپار',   en:'Feldspar',  hardness:6,   color:'#e0a0a8', shape:'blocky' },
+  { id:'magnetite',name:'مگنتیت',    en:'Magnetite', hardness:6,   color:'#1a1a1a', shape:'octa' },
+  { id:'pyrite',   name:'پیریت',     en:'Pyrite',    hardness:6.5, color:'#d4a840', shape:'striCube' },
+  { id:'quartz',   name:'کوارتز',    en:'Quartz',    hardness:7,   color:'#dce8f0', shape:'hexPrism' },
+  { id:'topaz',    name:'توپاز',     en:'Topaz',     hardness:8,   color:'#e8c870', shape:'blocky' },
+  { id:'corundum', name:'کوراندوم',  en:'Corundum',  hardness:9,   color:'#d02040', shape:'barrel' },
+  { id:'diamond',  name:'الماس',     en:'Diamond',   hardness:10,  color:'#e8f4ff', shape:'octa' }
+];
+
+/* ============================================================
+   COLOR HELPERS
+   ============================================================ */
+function hexToRgb(hex) {
+  const h = hex.replace('#','');
+  return { r: parseInt(h.substr(0,2),16), g: parseInt(h.substr(2,2),16), b: parseInt(h.substr(4,2),16) };
+}
+function lighten(hex, amt) {
+  const c = hexToRgb(hex);
+  return `rgb(${Math.min(255, c.r+(255-c.r)*amt)|0},${Math.min(255, c.g+(255-c.g)*amt)|0},${Math.min(255, c.b+(255-c.b)*amt)|0})`;
+}
+function darken(hex, amt) {
+  const c = hexToRgb(hex);
+  return `rgb(${Math.max(0, c.r*(1-amt))|0},${Math.max(0, c.g*(1-amt))|0},${Math.max(0, c.b*(1-amt))|0})`;
+}
+
+/* ============================================================
+   CRYSTAL SHAPE RENDERER
+   ============================================================ */
+let _uid = 0;
+
+function mineralSVG(m, scratches = 0, scale = 1) {
+  const uid = ++_uid;
+  const c = m.color;
+  const l  = lighten(c, 0.55);
+  const l2 = lighten(c, 0.30);
+  const d  = darken(c, 0.35);
+  const d2 = darken(c, 0.55);
+  const d3 = darken(c, 0.72);
+
+  // scratch mark paths (appear on the specimen)
+  const scratchSVG = Array.from({ length: Math.min(scratches, 3) }, (_, i) => {
+    const y = 72 + i * 14;
+    return `<path d="M 38 ${y} Q 70 ${y + 6} 104 ${y - 3}"
+             stroke="rgba(0,0,0,0.55)" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
+  }).join('');
+
+  let defs = '';
+  let body = '';
+
+  switch (m.shape) {
+
+    /* ------- 1. TALC — soft amorphous greenish lump ------- */
+    case 'lump': {
+      defs = `
+        <radialGradient id="lumpG-${uid}" cx="35%" cy="30%">
+          <stop offset="0%" stop-color="${l}"/>
+          <stop offset="55%" stop-color="${c}"/>
+          <stop offset="100%" stop-color="${d2}"/>
+        </radialGradient>
+      `;
+      body = `
+        <path d="M 22 90 Q 14 65 30 48 Q 48 32 74 34 Q 100 36 116 56 Q 124 80 110 100 Q 92 118 66 118 Q 40 118 22 90 Z"
+              fill="url(#lumpG-${uid})" stroke="${d3}" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M 34 74 Q 52 60 76 62 Q 96 64 108 78"
+              fill="none" stroke="${l}" stroke-width="2.5" opacity="0.45" stroke-linecap="round"/>
+        <path d="M 40 96 Q 60 88 84 90 Q 100 92 108 100"
+              fill="none" stroke="${d}" stroke-width="1.6" opacity="0.35" stroke-linecap="round"/>
+        <ellipse cx="58" cy="58" rx="22" ry="13" fill="white" opacity="0.22" transform="rotate(-18 58 58)"/>
+        <ellipse cx="62" cy="54" rx="10" ry="5" fill="white" opacity="0.42" transform="rotate(-18 62 54)"/>
+      `;
+      break;
+    }
+
+    /* ------- 2. GRAPHITE — stacked dark hexagonal flakes ------- */
+    case 'plates': {
+      defs = `
+        <linearGradient id="plateTop-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l2}"/>
+          <stop offset="100%" stop-color="${c}"/>
+        </linearGradient>
+      `;
+      body = `
+        <!-- back plate -->
+        <polygon points="36,52 76,44 112,60 72,68" fill="${d3}"/>
+        <polygon points="36,52 72,68 72,76 36,60" fill="${d2}"/>
+        <polygon points="72,68 112,60 112,68 72,76" fill="${d3}"/>
+        <!-- middle plate -->
+        <polygon points="32,68 74,60 116,76 74,84" fill="${d}"/>
+        <polygon points="32,68 74,84 74,92 32,76" fill="${c}"/>
+        <polygon points="74,84 116,76 116,84 74,92" fill="${d}"/>
+        <!-- front plate -->
+        <polygon points="28,84 72,76 120,92 76,100" fill="url(#plateTop-${uid})"/>
+        <polygon points="28,84 76,100 76,108 28,92" fill="${d}"/>
+        <polygon points="76,100 120,92 120,100 76,108" fill="${d2}"/>
+        <!-- edge lines -->
+        <polygon points="28,84 72,76 120,92 76,100" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+        <polygon points="32,68 74,60 116,76 74,84" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1"/>
+        <polygon points="36,52 76,44 112,60 72,68" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
+        <!-- highlight -->
+        <ellipse cx="56" cy="90" rx="16" ry="5" fill="white" opacity="0.15"/>
+      `;
+      break;
+    }
+
+    /* ------- 3. GYPSUM — white tabular blade crystal ------- */
+    case 'blade': {
+      defs = `
+        <linearGradient id="bladeL-${uid}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${l}"/>
+          <stop offset="100%" stop-color="${c}"/>
+        </linearGradient>
+        <linearGradient id="bladeR-${uid}" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${c}"/>
+          <stop offset="100%" stop-color="${d}"/>
+        </linearGradient>
+      `;
+      body = `
+        <!-- left facet -->
+        <polygon points="70,18 28,62 70,72" fill="url(#bladeL-${uid})" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- right facet -->
+        <polygon points="70,18 112,62 70,72" fill="url(#bladeR-${uid})" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- left lower -->
+        <polygon points="28,62 70,72 70,120" fill="${c}" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- right lower -->
+        <polygon points="112,62 70,72 70,120" fill="${d}" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- internal lines -->
+        <line x1="70" y1="18" x2="70" y2="120" stroke="rgba(0,0,0,0.2)" stroke-width="0.9"/>
+        <line x1="28" y1="62" x2="112" y2="62" stroke="rgba(0,0,0,0.15)" stroke-width="0.9"/>
+        <!-- highlights -->
+        <ellipse cx="54" cy="46" rx="8" ry="14" fill="white" opacity="0.45" transform="rotate(-25 54 46)"/>
+        <ellipse cx="52" cy="42" rx="3" ry="6" fill="white" opacity="0.7" transform="rotate(-25 52 42)"/>
+      `;
+      break;
+    }
+
+    /* ------- 4/6. CUBE — halite & fluorite ------- */
+    case 'cube': {
+      defs = `
+        <linearGradient id="cubeF-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l2}"/>
+          <stop offset="100%" stop-color="${c}"/>
+        </linearGradient>
+        <linearGradient id="cubeT-${uid}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${l}"/>
+          <stop offset="100%" stop-color="${l2}"/>
+        </linearGradient>
+      `;
+      body = `
+        <!-- right face -->
+        <polygon points="85,55 118,42 118,96 85,110" fill="${d}" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- front face -->
+        <polygon points="28,55 85,55 85,110 28,110" fill="url(#cubeF-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top face -->
+        <polygon points="28,55 85,55 118,42 61,42" fill="url(#cubeT-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- highlights -->
+        <ellipse cx="48" cy="78" rx="10" ry="20" fill="white" opacity="0.22"/>
+        <ellipse cx="46" cy="72" rx="4" ry="9" fill="white" opacity="0.4"/>
+        <ellipse cx="72" cy="48" rx="14" ry="4" fill="white" opacity="0.35"/>
+      `;
+      break;
+    }
+
+    /* ------- 5. CALCITE — rhombohedron (slanted parallelepiped) ------- */
+    case 'rhombo': {
+      defs = `
+        <linearGradient id="rhF-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l2}"/>
+          <stop offset="100%" stop-color="${c}"/>
+        </linearGradient>
+        <linearGradient id="rhT-${uid}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${l}"/>
+          <stop offset="100%" stop-color="${l2}"/>
+        </linearGradient>
+      `;
+      body = `
+        <!-- right face (leaning) -->
+        <polygon points="90,50 120,32 120,86 90,105" fill="${d}" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- front face -->
+        <polygon points="25,55 90,50 90,105 25,110" fill="url(#rhF-${uid})" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top face (parallelogram) -->
+        <polygon points="25,55 90,50 120,32 55,37" fill="url(#rhT-${uid})" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- cleavage lines -->
+        <line x1="25" y1="55" x2="90" y2="50" stroke="rgba(0,0,0,0.22)" stroke-width="1"/>
+        <line x1="55" y1="37" x2="90" y2="50" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
+        <!-- highlights -->
+        <ellipse cx="50" cy="78" rx="12" ry="18" fill="white" opacity="0.2"/>
+        <ellipse cx="48" cy="72" rx="5" ry="9" fill="white" opacity="0.35"/>
+        <ellipse cx="72" cy="44" rx="14" ry="4" fill="white" opacity="0.3"/>
+      `;
+      break;
+    }
+
+    /* ------- 7/12. HEX PRISM — apatite & quartz ------- */
+    case 'hexPrism': {
+      defs = `
+        <linearGradient id="hpL-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l}"/>
+          <stop offset="100%" stop-color="${c}"/>
+        </linearGradient>
+        <linearGradient id="hpR-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l2}"/>
+          <stop offset="100%" stop-color="${d}"/>
+        </linearGradient>
+      `;
+      body = `
+        <!-- prism left face -->
+        <polygon points="42,55 70,50 70,118 42,112" fill="url(#hpL-${uid})" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- prism right face -->
+        <polygon points="70,50 98,55 98,112 70,118" fill="url(#hpR-${uid})" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top pyramid left -->
+        <polygon points="42,55 70,20 70,50" fill="${l}" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top pyramid right -->
+        <polygon points="70,20 98,55 70,50" fill="${c}" stroke="${d2}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- horizontal termination line -->
+        <line x1="42" y1="55" x2="98" y2="55" stroke="rgba(0,0,0,0.22)" stroke-width="1"/>
+        <line x1="70" y1="20" x2="70" y2="118" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
+        <!-- highlights -->
+        <ellipse cx="55" cy="80" rx="5" ry="22" fill="white" opacity="0.28"/>
+        <ellipse cx="54" cy="72" rx="2.5" ry="10" fill="white" opacity="0.5"/>
+        <ellipse cx="63" cy="40" rx="4" ry="8" fill="white" opacity="0.35"/>
+      `;
+      break;
+    }
+
+    /* ------- 8. HEMATITE — rounded kidney ore mass ------- */
+    case 'kidney': {
+      defs = `
+        <radialGradient id="kidG-${uid}" cx="38%" cy="32%">
+          <stop offset="0%" stop-color="${l2}"/>
+          <stop offset="55%" stop-color="${c}"/>
+          <stop offset="100%" stop-color="${d3}"/>
+        </radialGradient>
+      `;
+      body = `
+        <path d="M 22 92 Q 12 68 30 46 Q 50 30 76 32 Q 104 34 118 56 Q 124 82 110 102 Q 92 120 62 118 Q 34 116 22 92 Z"
+              fill="url(#kidG-${uid})" stroke="${d3}" stroke-width="1.5" stroke-linejoin="round"/>
+        <ellipse cx="52" cy="62" rx="14" ry="10" fill="${d}" opacity="0.7"/>
+        <ellipse cx="84" cy="76" rx="11" ry="8" fill="${d}" opacity="0.6"/>
+        <ellipse cx="68" cy="96" rx="10" ry="7" fill="${d}" opacity="0.5"/>
+        <ellipse cx="56" cy="52" rx="14" ry="8" fill="white" opacity="0.28"/>
+        <ellipse cx="54" cy="48" rx="6" ry="3" fill="white" opacity="0.5"/>
+      `;
+      break;
+    }
+
+    /* ------- 9/13. BLOCKY — feldspar & topaz ------- */
+    case 'blocky': {
+      defs = `
+        <linearGradient id="bkF-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l2}"/>
+          <stop offset="100%" stop-color="${c}"/>
+        </linearGradient>
+        <linearGradient id="bkS-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${c}"/>
+          <stop offset="100%" stop-color="${d}"/>
+        </linearGradient>
+        <linearGradient id="bkT-${uid}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${l}"/>
+          <stop offset="100%" stop-color="${l2}"/>
+        </linearGradient>
+      `;
+      body = `
+        <!-- right face -->
+        <polygon points="88,52 116,44 116,98 88,108" fill="url(#bkS-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- front face (with vertical cleavage) -->
+        <polygon points="26,58 88,52 88,108 26,114" fill="url(#bkF-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top face -->
+        <polygon points="26,58 88,52 116,44 54,50" fill="url(#bkT-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- cleavage lines on front face -->
+        <line x1="26" y1="58" x2="88" y2="52" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+        <line x1="57" y1="55" x2="57" y2="111" stroke="rgba(0,0,0,0.25)" stroke-width="1"/>
+        <line x1="26" y1="86" x2="88" y2="80" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
+        <!-- highlights -->
+        <ellipse cx="48" cy="80" rx="10" ry="18" fill="white" opacity="0.22"/>
+        <ellipse cx="46" cy="74" rx="4" ry="8" fill="white" opacity="0.38"/>
+      `;
+      break;
+    }
+
+    /* ------- 10/15. OCTAHEDRON — magnetite & diamond ------- */
+    case 'octa': {
+      defs = `
+        <linearGradient id="ocU-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l}"/>
+          <stop offset="100%" stop-color="${c}"/>
+        </linearGradient>
+        <linearGradient id="ocL-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${c}"/>
+          <stop offset="100%" stop-color="${d}"/>
+        </linearGradient>
+        <linearGradient id="ocR-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l2}"/>
+          <stop offset="100%" stop-color="${d2}"/>
+        </linearGradient>
+        <linearGradient id="ocD-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${d}"/>
+          <stop offset="100%" stop-color="${d3}"/>
+        </linearGradient>
+      `;
+      body = `
+        <!-- top-back-right upper -->
+        <polygon points="70,18 108,55 70,70" fill="url(#ocR-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top-front-right -->
+        <polygon points="70,70 108,55 70,88" fill="${d2}" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top-front-left -->
+        <polygon points="70,70 70,88 32,55" fill="url(#ocL-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top-back-left -->
+        <polygon points="70,18 70,70 32,55" fill="url(#ocU-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- bottom-front-right -->
+        <polygon points="70,88 108,55 70,122" fill="url(#ocD-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- bottom-front-left -->
+        <polygon points="70,88 70,122 32,55" fill="${d}" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- facet highlights -->
+        <ellipse cx="60" cy="45" rx="8" ry="12" fill="white" opacity="0.4" transform="rotate(-15 60 45)"/>
+        <ellipse cx="58" cy="42" rx="3" ry="5" fill="white" opacity="0.6" transform="rotate(-15 58 42)"/>
+        <!-- sparkle on top -->
+        <path d="M 70 14 L 72 22 L 80 24 L 72 26 L 70 34 L 68 26 L 60 24 L 68 22 Z"
+              fill="white" opacity="0.75"/>
+      `;
+      break;
+    }
+
+    /* ------- 11. PYRITE — striated golden cube ------- */
+    case 'striCube': {
+      defs = `
+        <linearGradient id="pyF-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l}"/>
+          <stop offset="100%" stop-color="${c}"/>
+        </linearGradient>
+        <linearGradient id="pyT-${uid}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${l}"/>
+          <stop offset="100%" stop-color="${l2}"/>
+        </linearGradient>
+      `;
+      body = `
+        <!-- right face -->
+        <polygon points="86,56 118,44 118,96 86,108" fill="${d}" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- front face -->
+        <polygon points="26,58 86,56 86,108 26,110" fill="url(#pyF-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top face -->
+        <polygon points="26,58 86,56 118,44 58,46" fill="url(#pyT-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- striations on front -->
+        <g stroke="rgba(0,0,0,0.25)" stroke-width="1">
+          <line x1="32" y1="62" x2="80" y2="60"/>
+          <line x1="30" y1="68" x2="84" y2="66"/>
+          <line x1="28" y1="74" x2="85" y2="72"/>
+          <line x1="27" y1="80" x2="86" y2="78"/>
+          <line x1="26" y1="86" x2="86" y2="85"/>
+          <line x1="26" y1="92" x2="86" y2="92"/>
+          <line x1="26" y1="98" x2="86" y2="100"/>
+        </g>
+        <!-- striations on right face -->
+        <g stroke="rgba(0,0,0,0.22)" stroke-width="1">
+          <line x1="88" y1="60" x2="117" y2="48"/>
+          <line x1="88" y1="70" x2="118" y2="58"/>
+          <line x1="88" y1="80" x2="118" y2="70"/>
+          <line x1="87" y1="90" x2="118" y2="82"/>
+          <line x1="86" y1="100" x2="118" y2="92"/>
+        </g>
+        <!-- highlights -->
+        <ellipse cx="48" cy="80" rx="8" ry="18" fill="white" opacity="0.25"/>
+        <ellipse cx="72" cy="50" rx="14" ry="3" fill="white" opacity="0.4"/>
+      `;
+      break;
+    }
+
+    /* ------- 14. CORUNDUM — barrel-shaped hexagonal ------- */
+    case 'barrel': {
+      defs = `
+        <linearGradient id="brL-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${l2}"/>
+          <stop offset="100%" stop-color="${c}"/>
+        </linearGradient>
+        <linearGradient id="brR-${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${c}"/>
+          <stop offset="100%" stop-color="${d2}"/>
+        </linearGradient>
+      `;
+      body = `
+        <!-- left barrel face -->
+        <path d="M 48 40 Q 42 50 42 78 Q 42 106 48 116 L 70 120 L 70 36 Z"
+              fill="url(#brL-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- right barrel face -->
+        <path d="M 92 40 Q 98 50 98 78 Q 98 106 92 116 L 70 120 L 70 36 Z"
+              fill="url(#brR-${uid})" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- top cap -->
+        <path d="M 48 40 Q 70 30 92 40 Q 70 48 48 40 Z"
+              fill="${l}" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- bottom cap -->
+        <path d="M 48 116 Q 70 122 92 116 Q 70 124 48 116 Z"
+              fill="${d3}" stroke="${d3}" stroke-width="1.2" stroke-linejoin="round"/>
+        <!-- vertical facet lines -->
+        <line x1="70" y1="36" x2="70" y2="120" stroke="rgba(0,0,0,0.22)" stroke-width="1"/>
+        <!-- highlights -->
+        <ellipse cx="55" cy="76" rx="4" ry="22" fill="white" opacity="0.35"/>
+        <ellipse cx="54" cy="68" rx="2" ry="10" fill="white" opacity="0.55"/>
+        <ellipse cx="70" cy="38" rx="14" ry="3" fill="white" opacity="0.35"/>
+      `;
+      break;
+    }
+
+    default: {
+      body = `<circle cx="70" cy="70" r="40" fill="${c}"/>`;
+    }
+  }
+
+  return `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <defs>${defs}</defs>
+    <ellipse cx="70" cy="128" rx="42" ry="6" fill="rgba(0,0,0,0.4)"/>
+    ${body}
+    ${scratchSVG}
+  </svg>`;
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  items: [],
+  dragging: null,
+  dragOffset: { x: 0, y: 0 },
+  startItemX: 0,
+  startItemY: 0,
+  startPointerX: 0,
+  startPointerY: 0,
+  pointerId: null
+};
+
+const ITEM_SIZE = () => window.innerWidth <= 600 ? 100 : 120;
+
+/* ============================================================
+   DOM
+   ============================================================ */
+const stageEl = document.getElementById('stage');
+const trayEl = document.getElementById('tray');
+const stageEmpty = document.getElementById('stageEmpty');
+const resultBanner = document.getElementById('resultBanner');
+const headerInfo = document.getElementById('headerInfo');
+
+/* ============================================================
+   RENDER TRAY
+   ============================================================ */
+function renderTray() {
+  trayEl.innerHTML = '';
+  MINERALS.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'mcard';
+    btn.innerHTML = `
+      <div class="mcard-svg">${mineralSVG(m)}</div>
+      <div class="mcard-name">${m.name}</div>
+      <div class="mcard-h">سختی ${m.hardness}</div>
+    `;
+    btn.addEventListener('click', () => addMineral(m));
+    trayEl.appendChild(btn);
+  });
+}
+
+/* ============================================================
+   ADD MINERAL TO STAGE
+   ============================================================ */
+let _itemId = 0;
+
+function addMineral(m) {
+  if (state.items.length >= 6) {
+    toast('⚠️ حداکثر ۶ کانی روی میز!');
+    return;
+  }
+
+  const id = 'item-' + (++_itemId);
+  const size = ITEM_SIZE();
+  const rect = stageEl.getBoundingClientRect();
+
+  // Random position with padding, avoiding the very edges
+  const maxX = Math.max(10, rect.width - size - 10);
+  const maxY = Math.max(10, rect.height - size - 10);
+  const px = 20 + Math.random() * (maxX - 20);
+  const py = 20 + Math.random() * (maxY - 20);
+
+  const el = document.createElement('div');
+  el.className = 'item';
+  el.dataset.itemId = id;
+  el.style.width = size + 'px';
+  el.style.height = size + 'px';
+  el.style.setProperty('--tx', px + 'px');
+  el.style.setProperty('--ty', py + 'px');
+  el.style.transform = `translate(${px}px, ${py}px)`;
+  el.innerHTML = mineralSVG(m) + `<div class="item-name">${m.name}</div>`;
+
+  const item = {
+    id,
+    mineral: m,
+    el,
+    px, py,
+    size,
+    scratches: 0,
+    lastContact: {}
+  };
+
+  el.addEventListener('pointerdown', e => onPointerDown(e, item));
+  el.addEventListener('dblclick', e => {
+    e.preventDefault();
+    removeItem(item);
+  });
+
+  stageEl.appendChild(el);
+  state.items.push(item);
+
+  if (state.items.length > 0) stageEmpty.classList.add('hide');
+  updateHeader();
+}
+
+/* ============================================================
+   REMOVE
+   ============================================================ */
+function removeItem(item) {
+  const idx = state.items.indexOf(item);
+  if (idx >= 0) state.items.splice(idx, 1);
+  item.el.style.transition = 'transform 0.3s, opacity 0.3s';
+  item.el.style.opacity = '0';
+  item.el.style.transform = `translate(${item.px}px, ${item.py + 40}px) scale(0.3)`;
+  setTimeout(() => item.el.remove(), 320);
+  if (state.items.length === 0) stageEmpty.classList.remove('hide');
+  updateHeader();
+}
+
+function clearStage() {
+  state.items.forEach(it => it.el.remove());
+  state.items = [];
+  stageEmpty.classList.remove('hide');
+  updateHeader();
+}
+
+/* ============================================================
+   POINTER DRAG
+   ============================================================ */
+function onPointerDown(e, item) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (state.dragging) return;
+
+  state.dragging = item;
+  state.pointerId = e.pointerId;
+
+  const px = e.clientX;
+  const py = e.clientY;
+  state.startPointerX = px;
+  state.startPointerY = py;
+  state.startItemX = item.px;
+  state.startItemY = item.py;
+
+  try { item.el.setPointerCapture(e.pointerId); } catch (_) {}
+
+  // bring to front
+  stageEl.appendChild(item.el);
+  item.el.classList.add('dragging');
+
+  item.el.addEventListener('pointermove', onPointerMove);
+  item.el.addEventListener('pointerup', onPointerUp);
+  item.el.addEventListener('pointercancel', onPointerUp);
+}
+
+function onPointerMove(e) {
+  if (!state.dragging || e.pointerId !== state.pointerId) return;
+  e.preventDefault();
+
+  const dx = e.clientX - state.startPointerX;
+  const dy = e.clientY - state.startPointerY;
+  const rect = stageEl.getBoundingClientRect();
+  const item = state.dragging;
+  const size = item.size;
+
+  let nx = state.startItemX + dx;
+  let ny = state.startItemY + dy;
+
+  // clamp to stage
+  nx = Math.max(4, Math.min(rect.width - size - 4, nx));
+  ny = Math.max(4, Math.min(rect.height - size - 4, ny));
+
+  item.px = nx;
+  item.py = ny;
+  item.el.style.setProperty('--tx', nx + 'px');
+  item.el.style.setProperty('--ty', ny + 'px');
+  item.el.style.transform = `translate(${nx}px, ${ny}px)`;
+
+  checkContacts(item);
+}
+
+function onPointerUp(e) {
+  const item = state.dragging;
+  if (!item) return;
+
+  item.el.classList.remove('dragging');
+  item.el.removeEventListener('pointermove', onPointerMove);
+  item.el.removeEventListener('pointerup', onPointerUp);
+  item.el.removeEventListener('pointercancel', onPointerUp);
+
+  try { item.el.releasePointerCapture(e.pointerId); } catch (_) {}
+
+  state.dragging = null;
+  state.pointerId = null;
+}
+
+/* ============================================================
+   COLLISION / SCRATCH TEST
+   ============================================================ */
+function checkContacts(mover) {
+  const now = performance.now();
+  const s = mover.size;
+  const cx = mover.px + s / 2;
+  const cy = mover.py + s / 2;
+
+  // threshold: two items overlap if their centers are closer than size * 0.75
+  const contactDist = s * 0.75;
+
+  for (const other of state.items) {
+    if (other === mover) continue;
+
+    const ox = other.px + other.size / 2;
+    const oy = other.py + other.size / 2;
+
+    const dx = ox - cx;
+    const dy = oy - cy;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > contactDist) continue;
+
+    // cooldown
+    const key = mover.id + '-' + other.id;
+    if (mover.lastContact[key] && now - mover.lastContact[key] < 1400) continue;
+    mover.lastContact[key] = now;
+    other.lastContact[key] = now;
+
+    testScratch(mover, other);
+  }
+}
+
+/* ============================================================
+   SCRATCH TEST
+   ============================================================ */
+function testScratch(mover, target) {
+  const mh = mover.mineral.hardness;
+  const th = target.mineral.hardness;
+
+  if (Math.abs(mh - th) < 0.01) {
+    // equal hardness
+    mover.scratches = Math.min(3, mover.scratches + 1);
+    target.scratches = Math.min(3, target.scratches + 1);
+    redraw(mover);
+    redraw(target);
+    emitSparks(mover, target);
+    showBanner(
+      `⚖️ ${mover.mineral.name} و ${target.mineral.name} سختی برابر (${mh}) — هر دو خش برداشتند`,
+      'equal'
+    );
+  } else if (mh > th) {
+    // mover scratches target
+    target.scratches = Math.min(3, target.scratches + 1);
+    redraw(target);
+    emitSparks(target, target);
+    target.el.classList.add('bounce');
+    setTimeout(() => target.el.classList.remove('bounce'), 520);
+    showBanner(
+      `✓ ${mover.mineral.name} (${mh}) روی ${target.mineral.name} (${th}) خش انداخت`,
+      'ok'
+    );
+  } else {
+    // mover is softer — can't scratch
+    mover.el.classList.add('bounce');
+    setTimeout(() => mover.el.classList.remove('bounce'), 520);
+    showBanner(
+      `✗ ${mover.mineral.name} (${mh}) نمی‌تواند روی ${target.mineral.name} (${th}) خش بیندازد`,
+      'fail'
+    );
+  }
+}
+
+function redraw(item) {
+  const nameEl = item.el.querySelector('.item-name');
+  item.el.innerHTML = mineralSVG(item.mineral, item.scratches);
+  if (nameEl) item.el.appendChild(nameEl);
+}
+
+/* ============================================================
+   EFFECTS
+   ============================================================ */
+function emitSparks(a, b) {
+  const rect = stageEl.getBoundingClientRect();
+  const ax = a.px + a.size / 2;
+  const ay = a.py + a.size / 2;
+  const bx = b.px + b.size / 2;
+  const by = b.py + b.size / 2;
+  const mx = (ax + bx) / 2;
+  const my = (ay + by) / 2;
+
+  for (let i = 0; i < 14; i++) {
+    const s = document.createElement('div');
+    s.className = 'spark';
+    s.style.left = mx + 'px';
+    s.style.top = my + 'px';
+    stageEl.appendChild(s);
+
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 60 + Math.random() * 90;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist;
+
+    s.animate([
+      { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0)`, opacity: 0 }
+    ], {
+      duration: 550 + Math.random() * 350,
+      easing: 'cubic-bezier(.2,.8,.3,1)'
+    }).onfinish = () => s.remove();
+  }
+}
+
+/* ============================================================
+   RESULT BANNER
+   ============================================================ */
+let bannerTimer = null;
+function showBanner(text, type) {
+  resultBanner.textContent = text;
+  resultBanner.className = 'result-banner show ' +
+    (type === 'fail' ? 'fail' : type === 'equal' ? 'equal' : '');
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => resultBanner.classList.remove('show'), 3200);
+}
+
+/* ============================================================
+   HEADER INFO
+   ============================================================ */
+function updateHeader() {
+  if (state.items.length === 0) {
+    headerInfo.innerHTML = 'از پایین کانی‌ها را روی میز بکش';
+    return;
+  }
+  const names = state.items.map(i => i.mineral.name).join(' • ');
+  headerInfo.innerHTML = `${state.items.length} کانی: <b>${names}</b>`;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+let toastEl = null, toastTimer = null;
+function toast(text) {
+  if (!toastEl) {
+    toastEl = document.createElement('div');
+    toastEl.className = 'toast';
+    document.body.appendChild(toastEl);
+  }
+  toastEl.textContent = text;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+}
+
+/* ============================================================
+   HELP
+   ============================================================ */
+function showHelp() { document.getElementById('helpModal').classList.add('show'); }
+function hideHelp() { document.getElementById('helpModal').classList.remove('show'); }
+document.getElementById('helpModal').addEventListener('click', e => {
+  if (e.target.id === 'helpModal') hideHelp();
+});
+
+/* ============================================================
+   WINDOW RESIZE — reposition items to stay in bounds
+   ============================================================ */
+window.addEventListener('resize', () => {
+  const rect = stageEl.getBoundingClientRect();
+  const size = ITEM_SIZE();
+  state.items.forEach(item => {
+    item.size = size;
+    item.el.style.width = size + 'px';
+    item.el.style.height = size + 'px';
+    item.px = Math.max(4, Math.min(rect.width - size - 4, item.px));
+    item.py = Math.max(4, Math.min(rect.height - size - 4, item.py));
+    item.el.style.setProperty('--tx', item.px + 'px');
+    item.el.style.setProperty('--ty', item.py + 'px');
+    item.el.style.transform = `translate(${item.px}px, ${item.py}px)`;
+  });
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderTray();
+updateHeader();
+</script>
+
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

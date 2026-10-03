@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width,
+             initial-scale=1.0,
+             maximum-scale=1.0,
+             user-scalable=no,
+             viewport-fit=cover"
+>
+
+<title>شبیه ساز گوارش</title>
+
+<style>
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+:root {
+    --bg-deep: #020408;
+    --neon-blue: #00f2ff;
+    --neon-red: #ff2e63;
+
+    --glass: rgba(255,255,255,0.03);
+
+    --gold-gradient:
+        linear-gradient(
+            135deg,
+            #f6d365 0%,
+            #fda085 100%
+        );
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    background: var(--bg-deep);
+}
+
+body {
+
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+
+    background: var(--bg-deep);
+
+    color: #fff;
+
+    font-family:
+        'Segoe UI',
+        system-ui,
+        Tahoma,
+        sans-serif;
+
+    position: relative;
+
+    perspective: none;
+
+    touch-action: manipulation;
+}
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+body::before {
+
+    content: "";
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+
+    background-image:
+        radial-gradient(
+            circle,
+            #1a1a2e 1px,
+            transparent 1px
+        );
+
+    background-size: 40px 40px;
+
+    opacity: 0.2;
+
+    z-index: 0;
+
+    animation: none;
+}
+
+
+/* =========================================================
+   MAIN CAMERA / APP
+========================================================= */
+
+.app-wrapper {
+
+    position: fixed;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: 95vw;
+    height: 90vh;
+
+    max-width: 1600px;
+    max-height: 900px;
+
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: row;
+
+    background: var(--glass);
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.1);
+
+    border-radius: 40px;
+
+    box-shadow:
+        0 50px 100px
+        rgba(0,0,0,0.8);
+
+    overflow: hidden;
+
+    z-index: 10;
+
+    direction: ltr;
+}
+
+
+/* =========================================================
+   INFORMATION PANEL
+========================================================= */
+
+.info-sidebar {
+
+    order: 1;
+
+    width: 30%;
+
+    min-width: 220px;
+
+    padding: 40px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+
+    z-index: 20;
+
+    background:
+        rgba(0,0,0,0.4);
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    direction: rtl;
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        var(--neon-blue)
+        transparent;
+}
+
+
+.main-title {
+
+    font-size: 38px;
+
+    font-weight: 900;
+
+    background:
+        linear-gradient(
+            to right,
+            #fff,
+            var(--neon-blue)
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+    margin: 0;
+}
+
+
+.info-sidebar > p {
+
+    margin: 0;
+
+    color: #636e72;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   CONTENT CARD
+========================================================= */
+
+#content-card {
+
+    margin-top: 20px;
+
+    transition:
+        transform .4s ease,
+        opacity .4s ease;
+}
+
+
+#part-name {
+
+    color: var(--neon-red);
+
+    font-size: 28px;
+
+    margin:
+        0 0 10px 0;
+}
+
+
+#part-desc {
+
+    color: #bdc3c7;
+
+    line-height: 2;
+
+    font-size: 16px;
+
+    margin: 0;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats-grid {
+
+    display: none;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 15px;
+
+    margin-top: 20px;
+}
+
+
+.stat-box {
+
+    background:
+        rgba(255,255,255,0.05);
+
+    padding: 15px;
+
+    border-radius: 10px;
+}
+
+
+.stat-title {
+
+    color:
+        var(--neon-blue);
+
+    font-size: 12px;
+}
+
+
+.stat-value {
+
+    font-size: 20px;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.glow-button {
+
+    background: transparent;
+
+    border:
+        1px solid
+        var(--neon-blue);
+
+    color:
+        var(--neon-blue);
+
+    padding:
+        15px 30px;
+
+    border-radius: 12px;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    position: relative;
+
+    overflow: hidden;
+
+    transition:
+        .3s;
+
+    font-family:
+        inherit;
+
+    touch-action: manipulation;
+
+    margin-top: auto;
+}
+
+
+.glow-button:hover {
+
+    background:
+        var(--neon-blue);
+
+    color: #000;
+
+    box-shadow:
+        0 0 30px
+        var(--neon-blue);
+}
+
+
+.glow-button:active {
+
+    transform:
+        scale(.97);
+}
+
+
+/* =========================================================
+   LIVE PANEL
+========================================================= */
+
+.live-panel {
+
+    order: 2;
+
+    width: 23%;
+
+    min-width: 190px;
+
+    padding: 20px;
+
+    background:
+        rgba(0,0,0,0.5);
+
+    border-right:
+        1px solid
+        rgba(0,242,255,0.2);
+
+    overflow: hidden;
+
+    display: flex;
+
+    flex-direction: column;
+
+    direction: rtl;
+}
+
+
+.live-panel h2 {
+
+    color:
+        var(--neon-blue);
+
+    font-size: 22px;
+
+    margin:
+        0 0 15px 0;
+
+    flex-shrink: 0;
+}
+
+
+#live-log {
+
+    flex: 1;
+
+    min-height: 0;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    color: #bdc3c7;
+
+    font-size: 14px;
+
+    line-height: 2;
+
+    padding-left: 3px;
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        var(--neon-blue)
+        transparent;
+}
+
+
+.log-item {
+
+    padding: 8px;
+
+    margin-bottom: 8px;
+
+    border-radius: 8px;
+
+    background:
+        rgba(0,242,255,0.08);
+
+    animation:
+        appear .4s;
+}
+
+
+@keyframes appear {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateX(-20px);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateX(0);
+    }
+}
+
+
+/* =========================================================
+   ANATOMY CAMERA
+========================================================= */
+
+.anatomy-viewport {
+
+    order: 3;
+
+    flex: 1;
+
+    width: auto;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    position: relative;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    overflow: hidden;
+
+    border-left:
+        1px solid
+        rgba(255,255,255,0.05);
+
+    direction: ltr;
+
+    isolation: isolate;
+}
+
+
+/* =========================================================
+   SVG LOCKED INSIDE VIEWPORT
+========================================================= */
+
+.anatomy-viewport > svg {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: auto;
+
+    height: 92%;
+
+    max-width: 90%;
+    max-height: 94%;
+
+    display: block;
+
+    transform:
+        translate(-50%, -50%);
+
+    transform-origin:
+        center center;
+
+    overflow: visible;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   ORGAN
+========================================================= */
+
+.organ-group {
+
+    cursor: pointer;
+
+    transition:
+        filter .4s ease,
+        opacity .4s ease;
+}
+
+
+.organ-group:hover {
+
+    filter:
+        drop-shadow(
+            0 0 15px
+            var(--neon-blue)
+        )
+        brightness(1.3);
+}
+
+
+/* =========================================================
+   PARTICLE
+========================================================= */
+
+.particle {
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    background:
+        var(--neon-blue);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    box-shadow:
+        0 0 10px
+        var(--neon-blue);
+
+    z-index: 100;
+
+    transform:
+        translate(-50%, -50%);
+}
+
+
+/* =========================================================
+   HOME BUTTON
+========================================================= */
+
+.home-btn {
+
+    position: fixed;
+
+    top: 0;
+    right: 0;
+
+    z-index: 9999;
+
+    padding:
+        12px 25px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #00d2ff,
+            #0066ff
+        );
+
+    color: white;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    border-radius:
+        15px 0 0 15px;
+
+    box-shadow:
+        0 0 15px
+        rgba(0,210,255,.5);
+
+    transition:
+        .3s;
+
+    font-size: 13px;
+}
+
+
+.home-btn:hover {
+
+    padding-left: 35px;
+
+    box-shadow:
+        0 0 25px
+        rgba(0,210,255,.9);
+}
+
+
+/* =========================================================
+   SMALL LANDSCAPE
+========================================================= */
+
+@media
+(max-width: 900px)
+and (orientation: landscape) {
+
+    .app-wrapper {
+
+        width: 96vw;
+
+        height: 92vh;
+
+        max-width: none;
+        max-height: none;
+
+        border-radius: 18px;
+    }
+
+
+    .info-sidebar {
+
+        width: 30%;
+
+        min-width: 0;
+
+        padding:
+            12px;
+
+        gap: 8px;
+    }
+
+
+    .main-title {
+
+        font-size:
+            clamp(
+                18px,
+                3vw,
+                28px
+            );
+    }
+
+
+    .info-sidebar > p {
+
+        font-size:
+            clamp(
+                9px,
+                1.5vw,
+                13px
+            );
+    }
+
+
+    #content-card {
+
+        margin-top:
+            5px;
+    }
+
+
+    #part-name {
+
+        font-size:
+            clamp(
+                16px,
+                2.5vw,
+                24px
+            );
+    }
+
+
+    #part-desc {
+
+        font-size:
+            clamp(
+                9px,
+                1.4vw,
+                13px
+            );
+
+        line-height:
+            1.6;
+    }
+
+
+    .stats-grid {
+
+        gap: 6px;
+
+        margin-top:
+            7px;
+    }
+
+
+    .stat-box {
+
+        padding: 7px;
+    }
+
+
+    .stat-title {
+
+        font-size: 9px;
+    }
+
+
+    .stat-value {
+
+        font-size: 15px;
+    }
+
+
+    .glow-button {
+
+        padding:
+            9px 10px;
+
+        font-size:
+            clamp(
+                9px,
+                1.4vw,
+                13px
+            );
+    }
+
+
+    .live-panel {
+
+        width: 23%;
+
+        min-width: 0;
+
+        padding: 10px;
+    }
+
+
+    .live-panel h2 {
+
+        font-size:
+            clamp(
+                13px,
+                2vw,
+                19px
+            );
+
+        margin-bottom:
+            7px;
+    }
+
+
+    #live-log {
+
+        font-size:
+            clamp(
+                8px,
+                1.25vw,
+                12px
+            );
+
+        line-height:
+            1.6;
+    }
+
+
+    .log-item {
+
+        padding: 5px;
+
+        margin-bottom: 5px;
+    }
+
+
+    .anatomy-viewport > svg {
+
+        height: 90%;
+
+        max-height: 92%;
+
+        max-width: 88%;
+    }
+
+
+    .home-btn {
+
+        padding:
+            6px 10px;
+
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+   VERY SHORT LANDSCAPE
+========================================================= */
+
+@media
+(max-height: 420px)
+and (orientation: landscape) {
+
+    .app-wrapper {
+
+        width: 98vw;
+
+        height: 95vh;
+
+        border-radius: 12px;
+    }
+
+
+    .info-sidebar {
+
+        width: 29%;
+
+        padding: 7px;
+
+        gap: 5px;
+    }
+
+
+    .live-panel {
+
+        width: 22%;
+
+        padding: 7px;
+    }
+
+
+    .anatomy-viewport > svg {
+
+        height: 94%;
+
+        max-height: 95%;
+
+        max-width: 90%;
+    }
+
+
+    .main-title {
+
+        font-size: 19px;
+    }
+
+
+    #part-name {
+
+        font-size: 16px;
+    }
+
+
+    #part-desc {
+
+        font-size: 8px;
+
+        line-height: 1.5;
+    }
+
+
+    .stats-grid {
+
+        gap: 4px;
+
+        margin-top: 3px;
+    }
+
+
+    .stat-box {
+
+        padding: 5px;
+    }
+
+
+    .stat-title {
+
+        font-size: 8px;
+    }
+
+
+    .stat-value {
+
+        font-size: 12px;
+    }
+
+
+    .glow-button {
+
+        padding: 6px;
+
+        font-size: 9px;
+    }
+
+
+    .live-panel h2 {
+
+        font-size: 13px;
+    }
+
+
+    #live-log {
+
+        font-size: 8px;
+    }
+}
+
+
+/* =========================================================
+   EXTREMELY SHORT LANDSCAPE
+========================================================= */
+
+@media
+(max-height: 330px)
+and (orientation: landscape) {
+
+    .app-wrapper {
+
+        width: 99vw;
+
+        height: 98vh;
+
+        border-radius: 8px;
+    }
+
+
+    .info-sidebar {
+
+        width: 27%;
+
+        padding: 5px;
+    }
+
+
+    .live-panel {
+
+        width: 20%;
+
+        padding: 5px;
+    }
+
+
+    .anatomy-viewport > svg {
+
+        height: 96%;
+
+        max-height: 97%;
+
+        max-width: 92%;
+    }
+
+
+    #part-desc {
+
+        display: none;
+    }
+}
+
+
+/* =========================================================
+   PORTRAIT MESSAGE
+========================================================= */
+
+@media
+(orientation: portrait) {
+
+    body::after {
+
+        content:
+            "لطفاً گوشی را افقی کنید ↔️";
+
+        position: fixed;
+
+        inset: 0;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+
+        text-align: center;
+
+        padding: 30px;
+
+        background:
+            #020408;
+
+        color:
+            var(--neon-blue);
+
+        font-size: 22px;
+
+        font-weight: bold;
+
+        z-index: 999999;
+    }
+
+
+    .app-wrapper {
+
+        visibility: hidden;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     MAIN APP CAMERA
+===================================================== -->
+
+<div class="app-wrapper">
+
+
+    <!-- =================================================
+         INFORMATION
+    ================================================== -->
+
+    <div class="info-sidebar">
+
+
+
+        <p>
+            سیستم جامع آناتومی گوارش
+        </p>
+
+
+        <div id="content-card">
+
+            <h2 id="part-name">
+                آماده به کار...
+            </h2>
+
+            <p id="part-desc">
+                برای آنالیزِ واستخراج داده‌های
+                بیولوژیک، یکی از اندام ها را
+                در ویوپورت انتخاب کنید.
+            </p>
+
+        </div>
+
+
+        <div
+            class="stats-grid"
+            id="stats-area"
+        >
+
+            <div class="stat-box">
+
+                <small class="stat-title">
+                    وضعیت هضم
+                </small>
+
+                <div
+                    id="stat-1"
+                    class="stat-value"
+                >
+                    0%
+                </div>
+
+            </div>
+
+
+            <div class="stat-box">
+
+                <small class="stat-title">
+                    آنزیم فعال
+                </small>
+
+                <div
+                    id="stat-2"
+                    class="stat-value"
+                >
+                    N/A
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button
+            id="start-button"
+            class="glow-button"
+            onclick="initSimulation()"
+        >
+            شروع پروسه شبیه‌سازی بلع
+        </button>
+
+    </div>
+
+
+
+    <!-- =================================================
+         LIVE PANEL
+    ================================================== -->
+
+    <div class="live-panel">
+
+        <h2>
+            🧬 اتفاقات زنده
+        </h2>
+
+        <div id="live-log">
+
+            سیستم آماده است...
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         ANATOMY VIEWPORT
+         این بخش = دوربین واقعی آناتومی
+    ================================================== -->
+
+    <div
+        class="anatomy-viewport"
+        id="viewport"
+    >
+
+        <svg
+            id="anatomy-svg"
+            viewBox="0 0 400 700"
+            preserveAspectRatio="xMidYMid meet"
+            aria-label="سیستم گوارش"
+        >
+
+            <!-- مری -->
+
+            <path
+                id="esophagus-path"
+                d="M200 80 L200 280"
+                fill="none"
+                stroke="rgba(0,242,255,0.1)"
+                stroke-width="12"
+            />
+
+
+            <!-- دهان -->
+
+            <g
+                class="organ-group"
+                onclick="updateInfo('mouth')"
+            >
+
+                <ellipse
+                    cx="200"
+                    cy="70"
+                    rx="30"
+                    ry="15"
+                    fill="url(#grad-red)"
+                />
+
+                <text
+                    x="200"
+                    y="45"
+                    fill="var(--neon-blue)"
+                    font-size="12"
+                    text-anchor="middle"
+                >
+                    دهان
+                </text>
+
+            </g>
+
+
+            <!-- کبد -->
+
+            <g
+                class="organ-group"
+                onclick="updateInfo('liver')"
+            >
+
+                <path
+                    d="
+                        M120 280
+                        Q160 260 210 290
+                        L200 350
+                        Q140 360 110 330
+                        Z
+                    "
+                    fill="url(#grad-liver)"
+                />
+
+                <text
+                    x="140"
+                    y="320"
+                    fill="white"
+                    font-size="10"
+                >
+                    کبد
+                </text>
+
+            </g>
+
+
+            <!-- معده -->
+
+            <g
+                class="organ-group"
+                onclick="updateInfo('stomach')"
+            >
+
+                <path
+                    d="
+                        M200 285
+                        Q260 280 280 330
+                        Q280 380 210 370
+                        Q190 370 200 320
+                    "
+                    fill="url(#grad-stomach)"
+                />
+
+                <text
+                    x="250"
+                    y="330"
+                    fill="white"
+                    font-size="10"
+                >
+                    معده
+                </text>
+
+            </g>
+
+
+            <!-- پانکراس -->
+
+            <g
+                class="organ-group"
+                onclick="updateInfo('pancreas')"
+            >
+
+                <rect
+                    x="180"
+                    y="355"
+                    width="60"
+                    height="15"
+                    rx="5"
+                    fill="#fab1a0"
+                    opacity="0.8"
+                />
+
+            </g>
+
+
+            <!-- روده بزرگ -->
+
+            <g
+                class="organ-group"
+                onclick="updateInfo('large')"
+            >
+
+                <path
+                    d="
+                        M130 380
+                        H270
+                        V520
+                        H130
+                        Z
+                    "
+                    fill="none"
+                    stroke="#636e72"
+                    stroke-width="20"
+                    stroke-linejoin="round"
+                    opacity="0.4"
+                />
+
+                <text
+                    x="200"
+                    y="550"
+                    fill="#636e72"
+                    font-size="12"
+                    text-anchor="middle"
+                >
+                    روده بزرگ
+                </text>
+
+            </g>
+
+
+            <!-- روده باریک -->
+
+            <g
+                class="organ-group"
+                onclick="updateInfo('small')"
+            >
+
+                <rect
+                    x="150"
+                    y="400"
+                    width="100"
+                    height="100"
+                    rx="20"
+                    fill="url(#grad-small)"
+                />
+
+                <text
+                    x="200"
+                    y="455"
+                    fill="#000"
+                    font-size="10"
+                    text-anchor="middle"
+                    font-weight="bold"
+                >
+                    روده کوچک
+                </text>
+
+            </g>
+
+
+            <!-- Gradients -->
+
+            <defs>
+
+                <linearGradient
+                    id="grad-red"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                >
+
+                    <stop
+                        offset="0%"
+                        style="
+                            stop-color:#ff2e63;
+                            stop-opacity:1
+                        "
+                    />
+
+                    <stop
+                        offset="100%"
+                        style="
+                            stop-color:#881337;
+                            stop-opacity:1
+                        "
+                    />
+
+                </linearGradient>
+
+
+                <radialGradient
+                    id="grad-stomach"
+                >
+
+                    <stop
+                        offset="10%"
+                        style="
+                            stop-color:#ff7675
+                        "
+                    />
+
+                    <stop
+                        offset="100%"
+                        style="
+                            stop-color:#d63031
+                        "
+                    />
+
+                </radialGradient>
+
+
+                <linearGradient
+                    id="grad-liver"
+                >
+
+                    <stop
+                        offset="0%"
+                        style="
+                            stop-color:#8b4513
+                        "
+                    />
+
+                    <stop
+                        offset="100%"
+                        style="
+                            stop-color:#4a2508
+                        "
+                    />
+
+                </linearGradient>
+
+
+                <pattern
+                    id="grad-small"
+                    patternUnits="userSpaceOnUse"
+                    width="10"
+                    height="10"
+                >
+
+                    <circle
+                        cx="5"
+                        cy="5"
+                        r="2"
+                        fill="#ff9f9f"
+                    />
+
+                </pattern>
+
+            </defs>
+
+        </svg>
+
+
+
+        <!-- =================================================
+             FOOD
+        ================================================== -->
+
+        <div
+            id="food-particle"
+            class="particle"
+            style="display:none;"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     HOME
+===================================================== -->
+
+<a
+    href="../index.html"
+    class="home-btn"
+>
+    بازگشت به صفحه اصلی
+</a>
+
+
+
+<script>
+
+/* =========================================================
+   DATABASE
+========================================================= */
+
+const db = {
+
+    mouth: {
+
+        name: "دهان",
+
+        desc:
+            "فرآیند گوارش در اینجا با خرد کردن مکانیکی و ترشح آمیلاز شروع می‌شود.",
+
+        stat1: "۱۰٪ هضم شده",
+
+        stat2: "آمیلاز"
+    },
+
+
+    liver: {
+
+        name: "کبد",
+
+        desc:
+            "بزرگترین غده بدن که وظیفه تولید صفرا و فیلتر کردن سموم را دارد.",
+
+        stat1: "در حال پردازش",
+
+        stat2: "آنزیم‌های کبدی"
+    },
+
+
+    stomach: {
+
+        name: "معده",
+
+        desc:
+            "محیطی اسیدی برای درهم‌شکستن پروتئین‌ها و ضدعفونی کردن غذا.",
+
+        stat1: "۵۰٪ هضم شده",
+
+        stat2: "پپسین / HCl"
+    },
+
+
+    small: {
+
+        name: "روده باریک",
+
+        desc:
+            "ایستگاه اصلی جذب مواد مغذی و ورود آن‌ها به جریان خون.",
+
+        stat1: "۹۰٪ جذب شده",
+
+        stat2: "پپتیداز"
+    },
+
+
+    large: {
+
+        name: "روده بزرگ",
+
+        desc:
+            "محل بازجذب آب و املاح و فشرده‌سازی مواد زائد.",
+
+        stat1: "مرحله نهایی",
+
+        stat2: "ویتامین K"
+    }
+
+};
+
+
+/* =========================================================
+   LIVE LOG
+========================================================= */
+
+function addLive(text) {
+
+    const log =
+        document.getElementById("live-log");
+
+
+    const item =
+        document.createElement("div");
+
+
+    item.className =
+        "log-item";
+
+
+    item.textContent =
+        "🔹 " + text;
+
+
+    log.appendChild(item);
+
+
+    log.scrollTop =
+        log.scrollHeight;
+}
+
+
+/* =========================================================
+   ORGAN INFORMATION
+========================================================= */
+
+function updateInfo(key) {
+
+    const data =
+        db[key];
+
+
+    if (!data)
+        return;
+
+
+    document.getElementById(
+        "part-name"
+    ).innerText =
+        data.name;
+
+
+    document.getElementById(
+        "part-desc"
+    ).innerText =
+        data.desc;
+
+
+    document.getElementById(
+        "stats-area"
+    ).style.display =
+        "grid";
+
+
+    document.getElementById(
+        "stat-1"
+    ).innerText =
+        data.stat1;
+
+
+    document.getElementById(
+        "stat-2"
+    ).innerText =
+        data.stat2;
+
+
+    const card =
+        document.getElementById(
+            "content-card"
+        );
+
+
+    card.style.transform =
+        "scale(1.03)";
+
+
+    setTimeout(() => {
+
+        card.style.transform =
+            "scale(1)";
+
+    }, 400);
+}
+
+
+/* =========================================================
+   SIMULATION
+========================================================= */
+
+let simulationRunning =
+    false;
+
+
+let simulationTimer =
+    null;
+
+
+function initSimulation() {
+
+    if (simulationRunning)
+        return;
+
+
+    simulationRunning =
+        true;
+
+
+    const particle =
+        document.getElementById(
+            "food-particle"
+        );
+
+
+    const log =
+        document.getElementById(
+            "live-log"
+        );
+
+
+    /* پاک کردن گزارش قبلی */
+
+    log.innerHTML =
+        "سیستم آماده است...";
+
+
+    particle.style.display =
+        "block";
+
+
+    /*
+       مسیرها نسبت به خود viewport
+       محاسبه می‌شوند.
+    */
+
+    const steps = [
+
+        {
+            t: 10,
+            l: 50
+        },
+
+        {
+            t: 40,
+            l: 50
+        },
+
+        {
+            t: 45,
+            l: 58
+        },
+
+        {
+            t: 58,
+            l: 50
+        },
+
+        {
+            t: 58,
+            l: 55
+        },
+
+        {
+            t: 69,
+            l: 55
+        },
+
+        {
+            t: 69,
+            l: 41
+        },
+
+        {
+            t: 53,
+            l: 41
+        },
+
+        {
+            t: 53,
+            l: 58
+        },
+
+        {
+            t: 74,
+            l: 58
+        },
+
+        {
+            t: 74,
+            l: 40
+        }
+
+    ];
+
+
+    const events = [
+
+        "لقمه وارد دهان شد",
+
+        "جویدن شروع شد و بزاق با غذا ترکیب شد",
+
+        "لقمه از مری عبور می‌کند",
+
+        "غذا وارد معده شد",
+
+        "اسید معده در حال تجزیه غذا است",
+
+        "آنزیم پپسین پروتئین‌ها را تجزیه می‌کند",
+
+        "غذا وارد روده باریک شد",
+
+        "جذب مواد مغذی شروع شد",
+
+        "مواد باقی‌مانده وارد روده بزرگ شدند",
+
+        "آب از مواد زائد جذب می‌شود",
+
+        "فرآیند گوارش تمام شد"
+
+    ];
+
+
+    let index = 0;
+
+
+    function move() {
+
+        if (
+            index >=
+            steps.length
+        ) {
+
+            particle.style.display =
+                "none";
+
+
+            simulationRunning =
+                false;
+
+
+            simulationTimer =
+                null;
+
+
+            return;
+        }
+
+
+        const step =
+            steps[index];
+
+
+        /*
+           چون particle داخل anatomy-viewport
+           قرار دارد، درصدها فقط نسبت به
+           همان مستطیل محاسبه می‌شوند.
+        */
+
+        particle.style.transition =
+            "left 1.5s ease-in-out, top 1.5s ease-in-out";
+
+
+        particle.style.left =
+            step.l + "%";
+
+
+        particle.style.top =
+            step.t + "%";
+
+
+        addLive(
+            events[index]
+        );
+
+
+        index++;
+
+
+        simulationTimer =
+            setTimeout(
+                move,
+                1500
+            );
+    }
+
+
+    move();
+}
+
+
+/* =========================================================
+   STOP SIMULATION WHEN PAGE CHANGES
+========================================================= */
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if (
+            document.hidden &&
+            simulationTimer
+        ) {
+
+            clearTimeout(
+                simulationTimer
+            );
+
+            simulationTimer =
+                null;
+        }
+
+    }
+);
+
+
+/* =========================================================
+   KEEP APP CENTERED
+========================================================= */
+
+function lockAppPosition() {
+
+    const app =
+        document.querySelector(
+            ".app-wrapper"
+        );
+
+
+    if (!app)
+        return;
+
+
+    /*
+       جلوگیری از تغییر مکان ناخواسته
+       در WebView / APK
+    */
+
+    app.style.left =
+        "50%";
+
+
+    app.style.top =
+        "50%";
+
+
+    app.style.transform =
+        "translate(-50%, -50%)";
+}
+
+
+window.addEventListener(
+    "resize",
+    lockAppPosition
+);
+
+
+window.addEventListener(
+    "orientationchange",
+    () => {
+
+        setTimeout(
+            lockAppPosition,
+            100
+        );
+
+    }
+);
+
+
+lockAppPosition();
+
+</script>
+
+
+<script src="MusicPlayer.js"></script>
+
+</body>
+</html>

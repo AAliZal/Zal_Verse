@@ -1,0 +1,461 @@
+<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>شبیه ساز خون</title><style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:tahoma}
+body{background:#080b16;color:#fff;overflow:hidden}
+#lab{position:relative;width:100vw;height:100vh;background:radial-gradient(circle at center,#111827,#030712)}
+#toolbar{position:absolute;top:15px;right:15px;width:270px;background:#111827e8;border:2px solid #dc2626;border-radius:15px;padding:15px;z-index:100}
+#toolbar h2{font-size:20px;color:#ef4444;text-align:center;margin-bottom:10px}
+#toolbar button{width:100%;margin:5px 0;padding:10px;border:none;border-radius:8px;font-weight:bold;font-size:14px;cursor:pointer;color:#fff;transition:.3s}
+#addBacteria{background:#16a34a}
+#cutVein{background:#dc2626}
+#vaccine{background:#2563eb}
+#reset{background:#6b7280}
+#toolbar button:hover{transform:scale(1.03)}
+#stats{margin-top:12px;border-top:1px solid #374151;padding-top:10px;font-size:13px;line-height:2}
+#stats div{display:flex;justify-content:space-between}
+.val{color:#38bdf8;font-weight:bold}
+.speed-row{display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;color:#cbd5e1}
+#speedSlider{width:100%;accent-color:#38bdf8;cursor:pointer}
+#info{position:absolute;left:20px;top:20px;width:300px;background:#111827ee;border:2px solid #38bdf8;border-radius:15px;padding:15px;display:none;z-index:120}
+#info h3{text-align:center;color:#38bdf8;margin-bottom:10px}
+#info p{font-size:13px;line-height:2}
+#message{position:absolute;left:50%;top:20px;transform:translateX(-50%);background:#111827;border:2px solid #38bdf8;padding:12px 25px;border-radius:12px;font-weight:bold;display:none;z-index:200}
+#veinBox{position:absolute;left:0;top:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center}
+#vein{position:relative;width:92%;height:320px;border-radius:180px;overflow:hidden;background:linear-gradient(180deg,#6b0000,#980d0d,#6b0000);border:8px solid #a11d1d;box-shadow:0 0 40px rgba(255,0,0,.35) inset,0 0 30px rgba(255,0,0,.25)}
+#flow{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);animation:flow 2.5s linear infinite}
+@keyframes flow{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.cell{position:absolute;border-radius:50%;cursor:pointer;transition:.2s;will-change:left,top}
+.rbc{width:20px;height:20px;background:radial-gradient(circle,#ff7b7b,#b00000);box-shadow:0 0 8px #ff0000}
+.wbc{width:28px;height:28px;background:#f8fafc;border:3px solid #d1d5db;box-shadow:0 0 12px #fff}
+.plt{width:10px;height:10px;background:#facc15;box-shadow:0 0 8px #fde047}
+.bac{width:22px;height:22px;background:#22c55e;border-radius:45% 55% 60% 40%;box-shadow:0 0 10px #22c55e}
+.oxygen{position:absolute;width:6px;height:6px;background:#38bdf8;border-radius:50%;opacity:.8;will-change:left}
+.co2{position:absolute;width:6px;height:6px;background:#6b7280;border-radius:50%;opacity:.8;will-change:left}
+.clot{position:absolute;width:18px;height:18px;background:#facc15;border-radius:50%;box-shadow:0 0 10px gold}
+.hit{animation:hit .4s}
+@keyframes hit{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+.dead{animation:dead .6s forwards}
+@keyframes dead{to{opacity:0;transform:scale(0)}}
+.selected{outline:3px solid #38bdf8;transform:scale(1.2)}
+.antibody{width:14px;height:14px;border:2px solid #60a5fa;border-radius:50%;box-shadow:0 0 10px #38bdf8}
+.home-btn{position:fixed;top:15px;left:0;z-index:9999;padding:12px 25px;background:linear-gradient(135deg,#00d2ff,#0066ff);color:white;text-decoration:none;font-weight:bold;border-radius:0 15px 15px 0;box-shadow:0 0 15px rgba(0,210,255,.5);transition:.3s;}
+.home-btn:hover{padding-right:35px;box-shadow:0 0 25px rgba(0,210,255,.9);}
+</style></head><body>
+
+<div id="lab">
+
+<div id="toolbar">
+<h2>🩸 آزمایشگاه خون</h2>
+
+<button id="addBacteria">🦠 ورود باکتری</button>
+<button id="cutVein">🩹 ایجاد زخم</button>
+<button id="vaccine">💉 تزریق واکسن</button>
+<button id="reset">🔄 بازنشانی</button>
+
+<div id="stats">
+<div>گلبول قرمز <span class="val" id="rbcCount">0</span></div>
+<div>گلبول سفید <span class="val" id="wbcCount">0</span></div>
+<div>پلاکت <span class="val" id="pltCount">0</span></div>
+<div>باکتری <span class="val" id="bacCount">0</span></div>
+<div>اکسیژن خون <span class="val" id="oxyVal">98%</span></div>
+<div>وضعیت ایمنی <span class="val" id="immuneState">عادی</span></div>
+</div>
+
+<div style="margin-top:12px;border-top:1px solid #374151;padding-top:10px;">
+    <div class="speed-row">
+        <span>⚡ سرعت شبیه‌سازی</span>
+        <span class="val" id="speedVal">×1</span>
+    </div>
+    <input type="range" id="speedSlider" min="0.2" max="3" step="0.2" value="1">
+</div>
+</div>
+
+<div id="message"></div>
+
+<div id="info">
+<h3 id="infoTitle">سلول</h3>
+<p id="infoText"></p>
+</div>
+
+<div id="veinBox">
+<div id="vein">
+<div id="flow"></div>
+</div>
+</div>
+
+</div>
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">بازگشت به صفحه اصلی</a>
+</div>
+<script>
+const vaccineBtn=document.getElementById("vaccine");
+const woundBtn=document.getElementById("cutVein");
+const bacteriaBtn=document.getElementById("addBacteria");
+const resetBtn=document.getElementById("reset");
+const vein=document.getElementById("vein");
+const msg=document.getElementById("message");
+const info=document.getElementById("info");
+const title=document.getElementById("infoTitle");
+const text=document.getElementById("infoText");
+
+let R=[],W=[],P=[],B=[],AB=[],OX=[];
+let vaccine=false,wound=false;
+let messages=[];
+let woundX=vein.clientWidth*.45;
+let woundY=vein.clientHeight/2;
+let healing=false;
+
+// ---------- بهینه‌سازی: کش ابعاد ----------
+let veinW=vein.clientWidth;
+let veinH=vein.clientHeight;
+window.addEventListener("resize",()=>{
+    veinW=vein.clientWidth;
+    veinH=vein.clientHeight;
+});
+
+// اندازه‌های ثابت هر نوع سلول (به جای offsetHeight)
+const SIZES={rbc:20,wbc:28,plt:10,bac:22,antibody:14};
+
+// ---------- ضریب سرعت ----------
+let speedMultiplier=1;
+const speedSlider=document.getElementById("speedSlider");
+const speedVal=document.getElementById("speedVal");
+speedSlider.addEventListener("input",()=>{
+    speedMultiplier=parseFloat(speedSlider.value);
+    speedVal.innerText="×"+speedMultiplier.toFixed(1).replace(".0","");
+});
+
+
+function rnd(a,b){
+    return Math.random()*(b-a)+a;
+}
+
+
+function message(t,c="#38bdf8"){
+    messages.push({t,c});
+    if(messages.length>2)
+        messages.shift();
+
+    msg.innerHTML=messages.map(x=>`
+<div style="border-right:4px solid ${x.c};padding:4px;margin:3px">
+${x.t}
+</div>`).join("");
+    msg.style.display="block";
+}
+
+
+function showInfo(t,d){
+    title.innerText=t;
+    text.innerHTML=d;
+    info.style.display="block";
+}
+
+
+function createCell(type,x,y){
+    let e=document.createElement("div");
+    e.className="cell "+type;
+    e.style.left=x+"px";
+    e.style.top=y+"px";
+
+    // ذخیره مقادیر روی آبجکت (بدون خواندن از DOM)
+    e.x=x;
+    e.y=y;
+    e.vx=rnd(.7,2);
+    e.vy=rnd(-.5,.5);
+    e.sz=SIZES[type]||20;
+
+    e.onclick=()=>{
+        document.querySelectorAll(".selected")
+        .forEach(a=>a.classList.remove("selected"));
+        e.classList.add("selected");
+
+        if(type=="rbc")
+            showInfo("🔴 گلبول قرمز","حمل اکسیژن توسط هموگلوبین<br>انتقال دی اکسید کربن به ریه");
+        if(type=="wbc")
+            showInfo("⚪ گلبول سفید","دفاع بدن در برابر باکتری‌ها و ویروس‌ها");
+        if(type=="plt")
+            showInfo("🟡 پلاکت","کمک به ایجاد لخته خون و جلوگیری از خونریزی");
+        if(type=="bac")
+            showInfo("🦠 باکتری","عامل بیگانه که توسط سیستم ایمنی نابود می‌شود");
+    };
+
+    vein.appendChild(e);
+    return e;
+}
+
+
+
+function createBlood(){
+    for(let i=0;i<120;i++){
+        R.push(createCell("rbc",rnd(0,veinW-25),rnd(20,veinH-25)));
+    }
+    for(let i=0;i<12;i++){
+        W.push(createCell("wbc",rnd(0,veinW-30),rnd(20,veinH-30)));
+    }
+    for(let i=0;i<35;i++){
+        P.push(createCell("plt",rnd(0,veinW-15),rnd(20,veinH-15)));
+    }
+
+    rbcCount.innerText=R.length;
+    wbcCount.innerText=W.length;
+    pltCount.innerText=P.length;
+}
+
+
+createBlood();
+
+
+
+// ---------- اکسیژن‌ها: یکپارچه در حلقه اصلی ----------
+function spawnOxygen(){
+    let o=document.createElement("div");
+    o.className=Math.random()>.3?"oxygen":"co2";
+    o.x=-10;
+    o.y=rnd(30,veinH-30);
+    o.speed=2+rnd(0,2);
+    o.style.left=o.x+"px";
+    o.style.top=o.y+"px";
+    vein.appendChild(o);
+    OX.push(o);
+}
+
+setInterval(spawnOxygen,200);
+
+
+
+// ---------- حلقه اصلی ----------
+let lastT=performance.now();
+
+function stepCell(c,dt,sm){
+    if(c.state==="attached")return;
+
+    c.x+=c.vx*dt*sm;
+    c.y+=c.vy*dt*sm;
+
+    if(c.y<10||c.y>veinH-c.sz-10)c.vy*=-1;
+    if(c.x>veinW+30)c.x=-30;
+
+    c.style.left=c.x+"px";
+    c.style.top=c.y+"px";
+}
+
+
+function moveBlood(now){
+    // delta time نرمال‌شده روی 60fps
+    let dt=Math.min(48,now-lastT)/16.67;
+    if(dt<=0)dt=1;
+    lastT=now;
+
+    const sm=speedMultiplier;
+
+    // همه سلول‌ها در یک حلقه
+    for(let i=0;i<R.length;i++)stepCell(R[i],dt,sm);
+    for(let i=0;i<W.length;i++)stepCell(W[i],dt,sm);
+    for(let i=0;i<P.length;i++)stepCell(P[i],dt,sm);
+    for(let i=0;i<B.length;i++)stepCell(B[i],dt,sm);
+    for(let i=0;i<AB.length;i++)stepCell(AB[i],dt,sm);
+
+    // اکسیژن‌ها
+    for(let i=OX.length-1;i>=0;i--){
+        const o=OX[i];
+        o.x+=o.speed*dt*sm;
+        if(o.x>veinW+20){
+            o.remove();
+            OX.splice(i,1);
+        }else{
+            o.style.left=o.x+"px";
+        }
+    }
+
+    requestAnimationFrame(moveBlood);
+}
+
+requestAnimationFrame(moveBlood);
+
+message("🩸 جریان خون شروع شد");
+setTimeout(()=>{
+    message("💡 برای اطلاعات روی هر سلول کلیک کنید");
+},1500);
+
+
+// ---------- باکتری ----------
+bacteriaBtn.onclick=()=>{
+    for(let i=0;i<5;i++){
+        let b=createCell("bac",rnd(-100,-20),rnd(40,veinH-40));
+        b.vx=1.5;
+        b.vy=rnd(-.4,.4);
+        B.push(b);
+    }
+    immuneState.innerText="در حال مبارزه";
+    immuneState.style.color="#f97316";
+    bacCount.innerText=B.length;
+    message("🟠 وضعیت ایمنی: در حال مبارزه؛ گلبول‌های سفید وارد عمل شدند","#f97316");
+    message("🦠 باکتری وارد خون شد؛ سیستم ایمنی فعال شد","#22c55e");
+};
+
+
+// ---------- واکسن ----------
+vaccineBtn.onclick=()=>{
+    if(vaccine){
+        message("💉 واکسن قبلاً فعال شده است","#2563eb");
+        return;
+    }
+    vaccine=true;
+    immuneState.innerText="واکسینه شده";
+    message("💉 واکسن فعال شد! بدن آماده مقابله با عوامل بیماری‌زا است","#2563eb");
+
+    for(let i=0;i<20;i++){
+        let a=createCell("antibody",rnd(0,veinW),rnd(20,veinH-20));
+        a.vx=rnd(.5,1.5);
+        a.vy=rnd(-.5,.5);
+        AB.push(a);
+    }
+};
+
+
+// ---------- زخم ----------
+woundBtn.onclick=()=>{
+    if(wound)return;
+    wound=true;
+
+    woundX=veinW*.40;
+    woundY=veinH/2;
+
+    let cut=document.createElement("div");
+    cut.id="cut";
+    cut.style.left=woundX+"px";
+    cut.style.top=(woundY-35)+"px";
+    cut.style.position="absolute";
+    cut.style.width="12px";
+    cut.style.height="70px";
+    cut.style.background="#111";
+    cut.style.borderRadius="10px";
+    cut.style.zIndex="50";
+    vein.appendChild(cut);
+
+    message("🩹 رگ آسیب دید؛ پلاکت‌ها به سمت زخم حرکت کردند","#f59e0b");
+};
+
+
+
+// ---------- سیستم ایمنی ----------
+function immuneSystem(){
+    // باکتری‌ها به نزدیک‌ترین WBC
+    for(let bi=B.length-1;bi>=0;bi--){
+        const b=B[bi];
+        let target=null,dist=9999;
+
+        for(let wi=0;wi<W.length;wi++){
+            const w=W[wi];
+            const dx=w.x-b.x,dy=w.y-b.y;
+            const d=Math.sqrt(dx*dx+dy*dy);
+            if(d<dist){dist=d;target=w;}
+        }
+
+        if(target){
+            const speed=vaccine?7:2;
+            if(dist>0){
+                b.x+=(target.x-b.x)/dist*speed;
+                b.y+=(target.y-b.y)/dist*speed;
+                b.style.left=b.x+"px";
+                b.style.top=b.y+"px";
+            }
+            if(dist<25){
+                b.classList.add("dead");
+                setTimeout(()=>b.remove(),500);
+                B.splice(bi,1);
+                bacCount.innerText=B.length;
+                message("⚪ گلبول سفید باکتری را نابود کرد","#10b981");
+            }
+        }
+    }
+
+    // آنتی‌بادی‌ها
+    for(let ai=0;ai<AB.length;ai++){
+        const a=AB[ai];
+        for(let bi=0;bi<B.length;bi++){
+            const b=B[bi];
+            const dx=a.x-b.x,dy=a.y-b.y;
+            const d=Math.sqrt(dx*dx+dy*dy);
+            if(d<30){
+                a.x=b.x;
+                a.y=b.y;
+                a.style.left=a.x+"px";
+                a.style.top=a.y+"px";
+                b.classList.add("hit");
+            }
+        }
+    }
+}
+
+
+// ---------- ترمیم زخم ----------
+function healWound(){
+    if(!wound||healing)return;
+
+    let near=0;
+
+    for(let i=0;i<P.length;i++){
+        const p=P[i];
+        const dx=woundX-p.x,dy=woundY-p.y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+
+        if(d>20){
+            p.x+=dx/d*2;
+            p.y+=dy/d*2;
+            p.style.left=p.x+"px";
+            p.style.top=p.y+"px";
+        }else{
+            near++;
+            p.state="attached";
+            p.vx=0;
+            p.vy=0;
+            p.style.transform="scale(1.5)";
+        }
+    }
+
+    if(near>8){
+        healing=true;
+        message("🟡 پلاکت‌ها لخته ساختند؛ زخم در حال بسته شدن است","#eab308");
+
+        let cut=document.getElementById("cut");
+        if(cut){
+            cut.style.background="#facc15";
+            cut.style.boxShadow="0 0 20px gold";
+
+            setTimeout(()=>{
+                cut.style.opacity=0;
+                setTimeout(()=>{
+                    cut.remove();
+                    wound=false;
+
+                    P.forEach(p=>{
+                        if(p.state=="attached"){
+                            p.state="free";
+                            p.vx=rnd(.7,2);
+                            p.vy=rnd(-.5,.5);
+                            p.style.transform="scale(1)";
+                        }
+                    });
+
+                    message("✅ زخم کاملاً ترمیم شد","#22c55e");
+                },1000);
+            },2000);
+        }
+    }
+}
+
+
+setInterval(()=>{
+    immuneSystem();
+    healWound();
+},40);
+
+
+
+resetBtn.onclick=()=>{
+    location.reload();
+};
+</script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

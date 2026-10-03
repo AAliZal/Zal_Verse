@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05070d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>آهنرباهای بزرگ</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #05070d;
+  --panel: rgba(16, 22, 34, 0.78);
+  --panel-hi: rgba(26, 36, 54, 0.9);
+  --border: rgba(100, 130, 170, 0.18);
+  --border-hi: rgba(0, 210, 255, 0.55);
+  --accent: #00d2ff;
+  --accent2: #ff4d6d;
+  --accent3: #8cffc4;
+  --text: #e8eef7;
+  --muted: #7c8aa0;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: Tahoma, sans-serif;
+  background: var(--bg); color: var(--text);
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  position: fixed;
+  inset: 0;
+}
+body {
+  background-image:
+    radial-gradient(ellipse 60% 40% at 15% 8%, rgba(0, 210, 255, 0.10), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 88% 92%, rgba(255, 77, 109, 0.09), transparent 60%),
+    radial-gradient(ellipse 40% 60% at 50% 50%, rgba(140, 255, 196, 0.04), transparent 70%);
+  padding: calc(4px + var(--safe-top)) 4px calc(4px + var(--safe-bottom)) 4px;
+}
+
+.app {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 6px;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ================= HEADER ================= */
+.header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(0, 210, 255, 0.06), rgba(255, 77, 109, 0.04)) , var(--panel);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -30%; right: -30%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: shimmerLine 4s ease-in-out infinite;
+  opacity: 0.7;
+}
+@keyframes shimmerLine {
+  0%, 100% { transform: translateX(-30%); opacity: 0.3; }
+  50%      { transform: translateX(30%);  opacity: 0.9; }
+}
+
+.header-title {
+  font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  background: linear-gradient(90deg, #00d2ff, #8cffc4, #00d2ff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 3s linear infinite;
+  letter-spacing: 0.2px;
+}
+@keyframes gradientMove {
+  to { background-position: 200% center; }
+}
+.header-title .emoji {
+  -webkit-text-fill-color: initial;
+  font-size: 16px;
+  filter: drop-shadow(0 0 6px rgba(0, 210, 255, 0.6));
+}
+
+.header-stats {
+  font-size: 10.5px; color: var(--muted);
+  padding: 4px 10px;
+  background: rgba(8,12,20,0.7);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-right: auto;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-stats b {
+  color: var(--accent);
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(0, 210, 255, 0.5);
+}
+.header-stats .fps {
+  color: var(--accent3);
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.header-actions { display: flex; gap: 5px; }
+.act-btn {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(33,42,58,0.95), rgba(20,28,44,0.95));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.act-btn::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at center, currentColor 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.act-btn:active { transform: scale(0.92); }
+.act-btn:active::after { opacity: 0.12; }
+.act-btn.add {
+  color: var(--accent3);
+  border-color: rgba(140, 255, 196, 0.35);
+  box-shadow: 0 0 12px rgba(140, 255, 196, 0.15);
+}
+.act-btn.add:hover {
+  box-shadow: 0 0 18px rgba(140, 255, 196, 0.4);
+  border-color: rgba(140, 255, 196, 0.7);
+}
+.act-btn.shake {
+  color: #ffcf6d;
+  border-color: rgba(255, 207, 109, 0.35);
+  box-shadow: 0 0 12px rgba(255, 207, 109, 0.15);
+}
+.act-btn.shake:hover {
+  box-shadow: 0 0 18px rgba(255, 207, 109, 0.4);
+  border-color: rgba(255, 207, 109, 0.7);
+}
+.act-btn.danger {
+  color: #ff8a9c;
+  border-color: rgba(255, 77, 109, 0.35);
+  box-shadow: 0 0 12px rgba(255, 77, 109, 0.15);
+}
+.act-btn.danger:hover {
+  box-shadow: 0 0 18px rgba(255, 77, 109, 0.4);
+  border-color: rgba(255, 77, 109, 0.7);
+}
+
+/* ================= PRESETS ================= */
+.presets {
+  display: flex; gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 1px;
+  -webkit-overflow-scrolling: touch;
+}
+.presets::-webkit-scrollbar { display: none; }
+
+.preset-btn {
+  display: flex; align-items: center; gap: 6px;
+  flex-shrink: 0; padding: 8px 13px;
+  background: var(--panel-hi);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit; color: var(--text);
+  font-size: 10.5px; font-weight: 700;
+  transition: transform 0.12s, border-color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+.preset-btn::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--p-color, var(--accent));
+  box-shadow: 0 0 10px var(--p-color, var(--accent));
+  opacity: 0.85;
+}
+.preset-btn:active { transform: scale(0.94); }
+.preset-btn:hover {
+  border-color: var(--p-color, var(--accent));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--p-color, var(--accent)) 40%, transparent);
+}
+.preset-btn .pico {
+  font-size: 14px;
+  filter: drop-shadow(0 0 4px var(--p-color, var(--accent)));
+}
+.preset-btn .pname { letter-spacing: 0.1px; }
+
+/* رنگ‌های اختصاصی هر پریست */
+.preset-btn[data-id="pair"]    { --p-color: #00d2ff; }
+.preset-btn[data-id="attract"] { --p-color: #8cffc4; }
+.preset-btn[data-id="repel"]   { --p-color: #ff4d6d; }
+.preset-btn[data-id="cross"]   { --p-color: #c58bff; }
+.preset-btn[data-id="five"]    { --p-color: #ffcf6d; }
+
+/* ================= CANVAS ================= */
+.canvas-wrap {
+  position: relative;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 40%, rgba(0,210,255,0.06), transparent 65%),
+    radial-gradient(ellipse 50% 70% at 50% 100%, rgba(140,255,196,0.04), transparent 60%),
+    linear-gradient(180deg, rgba(10,14,22,0.85), rgba(3,5,10,0.98));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 0;
+  touch-action: none;
+  box-shadow:
+    0 0 40px rgba(0, 210, 255, 0.06) inset,
+    0 0 80px rgba(0, 0, 0, 0.6);
+}
+.canvas-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,210,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,210,255,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 85%);
+  z-index: 1;
+}
+canvas {
+  display: block;
+  width: 100%; height: 100%;
+  touch-action: none;
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 2;
+}
+canvas.grabbing { cursor: grabbing; }
+
+/* ================= HINT ================= */
+.hint {
+  position: absolute; bottom: 14px; left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: rgba(8,12,20,0.92);
+  border: 1px solid var(--border-hi);
+  border-radius: 22px;
+  font-size: 10.5px; color: var(--accent); font-weight: 700;
+  pointer-events: none;
+  white-space: nowrap; max-width: 92%;
+  overflow: hidden; text-overflow: ellipsis;
+  transition: opacity 0.4s;
+  z-index: 5;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 20px rgba(0, 210, 255, 0.25),
+    0 4px 14px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.2px;
+}
+.hint.hide { opacity: 0; }
+
+/* ================= HOME BUTTON ================= */
+.home-btn {
+  position: fixed;
+  bottom: calc(10px + var(--safe-bottom));
+  left: 0; z-index: 9999;
+  padding: 10px 18px 10px 14px;
+  background: linear-gradient(135deg, #00d2ff, #0066ff);
+  color: #fff; text-decoration: none; font-weight: 700; font-size: 11px;
+  border-radius: 0 12px 12px 0;
+  box-shadow:
+    0 4px 20px rgba(0,210,255,0.45),
+    0 0 40px rgba(0,210,255,0.2);
+  display: flex; align-items: center; gap: 6px;
+  transition: padding 0.25s, box-shadow 0.25s;
+  position: fixed;
+  overflow: hidden;
+}
+.home-btn::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  animation: shimmerBtn 3s ease-in-out infinite;
+}
+@keyframes shimmerBtn {
+  0%, 100% { left: -100%; }
+  50%      { left: 100%; }
+}
+.home-btn:hover {
+  padding-right: 22px;
+  box-shadow:
+    0 4px 30px rgba(0,210,255,0.7),
+    0 0 60px rgba(0,210,255,0.35);
+}
+.home-btn svg { width: 13px; height: 13px; position: relative; z-index: 1; }
+.home-btn span { position: relative; z-index: 1; }
+
+/* ================= MOBILE COMPACT ================= */
+@media (max-width: 500px) {
+  .header-title .t { display: none; }
+  .header-stats { font-size: 9.5px; padding: 3px 7px; gap: 6px; }
+  .act-btn { width: 30px; height: 30px; font-size: 13px; }
+  .preset-btn { padding: 6px 10px; font-size: 10px; }
+  .preset-btn .pico { font-size: 12px; }
+  .hint { font-size: 9px; padding: 6px 12px; bottom: 10px; }
+  .app { gap: 5px; }
+  .header { padding: 6px 10px; gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="header-title">
+      <span class="emoji">🧲</span>
+      <span class="t">آهنرباهای بزرگ</span>
+    </div>
+    <div class="header-stats">
+      <span>تعداد: <b id="count">2</b>/۵</span>
+      <span class="fps" id="fps">60</span>
+    </div>
+    <div class="header-actions">
+      <button class="act-btn add" onclick="addMagnet()" title="افزودن آهنربا">➕</button>
+      <button class="act-btn shake" onclick="shake()" title="تکان دادن">🌪️</button>
+      <button class="act-btn danger" onclick="resetAll()" title="بازنشانی">🔄</button>
+    </div>
+  </header>
+
+  <div class="presets" id="presets"></div>
+
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="canvas"></canvas>
+    <div class="hint" id="hint">بکش • دابل‌تاچ = چرخش</div>
+  </div>
+</div>
+
+<a href="../index.html" class="home-btn">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7"/>
+  </svg>
+  <span>بازگشت</span>
+</a>
+
+<script>
+/* ============================================================
+   PERFORMANCE-AWARE SETTINGS
+   ============================================================ */
+const isMobile = /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry/i.test(navigator.userAgent) || Math.min(window.innerWidth, window.innerHeight) < 600;
+const isLowEnd = isMobile && (navigator.hardwareConcurrency || 4) <= 4;
+
+const CFG = {
+  MAX_MAGNETS: 5,
+  K: 6.0e6,
+  SOFT: 26,
+  FRICTION: 0.94,
+  ANG_FRICTION: 0.90,
+  MAX_VEL: 1200,
+  MAX_ANG_VEL: 12,
+  MAX_FORCE: 140000,
+  MAX_TORQUE: 60000,
+  SUBSTEPS: isLowEnd ? 2 : (isMobile ? 2 : 3),
+  SNAP_DIST: 16,
+  FIELD_SEEDS: isLowEnd ? 6 : (isMobile ? 8 : 14),
+  FIELD_STEP: isLowEnd ? 14 : (isMobile ? 12 : 9),
+  FIELD_MAX_STEPS: isLowEnd ? 90 : (isMobile ? 120 : 200),
+  FIELD_ALPHA: isLowEnd ? 0.4 : 0.55,
+  DPR_CAP: isMobile ? 1.5 : 2,
+  SHADOW_BLUR: isMobile ? 0 : 26,
+  FIELD_RECALC_INTERVAL: isMobile ? 3 : 2
+};
+
+/* ============================================================
+   CANVAS
+   ============================================================ */
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+const wrap = document.getElementById('canvasWrap');
+const hintEl = document.getElementById('hint');
+const countEl = document.getElementById('count');
+const fpsEl = document.getElementById('fps');
+
+let W = 0, H = 0, dpr = 1;
+
+function resize() {
+  const rect = wrap.getBoundingClientRect();
+  dpr = Math.min(window.devicePixelRatio || 1, CFG.DPR_CAP);
+  W = rect.width;
+  H = rect.height;
+  if (W < 10 || H < 10) return;
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  fieldCache.dirty = true;
+}
+
+/* ============================================================
+   MAGNET
+   ============================================================ */
+let _id = 1;
+
+class Magnet {
+  constructor(x, y, rot = null) {
+    this.id = _id++;
+    this.x = x;
+    this.y = y;
+    this.vx = 0;
+    this.vy = 0;
+    this.rot = rot === null ? Math.random() * Math.PI * 2 : rot;
+    this.angVel = 0;
+    this.fx = 0;
+    this.fy = 0;
+    this.torque = 0;
+    const scale = Math.min(W, H) < 500 ? 0.75 : 1;
+    this.length = 130 * scale;
+    this.width = 54 * scale;
+    this.halfLen = 40 * scale;
+    this.mass = 3;
+    this.inertia = 2600 * scale * scale;
+    this.radius = 68 * scale;
+    this.grabbed = false;
+    this.glow = 0;
+    this._poles = null;
+    this._polesRot = null;
+  }
+
+  getPoles() {
+    if (this._poles && this._polesRot === this.rot) return this._poles;
+    const c = Math.cos(this.rot);
+    const s = Math.sin(this.rot);
+    const h = this.halfLen;
+    this._poles = [
+      { x: this.x + c * h, y: this.y + s * h, charge: 1 },
+      { x: this.x - c * h, y: this.y - s * h, charge: -1 }
+    ];
+    this._polesRot = this.rot;
+    return this._poles;
+  }
+
+  updatePoleCache() {
+    const c = Math.cos(this.rot);
+    const s = Math.sin(this.rot);
+    const h = this.halfLen;
+    this._poles = [
+      { x: this.x + c * h, y: this.y + s * h, charge: 1 },
+      { x: this.x - c * h, y: this.y - s * h, charge: -1 }
+    ];
+    this._polesRot = this.rot;
+  }
+
+  hitTest(px, py) {
+    const dx = px - this.x;
+    const dy = py - this.y;
+    if (dx * dx + dy * dy > this.radius * this.radius * 1.4) return false;
+    const cos = Math.cos(-this.rot);
+    const sin = Math.sin(-this.rot);
+    const lx = dx * cos - dy * sin;
+    const ly = dx * sin + dy * cos;
+    return Math.abs(lx) <= this.length / 2 + 6 && Math.abs(ly) <= this.width / 2 + 6;
+  }
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  magnets: [],
+  dragged: null,
+  dragOffset: { x: 0, y: 0 },
+  dragTargetX: 0,
+  dragTargetY: 0,
+  sparks: [],
+  time: 0,
+  contacts: new Set(),
+  still: 0
+};
+
+const fieldCache = {
+  dirty: true,
+  lines: [],
+  lastFrame: 0
+};
+
+/* ============================================================
+   FORCE COMPUTATION
+   ============================================================ */
+function computeForces() {
+  for (const m of state.magnets) {
+    m.fx = 0; m.fy = 0; m.torque = 0;
+    m.updatePoleCache();
+  }
+
+  const n = state.magnets.length;
+  for (let i = 0; i < n; i++) {
+    const A = state.magnets[i];
+    const aPoles = A._poles;
+    const ax = A.x, ay = A.y;
+    for (let j = i + 1; j < n; j++) {
+      const B = state.magnets[j];
+      const bPoles = B._poles;
+      const cdx = B.x - ax;
+      const cdy = B.y - ay;
+      const cdist2 = cdx * cdx + cdy * cdy;
+      if (cdist2 > 640000) continue;
+
+      for (let pi = 0; pi < 2; pi++) {
+        const pa = aPoles[pi];
+        for (let pj = 0; pj < 2; pj++) {
+          const pb = bPoles[pj];
+          const dx = pb.x - pa.x;
+          const dy = pb.y - pa.y;
+          const r2 = dx * dx + dy * dy + CFG.SOFT * CFG.SOFT;
+          const r = Math.sqrt(r2);
+          const q = pa.charge * pb.charge;
+          const k = CFG.K * q / (r2 * r);
+
+          const Fx = k * dx;
+          const Fy = k * dy;
+
+          B.fx += Fx; B.fy += Fy;
+          B.torque += (pb.x - B.x) * Fy - (pb.y - B.y) * Fx;
+
+          A.fx -= Fx; A.fy -= Fy;
+          A.torque -= (pa.x - A.x) * Fy - (pa.y - A.y) * Fx;
+        }
+      }
+    }
+  }
+
+  for (const m of state.magnets) {
+    const fmag2 = m.fx * m.fx + m.fy * m.fy;
+    if (fmag2 > CFG.MAX_FORCE * CFG.MAX_FORCE) {
+      const fmag = Math.sqrt(fmag2);
+      const s = CFG.MAX_FORCE / fmag;
+      m.fx *= s; m.fy *= s;
+    }
+    if (m.torque > CFG.MAX_TORQUE) m.torque = CFG.MAX_TORQUE;
+    else if (m.torque < -CFG.MAX_TORQUE) m.torque = -CFG.MAX_TORQUE;
+  }
+}
+
+function integrate(dt) {
+  let anyMoving = false;
+  for (const m of state.magnets) {
+    if (m.grabbed) {
+      const dx = state.dragTargetX - m.x;
+      const dy = state.dragTargetY - m.y;
+      const px = m.x, py = m.y;
+      m.x += dx * 0.55;
+      m.y += dy * 0.55;
+      m.vx = (m.x - px) / dt;
+      m.vy = (m.y - py) / dt;
+      m.glow = Math.min(1, m.glow + dt * 6);
+      m.updatePoleCache();
+      anyMoving = true;
+      continue;
+    }
+    if (m.glow > 0) {
+      m.glow = Math.max(0, m.glow - dt * 4);
+      anyMoving = true;
+    }
+
+    const fabs = Math.abs(m.fx) + Math.abs(m.fy) + Math.abs(m.torque);
+    if (fabs < 5 && Math.abs(m.vx) < 2 && Math.abs(m.vy) < 2 && Math.abs(m.angVel) < 0.05) {
+      m.vx = 0; m.vy = 0; m.angVel = 0;
+      continue;
+    }
+    anyMoving = true;
+
+    m.vx += (m.fx / m.mass) * dt;
+    m.vy += (m.fy / m.mass) * dt;
+    const fr = Math.pow(CFG.FRICTION, dt * 60);
+    m.vx *= fr; m.vy *= fr;
+
+    const sp2 = m.vx * m.vx + m.vy * m.vy;
+    if (sp2 > CFG.MAX_VEL * CFG.MAX_VEL) {
+      const sp = Math.sqrt(sp2);
+      m.vx = m.vx / sp * CFG.MAX_VEL;
+      m.vy = m.vy / sp * CFG.MAX_VEL;
+    }
+    m.x += m.vx * dt;
+    m.y += m.vy * dt;
+
+    m.angVel += (m.torque / m.inertia) * dt;
+    const af = Math.pow(CFG.ANG_FRICTION, dt * 60);
+    m.angVel *= af;
+    if (m.angVel > CFG.MAX_ANG_VEL) m.angVel = CFG.MAX_ANG_VEL;
+    else if (m.angVel < -CFG.MAX_ANG_VEL) m.angVel = -CFG.MAX_ANG_VEL;
+    m.rot += m.angVel * dt;
+    m.updatePoleCache();
+
+    const r = m.radius;
+    if (m.x < r) { m.x = r; m.vx = Math.abs(m.vx) * 0.35; m.angVel *= 0.7; }
+    if (m.x > W - r) { m.x = W - r; m.vx = -Math.abs(m.vx) * 0.35; m.angVel *= 0.7; }
+    if (m.y < r) { m.y = r; m.vy = Math.abs(m.vy) * 0.4; m.angVel *= 0.7; }
+    if (m.y > H - r) { m.y = H - r; m.vy = -Math.abs(m.vy) * 0.4; m.angVel *= 0.7; }
+
+    if (!isFinite(m.x) || !isFinite(m.y)) {
+      m.x = W / 2; m.y = H / 2; m.vx = 0; m.vy = 0; m.angVel = 0;
+      m.updatePoleCache();
+    }
+    if (!isFinite(m.rot)) m.rot = 0;
+  }
+
+  if (anyMoving) {
+    state.still = 0;
+    fieldCache.dirty = true;
+  } else {
+    state.still++;
+  }
+}
+
+/* ============================================================
+   SPARKS
+   ============================================================ */
+function detectSnaps() {
+  const newContacts = new Set();
+  const n = state.magnets.length;
+  for (let i = 0; i < n; i++) {
+    const A = state.magnets[i];
+    const aPoles = A._poles;
+    for (let j = i + 1; j < n; j++) {
+      const B = state.magnets[j];
+      const bPoles = B._poles;
+      for (const pa of aPoles) {
+        for (const pb of bPoles) {
+          if (pa.charge * pb.charge >= 0) continue;
+          const dx = pb.x - pa.x;
+          const dy = pb.y - pa.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < CFG.SNAP_DIST * CFG.SNAP_DIST) {
+            const key = A.id + '-' + B.id;
+            newContacts.add(key);
+            if (!state.contacts.has(key)) {
+              emitSparks((pa.x + pb.x) * 0.5, (pa.y + pb.y) * 0.5, isMobile ? 5 : 10);
+            }
+          }
+        }
+      }
+    }
+  }
+  state.contacts = newContacts;
+}
+
+function emitSparks(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = 80 + Math.random() * 200;
+    state.sparks.push({
+      x, y,
+      vx: Math.cos(a) * sp,
+      vy: Math.sin(a) * sp,
+      life: 0.5 + Math.random() * 0.3,
+      t: 0
+    });
+  }
+}
+
+function updateSparks(dt) {
+  for (let i = state.sparks.length - 1; i >= 0; i--) {
+    const s = state.sparks[i];
+    s.t += dt;
+    if (s.t >= s.life) {
+      state.sparks.splice(i, 1);
+      continue;
+    }
+    s.x += s.vx * dt;
+    s.y += s.vy * dt;
+    s.vx *= 0.9;
+    s.vy *= 0.9;
+  }
+}
+
+/* ============================================================
+   FIELD LINES
+   ============================================================ */
+function getFieldAt(x, y) {
+  let Bx = 0, By = 0;
+  for (const m of state.magnets) {
+    const poles = m._poles;
+    for (let i = 0; i < 2; i++) {
+      const p = poles[i];
+      const dx = x - p.x;
+      const dy = y - p.y;
+      const r2 = dx * dx + dy * dy + CFG.SOFT * CFG.SOFT;
+      const r = Math.sqrt(r2);
+      const k = p.charge * 9000 / (r2 * r);
+      Bx += dx * k;
+      By += dy * k;
+    }
+  }
+  return { x: Bx, y: By };
+}
+
+function traceLine(sx, sy, dir) {
+  const pts = [sx, sy];
+  let x = sx, y = sy;
+  const step = CFG.FIELD_STEP;
+  const maxSteps = CFG.FIELD_MAX_STEPS;
+  for (let i = 0; i < maxSteps; i++) {
+    const f = getFieldAt(x, y);
+    const mag = Math.sqrt(f.x * f.x + f.y * f.y);
+    if (mag < 0.0006) break;
+    x += (f.x / mag) * step * dir;
+    y += (f.y / mag) * step * dir;
+    if (x < -40 || x > W + 40 || y < -40 || y > H + 40) break;
+    pts.push(x, y);
+  }
+  return pts;
+}
+
+// هر خط رنگ خودش را بر اساس جهت (N→S یا S→N) می‌گیرد
+function rebuildFieldLines() {
+  fieldCache.lines.length = 0;
+  if (state.magnets.length === 0) return;
+
+  const seeds = CFG.FIELD_SEEDS;
+  for (const m of state.magnets) {
+    const poles = m._poles;
+    for (let pi = 0; pi < 2; pi++) {
+      const pole = poles[pi];
+      const dir = pole.charge;
+      const seedR = 22;
+      for (let i = 0; i < seeds; i++) {
+        const a = (i / seeds) * Math.PI * 2 + 0.2;
+        const sx = pole.x + Math.cos(a) * seedR;
+        const sy = pole.y + Math.sin(a) * seedR;
+        const line = traceLine(sx, sy, dir);
+        if (line.length >= 6) {
+          // ذخیره رنگ بر اساس قطب شروع
+          line._isN = pole.charge > 0;
+          fieldCache.lines.push(line);
+        }
+      }
+    }
+  }
+  fieldCache.dirty = false;
+}
+
+function drawFieldLines() {
+  const lines = fieldCache.lines;
+  const alphaBase = CFG.FIELD_ALPHA;
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 1.3;
+
+  // دو استایل رنگی: آبی برای قطب S، سرخ برای قطب N
+  for (let li = 0; li < lines.length; li++) {
+    const line = lines[li];
+    const L = line.length;
+    if (L < 4) continue;
+
+    const isN = line._isN;
+    ctx.strokeStyle = isN
+      ? `rgba(255, 120, 150, ${alphaBase})`
+      : `rgba(120, 200, 255, ${alphaBase})`;
+
+    ctx.beginPath();
+    ctx.moveTo(line[0], line[1]);
+    for (let i = 2; i < L; i += 2) {
+      ctx.lineTo(line[i], line[i + 1]);
+    }
+    ctx.stroke();
+  }
+}
+
+/* ============================================================
+   DRAW MAGNET
+   ============================================================ */
+function roundRect(c, x, y, w, h, r) {
+  if (Array.isArray(r)) {
+    c.beginPath();
+    c.moveTo(x + r[0], y);
+    c.lineTo(x + w - r[1], y);
+    c.quadraticCurveTo(x + w, y, x + w, y + r[1]);
+    c.lineTo(x + w, y + h - r[2]);
+    c.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
+    c.lineTo(x + r[3], y + h);
+    c.quadraticCurveTo(x, y + h, x, y + h - r[3]);
+    c.lineTo(x, y + r[0]);
+    c.quadraticCurveTo(x, y, x + r[0], y);
+    c.closePath();
+  } else {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+}
+
+function drawMagnet(m) {
+  const w = m.length;
+  const h = m.width;
+  const halfW = w / 2;
+  const halfH = h / 2;
+  const radius = 9;
+
+  ctx.save();
+  ctx.translate(m.x, m.y);
+  ctx.rotate(m.rot);
+
+  // درخشش نئونی بیرونی (حتی وقتی گرفته نشده، محو)
+  const outerGlow = 0.15 + m.glow * 0.85;
+  ctx.save();
+  ctx.shadowColor = `rgba(0, 210, 255, ${m.glow * 0.9})`;
+  ctx.shadowBlur = 24 + m.glow * 20;
+  ctx.fillStyle = `rgba(0, 210, 255, ${m.glow * 0.25})`;
+  roundRect(ctx, -halfW - 6, -halfH - 6, w + 12, h + 12, radius + 6);
+  ctx.fill();
+  ctx.restore();
+
+  // سایهٔ زیر (فقط دسکتاپ)
+  if (!isLowEnd) {
+    ctx.shadowColor = 'rgba(0,0,0,0.85)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 6;
+    roundRect(ctx, -halfW, -halfH, w, h, radius);
+    ctx.fillStyle = '#000';
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+  }
+
+  // نیمهٔ S (آبی) — گرادیان سه‌بعدی
+  if (isLowEnd) {
+    ctx.fillStyle = '#3a78c0';
+    roundRect(ctx, -halfW, -halfH, w / 2, h, [radius, 0, 0, radius]);
+    ctx.fill();
+  } else {
+    const gS = ctx.createLinearGradient(0, -halfH, 0, halfH);
+    gS.addColorStop(0, '#c8e6ff');
+    gS.addColorStop(0.25, '#6db2f0');
+    gS.addColorStop(0.6, '#3a78c0');
+    gS.addColorStop(1, '#062040');
+    ctx.fillStyle = gS;
+    roundRect(ctx, -halfW, -halfH, w / 2, h, [radius, 0, 0, radius]);
+    ctx.fill();
+
+    // درخشش داخلی آبی
+    const gs2 = ctx.createRadialGradient(-halfW * 0.6, -halfH * 0.3, 2, -halfW * 0.5, 0, w * 0.6);
+    gs2.addColorStop(0, 'rgba(200, 240, 255, 0.35)');
+    gs2.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gs2;
+    roundRect(ctx, -halfW, -halfH, w / 2, h, [radius, 0, 0, radius]);
+    ctx.fill();
+  }
+
+  // نیمهٔ N (قرمز)
+  if (isLowEnd) {
+    ctx.fillStyle = '#cc3050';
+    roundRect(ctx, 0, -halfH, w / 2, h, [0, radius, radius, 0]);
+    ctx.fill();
+  } else {
+    const gN = ctx.createLinearGradient(0, -halfH, 0, halfH);
+    gN.addColorStop(0, '#ffc8d4');
+    gN.addColorStop(0.25, '#f07090');
+    gN.addColorStop(0.6, '#cc3050');
+    gN.addColorStop(1, '#3c0510');
+    ctx.fillStyle = gN;
+    roundRect(ctx, 0, -halfH, w / 2, h, [0, radius, radius, 0]);
+    ctx.fill();
+
+    const gn2 = ctx.createRadialGradient(halfW * 0.6, -halfH * 0.3, 2, halfW * 0.5, 0, w * 0.6);
+    gn2.addColorStop(0, 'rgba(255, 220, 230, 0.35)');
+    gn2.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gn2;
+    roundRect(ctx, 0, -halfH, w / 2, h, [0, radius, radius, 0]);
+    ctx.fill();
+  }
+
+  // هایلایت بالا
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillRect(-halfW + 6, -halfH + 3, w - 12, 2.5);
+
+  // انعکاس براق
+  if (!isLowEnd) {
+    const gRef = ctx.createLinearGradient(0, -halfH + 5, 0, halfH - 5);
+    gRef.addColorStop(0, 'rgba(255,255,255,0.3)');
+    gRef.addColorStop(0.4, 'rgba(255,255,255,0.05)');
+    gRef.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gRef;
+    roundRect(ctx, -halfW + 5, -halfH + 5, w - 10, h - 10, 5);
+    ctx.fill();
+  }
+
+  // خط جداکنندهٔ وسط با درخشش نئونی
+  ctx.shadowColor = 'rgba(0,0,0,0.9)';
+  ctx.shadowBlur = 6;
+  ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(0, -halfH + 3);
+  ctx.lineTo(0, halfH - 3);
+  ctx.stroke();
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+
+  // حروف N / S
+  const fontSize = Math.min(h * 0.55, 30);
+  ctx.font = `bold ${fontSize}px Tahoma, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillText('S', -halfW * 0.5 + 2, 2);
+  ctx.fillStyle = '#fff';
+  ctx.shadowColor = 'rgba(120, 200, 255, 0.9)';
+  ctx.shadowBlur = 10;
+  ctx.fillText('S', -halfW * 0.5, 0);
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillText('N', halfW * 0.5 + 2, 2);
+  ctx.fillStyle = '#fff';
+  ctx.shadowColor = 'rgba(255, 120, 150, 0.9)';
+  ctx.shadowBlur = 10;
+  ctx.fillText('N', halfW * 0.5, 0);
+  ctx.shadowBlur = 0;
+
+  // قاب نهایی
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth = 1.2;
+  roundRect(ctx, -halfW, -halfH, w, h, radius);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawSparks() {
+  if (state.sparks.length === 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (const s of state.sparks) {
+    const t = s.t / s.life;
+    const alpha = 1 - t;
+    // گرادیان گرم: از سفید-آبی به نارنجی
+    const hue = 200 - t * 170;
+    ctx.fillStyle = `hsla(${hue}, 100%, ${60 + t * 20}%, ${alpha})`;
+    ctx.shadowColor = `hsla(${hue}, 100%, 70%, ${alpha})`;
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, 2.4 * (1 - t * 0.4), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render() {
+  // پس‌زمینه
+  ctx.fillStyle = '#05070d';
+  ctx.fillRect(0, 0, W, H);
+
+  // وینیت رنگی
+  if (!isLowEnd) {
+    const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.8);
+    g.addColorStop(0, 'rgba(0,210,255,0.03)');
+    g.addColorStop(0.5, 'rgba(0,0,0,0)');
+    g.addColorStop(1, 'rgba(0,0,0,0.35)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  drawFieldLines();
+  for (const m of state.magnets) drawMagnet(m);
+  drawSparks();
+}
+
+/* ============================================================
+   SPAWN / PRESETS
+   ============================================================ */
+function findEmptySpot(minDist = 130, tries = 100) {
+  const pad = 90;
+  const usableW = Math.max(1, W - pad * 2);
+  const usableH = Math.max(1, H - pad * 2);
+  for (let k = 0; k < tries; k++) {
+    const x = pad + Math.random() * usableW;
+    const y = pad + Math.random() * usableH;
+    let ok = true;
+    for (const m of state.magnets) {
+      const dx = m.x - x, dy = m.y - y;
+      if (dx * dx + dy * dy < minDist * minDist) { ok = false; break; }
+    }
+    if (ok) return { x, y };
+  }
+  return { x: pad + Math.random() * usableW, y: pad + Math.random() * usableH };
+}
+
+function spawnPair() {
+  state.magnets = [];
+  state.contacts.clear();
+  const y = H / 2;
+  state.magnets.push(new Magnet(W / 2 - Math.min(180, W * 0.22), y, 0));
+  state.magnets.push(new Magnet(W / 2 + Math.min(180, W * 0.22), y, Math.PI));
+  fieldCache.dirty = true;
+}
+
+function spawnAttract() {
+  state.magnets = [];
+  state.contacts.clear();
+  const y = H / 2;
+  state.magnets.push(new Magnet(W / 2 - Math.min(200, W * 0.25), y, 0));
+  state.magnets.push(new Magnet(W / 2 + Math.min(200, W * 0.25), y, Math.PI));
+  state.magnets.push(new Magnet(W / 2, H / 2 - Math.min(160, H * 0.22), Math.PI / 2));
+  fieldCache.dirty = true;
+}
+
+function spawnRepel() {
+  state.magnets = [];
+  state.contacts.clear();
+  const y = H / 2;
+  state.magnets.push(new Magnet(W / 2 - Math.min(180, W * 0.22), y, 0));
+  state.magnets.push(new Magnet(W / 2 + Math.min(180, W * 0.22), y, 0));
+  fieldCache.dirty = true;
+}
+
+function spawnCross() {
+  state.magnets = [];
+  state.contacts.clear();
+  const cx = W / 2, cy = H / 2;
+  const off = Math.min(160, Math.min(W, H) * 0.22);
+  state.magnets.push(new Magnet(cx - off, cy, 0));
+  state.magnets.push(new Magnet(cx + off, cy, 0));
+  state.magnets.push(new Magnet(cx, cy - off, Math.PI / 2));
+  state.magnets.push(new Magnet(cx, cy + off, Math.PI / 2));
+  fieldCache.dirty = true;
+}
+
+function spawnFive() {
+  state.magnets = [];
+  state.contacts.clear();
+  const cx = W / 2, cy = H / 2;
+  const R = Math.min(W, H) * 0.28;
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + Math.cos(a) * R;
+    const y = cy + Math.sin(a) * R;
+    state.magnets.push(new Magnet(x, y, a + Math.PI / 2));
+  }
+  fieldCache.dirty = true;
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function addMagnet() {
+  if (state.magnets.length >= CFG.MAX_MAGNETS) {
+    hintEl.textContent = '⚠️ حداکثر ۵ آهنربا!';
+    hintEl.classList.remove('hide');
+    clearTimeout(addMagnet._t);
+    addMagnet._t = setTimeout(() => hintEl.classList.add('hide'), 1500);
+    return;
+  }
+  const { x, y } = findEmptySpot(130);
+  state.magnets.push(new Magnet(x, y));
+  updateCount();
+  fieldCache.dirty = true;
+}
+
+function shake() {
+  for (const m of state.magnets) {
+    if (m.grabbed) continue;
+    const a = Math.random() * Math.PI * 2;
+    const s = 180 + Math.random() * 300;
+    m.vx += Math.cos(a) * s;
+    m.vy += Math.sin(a) * s;
+    m.angVel += (Math.random() - 0.5) * 4;
+  }
+  fieldCache.dirty = true;
+}
+
+function resetAll() {
+  spawnPair();
+  updateCount();
+}
+
+function updateCount() {
+  countEl.textContent = state.magnets.length;
+}
+
+/* ============================================================
+   PRESETS UI
+   ============================================================ */
+const PRESETS = [
+  { id: 'pair',    label: 'دو آهنربا', icon: '🧲', fn: spawnPair },
+  { id: 'attract', label: 'دفع',       icon: '🧲', fn: spawnAttract },
+  { id: 'repel',   label: 'جذب',       icon: '⚡', fn: spawnRepel },
+  { id: 'cross',   label: 'چهارطرفه',  icon: '✚',  fn: spawnCross },
+  { id: 'five',    label: 'پنج‌تایی',  icon: '⭐', fn: spawnFive }
+];
+
+const presetsEl = document.getElementById('presets');
+for (const p of PRESETS) {
+  const btn = document.createElement('button');
+  btn.className = 'preset-btn';
+  btn.setAttribute('data-id', p.id);
+  btn.innerHTML = `<span class="pico">${p.icon}</span><span class="pname">${p.label}</span>`;
+  btn.addEventListener('click', () => {
+    p.fn();
+    updateCount();
+    hintEl.classList.remove('hide');
+    clearTimeout(window._hintT);
+    window._hintT = setTimeout(() => hintEl.classList.add('hide'), 2200);
+  });
+  presetsEl.appendChild(btn);
+}
+
+/* ============================================================
+   POINTER INPUT
+   ============================================================ */
+let pointerActive = false;
+let pointerId = null;
+
+function getPointer(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
+}
+
+let lastTapTime = 0;
+let lastTapTarget = null;
+
+canvas.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (pointerActive) return;
+  pointerActive = true;
+  pointerId = e.pointerId;
+  try { canvas.setPointerCapture(e.pointerId); } catch(_) {}
+
+  const p = getPointer(e);
+  for (let i = state.magnets.length - 1; i >= 0; i--) {
+    const m = state.magnets[i];
+    if (m.hitTest(p.x, p.y)) {
+      state.dragged = m;
+      m.grabbed = true;
+      state.dragOffset.x = m.x - p.x;
+      state.dragOffset.y = m.y - p.y;
+      state.dragTargetX = m.x;
+      state.dragTargetY = m.y;
+      canvas.classList.add('grabbing');
+
+      const now = performance.now();
+      if (now - lastTapTime < 340 && lastTapTarget === m) {
+        m.rot += Math.PI;
+        m.updatePoleCache();
+        emitSparks(m.x, m.y, 5);
+        fieldCache.dirty = true;
+      }
+      lastTapTime = now;
+      lastTapTarget = m;
+      return;
+    }
+  }
+}, { passive: false });
+
+canvas.addEventListener('pointermove', e => {
+  if (!pointerActive || !state.dragged) return;
+  e.preventDefault();
+  const p = getPointer(e);
+  state.dragTargetX = p.x + state.dragOffset.x;
+  state.dragTargetY = p.y + state.dragOffset.y;
+}, { passive: false });
+
+function onPointerUp(e) {
+  if (state.dragged) {
+    state.dragged.grabbed = false;
+    state.dragged = null;
+  }
+  pointerActive = false;
+  canvas.classList.remove('grabbing');
+  if (pointerId !== null) {
+    try { canvas.releasePointerCapture(pointerId); } catch(_) {}
+    pointerId = null;
+  }
+}
+
+canvas.addEventListener('pointerup', onPointerUp, { passive: false });
+canvas.addEventListener('pointercancel', onPointerUp, { passive: false });
+
+/* ============================================================
+   MAIN LOOP
+   ============================================================ */
+let lastTime = performance.now();
+let smoothFPS = 60;
+let fpsTimer = 0;
+
+function loop(t) {
+  const rawDt = Math.min((t - lastTime) / 1000, 0.05);
+  const instFPS = rawDt > 0 ? 1 / rawDt : 60;
+  smoothFPS = smoothFPS * 0.9 + instFPS * 0.1;
+  lastTime = t;
+  state.time += rawDt;
+
+  // به‌روزرسانی FPS هر 0.5 ثانیه
+  fpsTimer += rawDt;
+  if (fpsTimer > 0.5) {
+    fpsEl.textContent = Math.round(smoothFPS);
+    fpsTimer = 0;
+  }
+
+  const dt = rawDt / CFG.SUBSTEPS;
+  for (let s = 0; s < CFG.SUBSTEPS; s++) {
+    computeForces();
+    integrate(dt);
+  }
+
+  detectSnaps();
+  updateSparks(rawDt);
+
+  if (fieldCache.dirty && (state.time * 60 - fieldCache.lastFrame) >= CFG.FIELD_RECALC_INTERVAL) {
+    rebuildFieldLines();
+    fieldCache.lastFrame = state.time * 60;
+  }
+
+  render();
+
+  requestAnimationFrame(loop);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+let resizeTimeout;
+function handleResize() {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    const oldW = W, oldH = H;
+    resize();
+    if (oldW > 0 && oldH > 0 && (oldW !== W || oldH !== H)) {
+      const sx = W / oldW;
+      const sy = H / oldH;
+      for (const m of state.magnets) {
+        m.x *= sx;
+        m.y *= sy;
+        m.updatePoleCache();
+      }
+      fieldCache.dirty = true;
+    }
+  }, 150);
+}
+
+window.addEventListener('resize', handleResize);
+window.addEventListener('orientationchange', handleResize);
+
+let hidden = false;
+document.addEventListener('visibilitychange', () => {
+  hidden = document.hidden;
+  if (!hidden) lastTime = performance.now();
+});
+
+function init() {
+  resize();
+  spawnPair();
+  updateCount();
+  setTimeout(() => hintEl.classList.add('hide'), 5000);
+}
+
+init();
+requestAnimationFrame(t => { lastTime = t; loop(t); });
+</script>
+
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

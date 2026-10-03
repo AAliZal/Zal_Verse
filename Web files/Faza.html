@@ -1,0 +1,459 @@
+<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>شبیه ساز منظومه شمسی</title></head>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:tahoma}
+body{overflow:hidden;background:#000;color:white}
+#space{width:100vw;height:100vh;background:radial-gradient(circle,#17233d,#02030a 70%);position:relative;overflow:hidden}
+#space:before{content:"";position:absolute;width:100%;height:100%;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:60px 60px;opacity:.35}
+#system{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:80px;height:80px;transform-style:preserve-3d;transform:translate(-50%,-50%) scale(.7);}
+.planet{border-radius:50%;position:absolute;cursor:pointer;transform-style:preserve-3d;box-shadow:inset -15px -15px 25px #0008,0 0 20px #fff5;z-index:10;position:absoute;}
+#sun{width:110px;height:110px;background:radial-gradient(circle,#fff,#ffd000,#ff6a00);left:-5px;top:-5px;box-shadow:0 0 80px 30px #ff9800}
+.orbit .planet{
+top:50%;
+left:100%;
+transform:translate(-50%,-50%);
+pointer-events:auto;
+}
+.orbit{
+z-index:1;
+position:absolute;
+border:1px solid #ffffff35;
+border-radius:50%;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+pointer-events:none;
+}
+.o1{width:170px;height:170px}
+.o2{width:230px;height:230px}
+.o3{width:300px;height:300px}
+.o4{width:370px;height:370px}
+.o5{width:470px;height:470px}
+.o6{width:580px;height:580px}
+.o7{width:680px;height:680px}
+.o8{width:780px;height:780px}
+
+#mercury{width:12px;height:12px;background:#aaa}
+#venus{width:20px;height:20px;background:#d69b52}
+#earth{width:22px;height:22px;background:linear-gradient(135deg,#19a4ff,#2ecc71)}
+#mars{width:16px;height:16px;background:#c1440e}
+#jupiter{width:45px;height:45px;background:linear-gradient(#d99b6c,#8b4513)}
+#saturn{width:40px;height:40px;background:#d8c38b}
+#saturn:after{content:"";position:absolute;width:75px;height:20px;border:3px solid #ddd;border-radius:50%;left:-18px;top:10px;transform:rotate(-20deg)}
+#uranus{width:32px;height:32px;background:#7de0e8}
+#neptune{width:31px;height:31px;background:#3155ff}
+
+@keyframes rotate{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+#panel{position:absolute;right:25px;top:25px;width:280px;background:#ffffff15;border:1px solid #ffffff30;border-radius:20px;padding:20px;backdrop-filter:blur(10px);box-shadow:0 0 30px #000}
+#panel h2{color:#ffd54a;margin-bottom:15px}
+#info{line-height:2;color:#ddd}
+
+#control{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);background:#ffffff15;padding:15px 25px;border-radius:20px;backdrop-filter:blur(10px);border:1px solid #ffffff30}
+#speed{width:250px;margin:0 15px}
+
+#asteroids,#comets{position:absolute;inset:0;pointer-events:none}
+
+.comet span{
+filter:blur(1px);
+}
+.planet{
+pointer-events:auto;
+z-index:20;
+}
+
+#asteroids,#comets{
+pointer-events:none;
+}
+#saturn:after{
+pointer-events:none;
+}
+
+.home-btn{
+    position:fixed;
+    top:15px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+
+</style><body>
+<div id="space">
+<div id="system">
+<div id="sun" class="planet" data-name="خورشید"></div>
+
+<div class="orbit o1"><div id="mercury" class="planet" data-name="عطارد"></div></div>
+<div class="orbit o2"><div id="venus" class="planet" data-name="زهره"></div></div>
+<div class="orbit o3"><div id="earth" class="planet" data-name="زمین"></div></div>
+<div class="orbit o4"><div id="mars" class="planet" data-name="مریخ"></div></div>
+<div class="orbit o5"><div id="jupiter" class="planet" data-name="مشتری"></div></div>
+<div class="orbit o6"><div id="saturn" class="planet" data-name="زحل"></div></div>
+<div class="orbit o7"><div id="uranus" class="planet" data-name="اورانوس"></div></div>
+<div class="orbit o8"><div id="neptune" class="planet" data-name="نپتون"></div></div>
+
+<div id="asteroids"></div>
+<div id="comets"></div>
+</div>
+
+<div id="panel">
+<h2 id="title">منظومه شمسی</h2>
+<p id="info">روی یک سیاره کلیک کنید</p>
+</div>
+
+<div id="control">
+<label>سرعت حرکت</label>
+<input id="speed" type="range" min="0" max="5" value="1" step="0.1">
+<span id="speedValue">1x</span>
+</div>
+
+</div>
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+<script>
+    let speedControl=1;
+let running=true;
+
+
+/* اطلاعات سیارات */
+
+const planetsInfo={
+sun:["خورشید","ستاره","مرکز منظومه شمسی","۱٬۳۹۲٬۰۰۰ کیلومتر"],
+mercury:["عطارد","سیاره سنگی","۵۷.۹ میلیون کیلومتر","۴٬۸۷۹ کیلومتر"],
+venus:["زهره","سیاره سنگی","۱۰۸.۲ میلیون کیلومتر","۱۲٬۱۰۴ کیلومتر"],
+earth:["زمین","سیاره سنگی","۱۴۹.۶ میلیون کیلومتر","۱۲٬۷۴۲ کیلومتر"],
+mars:["مریخ","سیاره سنگی","۲۲۷.۹ میلیون کیلومتر","۶٬۷۷۹ کیلومتر"],
+jupiter:["مشتری","غول گازی","۷۷۸.۵ میلیون کیلومتر","۱۳۹٬۸۲۰ کیلومتر"],
+saturn:["زحل","غول گازی","۱.۴ میلیارد کیلومتر","۱۱۶٬۴۶۰ کیلومتر"],
+uranus:["اورانوس","غول یخی","۲.۸ میلیارد کیلومتر","۵۰٬۷۲۴ کیلومتر"],
+neptune:["نپتون","غول یخی","۴.۵ میلیارد کیلومتر","۴۹٬۲۴۴ کیلومتر"]
+};
+
+
+
+/* کلیک سیارات */
+
+document.querySelectorAll(".planet").forEach(p=>{
+
+p.addEventListener("click",function(e){
+
+e.stopPropagation();
+
+let d=planetsInfo[this.id];
+
+if(!d)return;
+
+title.innerHTML=d[0];
+
+info.innerHTML=
+"نوع: "+d[1]+
+"<br>فاصله: "+d[2]+
+"<br>قطر: "+d[3];
+
+});
+
+});
+
+
+
+/* حرکت مدارها */
+
+const planets=[
+["mercury",88],
+["venus",225],
+["earth",365],
+["mars",687],
+["jupiter",4333],
+["saturn",10759],
+["uranus",30687],
+["neptune",60190]
+];
+
+
+let angles={};
+
+planets.forEach(p=>{
+angles[p[0]]=Math.random()*360;
+});
+
+
+
+function movePlanets(){
+
+if(running){
+
+planets.forEach(p=>{
+
+let orbit=document.querySelector("#"+p[0]).parentElement;
+
+
+angles[p[0]]+=
+0.08*(365/p[1])*speedControl;
+
+
+orbit.style.transform=
+"translate(-50%,-50%) rotate("+angles[p[0]]+"deg)";
+
+});
+
+}
+
+
+requestAnimationFrame(movePlanets);
+
+}
+
+
+movePlanets();
+
+
+
+
+/* سرعت */
+
+speed.oninput=()=>{
+
+speedControl=Number(speed.value);
+
+speedValue.innerHTML=
+speed.value+"x";
+
+};
+
+
+
+
+
+/* توقف */
+
+let pause=document.createElement("button");
+
+pause.innerHTML="⏸ توقف";
+
+pause.style.cssText=
+"padding:8px 15px;border:0;border-radius:10px;background:#ffd54a;cursor:pointer";
+
+
+control.appendChild(pause);
+
+
+
+pause.onclick=()=>{
+
+running=!running;
+
+pause.innerHTML=
+running?"⏸ توقف":"▶ شروع";
+
+};
+
+
+
+
+
+/* سیارک ها */
+
+const asteroidBox=document.getElementById("asteroids");
+
+
+for(let i=0;i<250;i++){
+
+let a=document.createElement("i");
+
+let r=400+Math.random()*120;
+let ang=Math.random()*360;
+
+
+a.style.cssText=`
+
+position:absolute;
+width:2px;
+height:2px;
+background:#aaa;
+border-radius:50%;
+left:50%;
+top:50%;
+pointer-events:none;
+
+`;
+
+a.dataset.r=r;
+a.dataset.a=ang;
+
+asteroidBox.appendChild(a);
+
+}
+
+
+
+let asteroidAngle=0;
+
+
+function moveAsteroids(){
+
+if(running){
+
+asteroidAngle+=0.08*speedControl;
+
+
+document.querySelectorAll("#asteroids i").forEach(a=>{
+
+let ang=
+Number(a.dataset.a)+asteroidAngle;
+
+
+a.style.transform=
+`rotate(${ang}deg) translate(${a.dataset.r}px)`;
+
+});
+
+}
+
+
+requestAnimationFrame(moveAsteroids);
+
+}
+
+
+moveAsteroids();
+
+
+
+
+
+/* دنباله دار */
+
+const cometBox=document.getElementById("comets");
+
+
+function createComet(){
+
+let c=document.createElement("div");
+
+
+c.style.cssText=`
+
+position:absolute;
+width:8px;
+height:8px;
+background:white;
+border-radius:50%;
+box-shadow:0 0 20px white;
+left:-50px;
+top:${Math.random()*80}%;
+pointer-events:none;
+
+`;
+
+
+
+let tail=document.createElement("span");
+
+
+tail.style.cssText=`
+
+position:absolute;
+right:5px;
+top:3px;
+width:100px;
+height:3px;
+background:linear-gradient(90deg,transparent,#6cf);
+
+`;
+
+
+c.appendChild(tail);
+
+cometBox.appendChild(c);
+
+
+
+let x=-50;
+
+
+function fly(){
+
+if(running){
+
+x+=3*speedControl;
+
+c.style.left=x+"px";
+
+}
+
+
+if(x<innerWidth+100)
+
+requestAnimationFrame(fly);
+
+else
+
+c.remove();
+
+}
+
+
+fly();
+
+}
+
+
+
+setInterval(createComet,6000);
+
+
+
+
+
+/* ستاره ها */
+
+let starLayer=document.createElement("div");
+
+starLayer.style.cssText=
+"position:absolute;inset:0;pointer-events:none;z-index:0";
+
+
+for(let i=0;i<300;i++){
+
+let s=document.createElement("span");
+
+
+s.style.cssText=`
+
+position:absolute;
+width:2px;
+height:2px;
+background:white;
+border-radius:50%;
+left:${Math.random()*100}%;
+top:${Math.random()*100}%;
+
+`;
+
+starLayer.appendChild(s);
+
+}
+
+
+document.getElementById("space").appendChild(starLayer);
+</script>
+
+
+
+<script src="MusicPlayer.js"></script>
+</body></html>

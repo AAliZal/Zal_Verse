@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>شبیه ساز دستگاه تنفس انسان</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:tahoma}
+body{background:radial-gradient(circle at top,#17486d,#08131d 70%);overflow:hidden;height:100vh;color:white}
+#backgroundGrid{position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:35px 35px;opacity:.25;pointer-events:none}
+#panel{position:absolute;top:15px;right:15px;width:280px;background:rgba(255,255,255,.08);backdrop-filter:blur(20px);border-radius:20px;padding:15px;box-shadow:0 0 30px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.15);z-index:50}
+#panel h2{text-align:center;margin-bottom:15px;font-size:21px;color:#80dfff}
+button{width:100%;margin-top:8px;padding:10px;font-size:16px;border:none;border-radius:12px;cursor:pointer;transition:.3s;font-weight:bold}
+button:hover{transform:scale(1.04)}
+.start{background:#00b894;color:white}
+.stop{background:#d63031;color:white}
+select{width:100%;margin-top:12px;padding:9px;border-radius:10px;font-size:15px;background:#142331;color:white;border:none}
+.info{margin-top:15px;line-height:2;font-size:14px}
+#scene{position:absolute;left:330px;right:0;top:0;bottom:0;display:flex;justify-content:center;align-items:center}
+svg{width:min(72vw,700px);height:min(72vw,700px);overflow:visible}
+#trachea{fill:#8aa0aa;stroke:#dfe6e9;stroke-width:3}
+.bronchus{stroke:#b8c7d1;stroke-width:13;fill:none;stroke-linecap:round}
+.bronchiole{stroke:#d0d8dd;stroke-width:5;fill:none;stroke-linecap:round}
+.lung{fill:url(#lungGradient);stroke:#ff9aa5;stroke-width:4;filter:drop-shadow(0 0 18px rgba(255,120,120,.45));transform-origin:center;transition:.3s}
+.alveoli{fill:#ffc4d0;stroke:#ffffff55;stroke-width:1}
+#diaphragm{fill:#1e4b7d;stroke:#72c6ff;stroke-width:3}
+.label{fill:white;font-size:18px;font-weight:bold}
+#legend{position:absolute;bottom:15px;left:15px;background:rgba(255,255,255,.08);padding:12px;border-radius:15px;backdrop-filter:blur(15px);font-size:14px;line-height:2}
+.blue{color:#6ec6ff}
+.red{color:#ff7070}
+.green{color:#6cff8f}
+
+/* ذره بین گازها */
+#magnifier{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.08);border:4px solid #80dfff;box-shadow:0 0 35px rgba(128,223,255,.4);overflow:hidden;backdrop-filter:blur(10px)}
+#magnifier h3{text-align:center;font-size:16px;margin-top:8px;color:#80dfff}
+#alveolusZoom{
+position:absolute;
+left:50%;
+top:55%;
+transform:translate(-50%,-50%);
+width:130px;
+height:130px;
+border-radius:50%;
+background:
+radial-gradient(circle,#ffd7df 20%,#ff9fb5 70%);
+border:4px solid white;
+box-shadow:
+0 0 25px rgba(255,120,150,.8);
+}
+
+
+#bloodVessel{
+position:absolute;
+left:20px;
+top:110px;
+width:220px;
+height:55px;
+border-radius:50%;
+border:10px solid #ff5252;
+background:rgba(255,80,80,.15);
+overflow:hidden;
+}
+
+
+.capillary{
+position:absolute;
+width:120px;
+height:5px;
+background:#b71c1c;
+border-radius:10px;
+animation:bloodFlow 2s linear infinite;
+}
+
+
+@keyframes bloodFlow{
+
+0%{
+transform:translateX(-80px);
+}
+
+100%{
+transform:translateX(120px);
+}
+
+}
+
+
+
+.cilia{
+position:absolute;
+width:3px;
+height:25px;
+background:#9aa7b8;
+border-radius:10px;
+animation:ciliaMove .4s infinite alternate;
+}
+
+
+@keyframes ciliaMove{
+
+from{
+transform:rotate(-15deg);
+}
+
+to{
+transform:rotate(15deg);
+}
+
+}
+.gas{position:absolute;width:12px;height:12px;border-radius:50%;animation:gasMove 3s infinite}
+.o2{background:#55c8ff;left:65px;top:140px}
+.co2{background:#ff5555;right:65px;top:140px}
+@keyframes gasMove{0%{transform:translate(0)}50%{transform:translate(80px,-20px)}100%{transform:translate(0)}}
+.zoomText{position:absolute;bottom:12px;width:100%;text-align:center;font-size:12px}
+
+    .home-btn{
+    position:fixed;
+    top:15px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+</style>
+</head>
+<body>
+<div id="backgroundGrid"></div>
+<div id="panel">
+<h2>🫁 آزمایشگاه تنفس</h2>
+<button class="start" id="startBtn">شروع</button>
+<button class="stop" id="stopBtn">توقف</button>
+<select id="mode">
+<option value="sleep">😴 خواب</option>
+<option value="rest" selected>🙂 استراحت</option>
+<option value="exercise">🏃 ورزش</option>
+<option value="run">🔥 دویدن</option>
+</select>
+<div class="info">
+تنفس در دقیقه:
+<span id="bpm">12</span>
+<br>
+حجم ریه:
+<span id="volume">100%</span>
+<br>
+وضعیت:
+<span id="status">خاموش</span>
+</div>
+</div>
+
+<div id="magnifier">
+<h3>🔍 تبادل گازها</h3>
+<div id="bloodVessel">
+
+<div class="capillary"></div>
+<div class="capillary" style="top:25px;animation-delay:.5s"></div>
+
+</div>
+
+
+<div id="alveolusZoom">
+
+<div class="cilia" style="left:25px;top:-20px"></div>
+<div class="cilia" style="left:45px;top:-25px"></div>
+<div class="cilia" style="left:65px;top:-22px"></div>
+<div class="cilia" style="left:85px;top:-20px"></div>
+
+</div>
+<div class="gas o2"></div>
+<div class="gas co2"></div>
+<div class="zoomText">
+🔵 O₂ وارد خون<br>
+🔴 CO₂ خارج می‌شود
+</div>
+</div>
+
+<div id="scene">
+<svg viewBox="0 0 900 900">
+<defs>
+<linearGradient id="lungGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#ffb6c8"/>
+<stop offset="100%" stop-color="#f46f95"/>
+</linearGradient>
+</defs>
+
+<!-- نای -->
+<rect id="trachea" x="430" y="80" width="40" height="170" rx="20"/>
+
+<!-- نایژه ها -->
+<path class="bronchus" d="M450 250L380 330"/>
+<path class="bronchus" d="M450 250L520 330"/>
+
+<!-- نایژک های چپ -->
+<path class="bronchiole" d="M380 330L320 390"/>
+<path class="bronchiole" d="M380 330L355 430"/>
+<path class="bronchiole" d="M380 330L405 430"/>
+
+<!-- نایژک های راست -->
+<path class="bronchiole" d="M520 330L585 390"/>
+<path class="bronchiole" d="M520 330L495 430"/>
+<path class="bronchiole" d="M520 330L545 430"/>
+
+<!-- ریه چپ -->
+<path id="leftLung" class="lung" d="M260 300C180 320 140 520 250 720C320 760 390 710 390 610L390 320C355 285 310 285 260 300Z"/>
+
+<!-- ریه راست -->
+<path id="rightLung" class="lung" d="M640 300C720 320 760 520 650 720C580 760 510 710 510 610L510 320C545 285 590 285 640 300Z"/>
+
+<!-- آلوئول های چپ -->
+<g id="alveoliLeft">
+<circle class="alveoli" cx="260" cy="380" r="10"/>
+<circle class="alveoli" cx="300" cy="410" r="9"/>
+<circle class="alveoli" cx="340" cy="445" r="10"/>
+<circle class="alveoli" cx="235" cy="470" r="9"/>
+<circle class="alveoli" cx="305" cy="510" r="10"/>
+<circle class="alveoli" cx="260" cy="560" r="11"/>
+<circle class="alveoli" cx="335" cy="590" r="10"/>
+<circle class="alveoli" cx="285" cy="635" r="10"/>
+</g>
+
+<!-- آلوئول های راست -->
+<g id="alveoliRight">
+<circle class="alveoli" cx="640" cy="380" r="10"/>
+<circle class="alveoli" cx="600" cy="410" r="9"/>
+<circle class="alveoli" cx="560" cy="445" r="10"/>
+<circle class="alveoli" cx="665" cy="470" r="9"/>
+<circle class="alveoli" cx="595" cy="510" r="10"/>
+<circle class="alveoli" cx="640" cy="560" r="11"/>
+<circle class="alveoli" cx="565" cy="590" r="10"/>
+<circle class="alveoli" cx="615" cy="635" r="10"/>
+</g>
+
+<!-- دیافراگم -->
+<path id="diaphragm" d="M180 760Q450 870 720 760L720 820L180 820Z"/>
+
+<!-- برچسب ها -->
+<text class="label" x="445" y="65">نای</text>
+
+<text class="label" x="390" y="310">نایژه</text>
+
+<text class="label" x="300" y="370">نایژک</text>
+
+<text class="label" x="210" y="280">ریه چپ</text>
+
+<text class="label" x="610" y="280">ریه راست</text>
+
+<text class="label" x="250" y="700">آلوئول ها</text>
+
+<text class="label" x="300" y="810">دیافراگم</text>
+
+<g id="oxygenLayer"></g>
+
+<g id="co2Layer"></g>
+
+</svg>
+</div>
+<div id="legend">
+<div class="blue">🔵 اکسیژن (O₂) وارد خون می‌شود</div>
+<div class="red">🔴 دی‌اکسیدکربن (CO₂) خارج می‌شود</div>
+<div class="green">🫁 حرکت ریه هنگام دم و بازدم</div>
+</div>
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+<script>
+const leftLung=document.getElementById("leftLung");
+const rightLung=document.getElementById("rightLung");
+const diaphragm=document.getElementById("diaphragm");
+const oxygenLayer=document.getElementById("oxygenLayer");
+const co2Layer=document.getElementById("co2Layer");
+const bpmText=document.getElementById("bpm");
+const volumeText=document.getElementById("volume");
+const statusText=document.getElementById("status");
+const startBtn=document.getElementById("startBtn");
+const stopBtn=document.getElementById("stopBtn");
+const modeSelect=document.getElementById("mode");
+
+let running=false;
+let inhale=true;
+let timer=null;
+let bpm=12;
+let inhaleScale=1.06;
+
+const modes={
+sleep:{bpm:8,scale:1.03},
+rest:{bpm:12,scale:1.06},
+exercise:{bpm:24,scale:1.11},
+run:{bpm:38,scale:1.16}
+};
+
+function updateMode(){
+let m=modes[modeSelect.value];
+bpm=m.bpm;
+inhaleScale=m.scale;
+bpmText.textContent=bpm;
+if(running)restart();
+}
+
+modeSelect.onchange=updateMode;
+
+function animateBreath(){
+
+if(inhale){
+
+leftLung.style.transform=`scale(${inhaleScale})`;
+rightLung.style.transform=`scale(${inhaleScale})`;
+diaphragm.style.transform="translateY(30px)";
+volumeText.textContent=Math.round(inhaleScale*100)+"%";
+createOxygen();
+
+}else{
+
+leftLung.style.transform="scale(1)";
+rightLung.style.transform="scale(1)";
+diaphragm.style.transform="translateY(0)";
+volumeText.textContent="100%";
+createCO2();
+
+}
+
+inhale=!inhale;
+}
+
+function restart(){
+
+clearInterval(timer);
+
+timer=setInterval(
+animateBreath,
+60000/bpm/2
+);
+
+}
+
+startBtn.onclick=function(){
+
+if(running)return;
+
+running=true;
+statusText.textContent="درحال تنفس";
+restart();
+
+};
+
+stopBtn.onclick=function(){
+
+running=false;
+clearInterval(timer);
+statusText.textContent="متوقف";
+
+};
+
+function createOxygen(){
+
+flashAlveoli();
+
+for(let i=0;i<8;i++){
+
+let c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+
+c.setAttribute("cx",445);
+c.setAttribute("cy",85);
+c.setAttribute("r",5);
+c.setAttribute("fill","#55c8ff");
+
+oxygenLayer.appendChild(c);
+
+moveOxygen(c);
+
+}
+
+}
+
+function moveOxygen(circle){
+
+let x=445;
+let y=85;
+
+let targetX=Math.random()>0.5?300+Math.random()*90:510+Math.random()*90;
+let targetY=370+Math.random()*260;
+
+let dx=(targetX-x)/70;
+let dy=(targetY-y)/70;
+
+let t=setInterval(()=>{
+
+x+=dx;
+y+=dy;
+
+circle.setAttribute("cx",x);
+circle.setAttribute("cy",y);
+
+if(Math.abs(x-targetX)<4){
+
+clearInterval(t);
+circle.remove();
+
+}
+
+},15);
+
+}
+
+function createCO2(){
+
+for(let i=0;i<8;i++){
+
+let c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+
+let left=Math.random()>0.5;
+
+let sx=left?300+Math.random()*90:510+Math.random()*90;
+let sy=380+Math.random()*250;
+
+c.setAttribute("cx",sx);
+c.setAttribute("cy",sy);
+c.setAttribute("r",5);
+c.setAttribute("fill","#ff5555");
+
+co2Layer.appendChild(c);
+
+moveCO2(c);
+
+}
+
+}
+
+function moveCO2(circle){
+
+let x=Number(circle.getAttribute("cx"));
+let y=Number(circle.getAttribute("cy"));
+
+let targetX=445;
+let targetY=85;
+
+let dx=(targetX-x)/70;
+let dy=(targetY-y)/70;
+
+let t=setInterval(()=>{
+
+x+=dx;
+y+=dy;
+
+circle.setAttribute("cx",x);
+circle.setAttribute("cy",y);
+
+if(Math.abs(x-targetX)<4){
+
+clearInterval(t);
+fadeOut(circle);
+
+}
+
+},15);
+
+}
+
+function fadeOut(circle){
+
+let o=1;
+
+let t=setInterval(()=>{
+
+o-=0.05;
+
+circle.setAttribute("opacity",o);
+
+if(o<=0){
+
+clearInterval(t);
+circle.remove();
+
+}
+
+},20);
+
+}
+
+function flashAlveoli(){
+
+document.querySelectorAll(".alveoli").forEach(a=>{
+
+a.setAttribute("fill","#9be8ff");
+
+setTimeout(()=>{
+
+a.setAttribute("fill","#ffc4d0");
+
+},300);
+
+});
+
+}
+
+leftLung.style.transition="0.6s ease";
+rightLung.style.transition="0.6s ease";
+diaphragm.style.transition="0.6s ease";
+
+updateMode();
+
+statusText.textContent="آماده";
+
+window.addEventListener("load",()=>{
+
+updateMode();
+
+leftLung.style.transform="scale(1)";
+rightLung.style.transform="scale(1)";
+diaphragm.style.transform="translateY(0)";
+
+});
+
+window.addEventListener("beforeunload",()=>{
+
+clearInterval(timer);
+
+});
+</script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

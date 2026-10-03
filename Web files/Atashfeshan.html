@@ -1,0 +1,2422 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>
+آزمایشگاه شبیه ساز آتشفشان
+</title>
+
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:tahoma, sans-serif;
+}
+
+
+body{
+
+    min-height:100vh;
+
+    background:
+    radial-gradient(
+    circle at top,
+    #3b1710,
+    #090909 70%
+    );
+
+    color:white;
+
+}
+
+
+
+.lab{
+
+    width:100%;
+    max-width:1400px;
+    margin:auto;
+    padding:20px;
+
+}
+
+
+
+
+
+/* عنوان */
+
+
+.header{
+
+    background:
+    linear-gradient(
+    145deg,
+    #222,
+    #111
+    );
+
+
+    border:1px solid #444;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    text-align:center;
+
+    box-shadow:
+    0 0 25px #ff572240;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.header h1{
+
+    color:#ff7043;
+
+    font-size:32px;
+
+}
+
+
+
+.header p{
+
+    color:#ccc;
+
+    margin-top:10px;
+
+}
+
+
+
+
+
+
+
+/* چیدمان اصلی */
+
+
+.layout{
+
+
+    display:grid;
+
+    grid-template-columns:
+
+    minmax(500px,2fr)
+
+    minmax(300px,1fr);
+
+
+    gap:20px;
+
+
+}
+
+
+
+
+
+
+
+/* شبیه ساز */
+
+
+.simulation{
+
+
+    background:#151515;
+
+    padding:15px;
+
+    border-radius:20px;
+
+    border:1px solid #444;
+
+}
+
+
+
+
+
+
+.volcano-box{
+
+
+    position:relative;
+
+    height:520px;
+
+    background:
+
+
+    linear-gradient(
+    to bottom,
+    #111c25,
+    #050505
+    );
+
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+
+    border:1px solid #333;
+
+
+}
+
+
+
+
+#volcanoCanvas{
+
+    width:100%;
+
+    height:100%;
+
+}
+
+
+
+
+
+
+
+/* اطلاعات روی تصویر */
+
+
+.volcano-info{
+
+
+    position:absolute;
+
+    top:15px;
+
+    left:15px;
+
+
+    background:#000b;
+
+    padding:15px;
+
+    border-radius:15px;
+
+
+    border:1px solid #555;
+
+
+    line-height:2;
+
+    font-size:15px;
+
+
+}
+
+
+
+
+.volcano-info span{
+
+
+    color:#ff9800;
+
+    font-weight:bold;
+
+}
+
+
+
+
+
+
+
+/* کنترل ها */
+
+
+.controls{
+
+
+    background:#1c1c1c;
+
+    margin-top:15px;
+
+    padding:20px;
+
+
+    border-radius:18px;
+
+
+}
+
+
+
+.controls h2{
+
+
+    color:#ff7043;
+
+    margin-bottom:20px;
+
+}
+
+
+
+
+.controls label{
+
+
+    display:flex;
+
+    justify-content:space-between;
+
+
+    margin-top:15px;
+
+    color:#ddd;
+
+}
+
+
+
+
+
+#pressureText{
+
+
+    color:#ff9800;
+
+}
+
+
+
+
+
+input[type="range"]{
+
+
+    width:100%;
+
+    margin-top:12px;
+
+
+    accent-color:#ff5722;
+
+
+}
+
+
+
+
+
+select{
+
+
+    width:100%;
+
+    padding:12px;
+
+
+    margin-top:10px;
+
+
+    background:#111;
+
+    color:white;
+
+
+    border-radius:10px;
+
+
+    border:1px solid #555;
+
+
+    font-size:16px;
+
+
+}
+
+
+
+
+
+.buttons{
+
+
+    display:flex;
+
+    gap:15px;
+
+    margin-top:20px;
+
+
+}
+
+
+
+
+button{
+
+
+    flex:1;
+
+
+    padding:14px;
+
+
+    border:none;
+
+
+    border-radius:12px;
+
+
+    cursor:pointer;
+
+
+    background:
+
+    linear-gradient(
+    135deg,
+    #d84315,
+    #ff7043
+    );
+
+
+    color:white;
+
+
+    font-size:16px;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+
+button:hover{
+
+
+    transform:scale(1.05);
+
+
+    box-shadow:
+    0 0 20px #ff5722;
+
+
+}
+
+
+
+
+
+
+
+/* پنل علمی */
+
+
+.science{
+
+
+    background:
+
+    linear-gradient(
+    145deg,
+    #202020,
+    #101010
+    );
+
+
+    padding:20px;
+
+
+    border-radius:20px;
+
+
+    border:1px solid #444;
+
+
+    max-height:750px;
+
+    overflow:auto;
+
+
+}
+
+
+
+.science h2{
+
+
+    color:#ff7043;
+
+    margin-bottom:15px;
+
+
+}
+
+
+
+
+
+.step{
+
+
+    background:#191919;
+
+
+    border-right:
+
+    4px solid #ff5722;
+
+
+    padding:12px;
+
+
+    margin-bottom:12px;
+
+
+    border-radius:12px;
+
+
+}
+
+
+
+.step h3{
+
+
+    color:#ff9800;
+
+
+    margin-bottom:8px;
+
+
+}
+
+
+
+.step p{
+
+
+    color:#ccc;
+
+
+    line-height:1.8;
+
+
+}
+
+
+
+
+
+.facts{
+
+
+    margin-top:20px;
+
+    line-height:2;
+
+    color:#ddd;
+
+
+}
+
+
+
+
+.facts h3{
+
+
+    color:#ff7043;
+
+
+}
+
+
+
+
+
+
+ul{
+
+
+    padding-right:20px;
+
+}
+
+
+
+
+
+/* نمایش بهتر در لپ تاپ و موبایل */
+
+
+@media(max-width:1000px){
+
+
+.layout{
+
+    grid-template-columns:1fr;
+
+}
+
+
+
+.volcano-box{
+
+    height:450px;
+
+}
+
+
+}
+
+
+
+
+@media(max-width:600px){
+
+
+.lab{
+
+    padding:10px;
+
+}
+
+
+.header h1{
+
+    font-size:24px;
+
+}
+
+
+.buttons{
+
+    flex-direction:column;
+
+}
+
+
+
+.volcano-info{
+
+    font-size:13px;
+
+}
+
+
+}
+.home-btn{
+    position:fixed;
+    top:15px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+</style>
+
+
+</head>
+
+
+<body>
+
+
+
+<div class="lab">
+
+
+<header class="header">
+
+<h1>
+🌋 آزمایشگاه آتشفشان
+</h1>
+
+
+<p>
+شبیه‌سازی حرکت ماگما، افزایش فشار و فوران
+</p>
+
+
+</header>
+
+
+
+
+<main class="layout">
+
+
+
+
+
+<!-- بخش اصلی شبیه سازی -->
+
+
+<section class="simulation">
+
+
+
+<div class="volcano-box">
+
+
+<canvas id="volcanoCanvas"></canvas>
+
+
+
+<div class="volcano-info">
+
+
+<div>
+🌡 دما:
+<span id="temperature">
+700°C
+</span>
+</div>
+
+
+<div>
+🔥 فشار:
+<span id="pressure">
+0%
+</span>
+</div>
+
+
+
+<div>
+⚠ وضعیت:
+<span id="status">
+آتشفشان خاموش
+</span>
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- کنترل ساده -->
+
+
+<div class="controls">
+
+
+
+<h2>
+🎛 کنترل آتشفشان
+</h2>
+
+
+
+
+<label>
+
+🔥 فشار ماگما
+
+<span id="pressureText">
+0%
+</span>
+
+</label>
+
+
+<input 
+type="range"
+id="pressureSlider"
+min="0"
+max="100"
+value="0"
+>
+
+
+
+
+
+<label>
+
+💥 شدت فوران
+
+</label>
+
+
+<select id="powerSelect">
+
+<option value="1">
+کم
+</option>
+
+
+<option value="2">
+متوسط
+</option>
+
+
+<option value="3">
+زیاد
+</option>
+
+
+<option value="4">
+بسیار شدید
+</option>
+
+
+</select>
+
+
+
+
+
+<div class="buttons">
+
+
+<button id="eruptionBtn">
+
+🌋 شروع فوران
+
+</button>
+
+
+
+<button id="resetBtn">
+
+🔄 بازنشانی
+
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- اطلاعات علمی -->
+
+
+<aside class="science">
+
+
+
+<h2>
+📚 آموزش زمین‌شناسی
+</h2>
+
+
+
+<div class="step">
+
+
+<h3>
+1- تجمع ماگما
+</h3>
+
+
+<p>
+
+ماگما در اعماق زمین جمع شده و فشار گازهای
+داخل آن افزایش پیدا می‌کند.
+
+</p>
+
+
+</div>
+
+
+
+
+
+<div class="step">
+
+
+<h3>
+2- افزایش فشار
+</h3>
+
+
+<p>
+
+گازهای حل شده در ماگما باعث حرکت آن
+به سمت سطح زمین می‌شوند.
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+<div class="step">
+
+
+<h3>
+3- شکستن سنگ‌ها
+</h3>
+
+
+<p>
+
+فشار زیاد باعث ایجاد ترک در پوسته زمین
+و باز شدن مسیر خروج می‌شود.
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="step">
+
+
+<h3>
+4- فوران
+</h3>
+
+
+<p>
+
+ماگما، خاکستر و گازها از دهانه خارج می‌شوند.
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="step">
+
+
+<h3>
+5- سرد شدن گدازه
+</h3>
+
+
+<p>
+
+مواد مذاب سرد شده و سنگ‌های آذرین تشکیل می‌دهند.
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="facts">
+
+
+<h3>
+🔬 اطلاعات علمی
+</h3>
+
+
+<p>
+🌡 دمای ماگما:
+700 تا 1300 درجه سانتی‌گراد
+</p>
+
+
+<p>
+ترکیبات:
+</p>
+
+
+<ul>
+
+<li>
+سیلیکات‌ها
+</li>
+
+<li>
+گازهای محلول
+</li>
+
+<li>
+مواد معدنی
+</li>
+
+</ul>
+
+
+
+
+<p>
+انواع فوران:
+</p>
+
+
+<ul>
+
+<li>
+آرام (Effusive)
+</li>
+
+<li>
+انفجاری (Explosive)
+</li>
+
+</ul>
+
+
+</div>
+
+
+
+
+
+
+</aside>
+
+
+
+</main>
+
+
+
+
+</div>
+
+
+
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+<script>
+
+// =====================================
+// آماده سازی Canvas
+// =====================================
+
+const canvas =
+document.getElementById("volcanoCanvas");
+
+
+const ctx =
+canvas.getContext("2d");
+
+
+
+function resizeCanvas(){
+
+    canvas.width =
+    canvas.clientWidth;
+
+    canvas.height =
+    canvas.clientHeight;
+
+}
+
+
+resizeCanvas();
+
+window.addEventListener(
+"resize",
+resizeCanvas
+);
+
+
+
+
+
+// =====================================
+// متغیرهای شبیه سازی
+// =====================================
+
+
+let pressure = 0;
+
+let temperature = 700;
+
+let eruption = false;
+
+let intensity = 1;
+
+let shake = 0;
+
+let magmaHeight = 0;
+
+
+
+
+
+
+
+// عناصر صفحه
+
+
+const pressureSlider =
+document.getElementById(
+"pressureSlider"
+);
+
+
+const pressureText =
+document.getElementById(
+"pressureText"
+);
+
+
+
+const pressureDisplay =
+document.getElementById(
+"pressure"
+);
+
+
+
+const temperatureDisplay =
+document.getElementById(
+"temperature"
+);
+
+
+
+const statusDisplay =
+document.getElementById(
+"status"
+);
+
+
+
+const powerSelect =
+document.getElementById(
+"powerSelect"
+);
+
+
+
+
+
+// =====================================
+// تغییر فشار
+// =====================================
+
+
+pressureSlider.oninput=function(){
+
+
+    pressure =
+    Number(this.value);
+
+
+
+    updateSystem();
+
+
+};
+
+
+
+
+
+
+
+function updateSystem(){
+
+
+    // دما
+
+    temperature =
+    700 +
+    pressure*6;
+
+
+
+    temperatureDisplay.innerHTML =
+    Math.floor(temperature)
+    +"°C";
+
+
+
+
+    pressureText.innerHTML =
+    pressure+"%";
+
+
+
+    pressureDisplay.innerHTML =
+    pressure+"%";
+
+
+
+
+    // وضعیت
+
+
+    if(pressure < 30){
+
+        statusDisplay.innerHTML =
+        "🟢 آتشفشان خاموش";
+
+    }
+
+
+    else if(pressure < 60){
+
+        statusDisplay.innerHTML =
+        "🟡 گازهای زیرزمینی فعال";
+
+    }
+
+
+    else if(pressure < 80){
+
+        statusDisplay.innerHTML =
+        "🟠 آماده فوران";
+
+    }
+
+
+    else{
+
+        statusDisplay.innerHTML =
+        "🔴 فوران شدید";
+
+    }
+
+
+
+
+    // لرزش
+
+    shake =
+    pressure / 12;
+
+
+
+    // ارتفاع ماگما
+
+    magmaHeight =
+    pressure / 2;
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// شدت فوران
+// =====================================
+
+
+powerSelect.onchange=function(){
+
+
+    intensity =
+    Number(this.value);
+
+
+};
+
+
+
+
+
+
+
+
+
+// =====================================
+// دکمه فوران
+// =====================================
+
+
+document
+.getElementById("eruptionBtn")
+.onclick=function(){
+
+
+    eruption=true;
+
+
+    if(pressure<60){
+
+        pressure=60;
+
+        pressureSlider.value=60;
+
+        updateSystem();
+
+    }
+
+
+};
+
+
+
+
+
+
+
+// بازنشانی
+
+
+document
+.getElementById("resetBtn")
+.onclick=function(){
+
+
+    pressure=0;
+
+    pressureSlider.value=0;
+
+
+    eruption=false;
+
+
+    particles=[];
+
+    lava=[];
+
+
+    updateSystem();
+
+
+};
+
+
+
+
+
+
+
+
+
+// =====================================
+// رسم آتشفشان
+// =====================================
+
+function drawVolcano(){
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+let w=canvas.width;
+let h=canvas.height;
+
+
+
+ctx.save();
+
+
+// لرزش
+
+ctx.translate(
+Math.random()*shake-shake/2,
+Math.random()*shake-shake/2
+);
+
+
+
+// آسمان
+
+let sky =
+ctx.createLinearGradient(
+0,0,0,h
+);
+
+sky.addColorStop(0,"#16222b");
+sky.addColorStop(1,"#050505");
+
+
+ctx.fillStyle=sky;
+
+ctx.fillRect(0,0,w,h);
+
+
+
+
+// زمین
+
+
+ctx.fillStyle="#241811";
+
+ctx.fillRect(
+0,
+h-60,
+w,
+60
+);
+
+
+
+
+// -------------------------
+// کوه اصلی
+// -------------------------
+
+
+ctx.beginPath();
+
+
+ctx.moveTo(
+w/2,
+70
+);
+
+
+// سمت چپ کوه
+
+ctx.bezierCurveTo(
+w*.42,
+170,
+w*.25,
+300,
+w*.12,
+h-60
+);
+
+
+// پایین
+
+ctx.lineTo(
+w*.88,
+h-60
+);
+
+
+// سمت راست
+
+ctx.bezierCurveTo(
+w*.75,
+300,
+w*.58,
+170,
+w/2,
+70
+);
+
+
+ctx.closePath();
+
+
+
+let mountain =
+ctx.createLinearGradient(
+0,
+0,
+w,
+0
+);
+
+
+mountain.addColorStop(
+0,
+"#292421"
+);
+
+
+mountain.addColorStop(
+0.5,
+"#665448"
+);
+
+
+mountain.addColorStop(
+1,
+"#211c19"
+);
+
+
+
+ctx.fillStyle=mountain;
+
+ctx.fill();
+
+
+
+
+
+// -------------------------
+// لایه های سنگ
+// -------------------------
+
+
+ctx.strokeStyle="#8b7665";
+
+ctx.lineWidth=3;
+
+
+for(let i=0;i<5;i++){
+
+
+ctx.beginPath();
+
+
+ctx.moveTo(
+w*.15+i*20,
+h-100-i*35
+);
+
+
+ctx.lineTo(
+w*.85-i*20,
+h-100-i*35
+);
+
+
+ctx.stroke();
+
+
+}
+
+
+
+
+
+// -------------------------
+// ترک های کوه
+// -------------------------
+
+
+if(pressure>50){
+
+
+ctx.strokeStyle="#16100d";
+
+ctx.lineWidth=3;
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+w*.35,
+250
+);
+
+
+ctx.lineTo(
+w*.42,
+300
+);
+
+
+ctx.lineTo(
+w*.38,
+350
+);
+
+
+ctx.stroke();
+
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+w*.65,
+250
+);
+
+
+ctx.lineTo(
+w*.58,
+310
+);
+
+
+ctx.lineTo(
+w*.62,
+360
+);
+
+
+ctx.stroke();
+
+
+
+}
+
+
+
+
+
+
+
+// -------------------------
+// دودکش اصلی
+// -------------------------
+
+
+ctx.fillStyle="#130b08";
+
+
+ctx.beginPath();
+
+
+ctx.roundRect(
+w/2-35,
+150,
+70,
+260,
+20
+);
+
+
+ctx.fill();
+
+
+
+// دیواره روشن دودکش
+
+
+ctx.strokeStyle="#7a5540";
+
+ctx.lineWidth=5;
+
+
+ctx.stroke();
+
+
+
+
+
+
+
+
+// -------------------------
+// دودکش های فرعی
+// -------------------------
+
+
+ctx.strokeStyle="#21100c";
+
+ctx.lineWidth=18;
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+w/2-10,
+300
+);
+
+ctx.lineTo(
+w*.35,
+390
+);
+
+
+ctx.moveTo(
+w/2+10,
+300
+);
+
+ctx.lineTo(
+w*.65,
+390
+);
+
+
+ctx.stroke();
+
+
+
+
+
+
+
+
+// -------------------------
+// اتاقک ماگما
+// -------------------------
+
+
+ctx.beginPath();
+
+
+ctx.ellipse(
+w/2,
+430,
+150,
+80,
+0,
+0,
+Math.PI*2
+);
+
+
+
+let magma =
+ctx.createRadialGradient(
+w/2,
+400,
+10,
+w/2,
+430,
+160
+);
+
+
+
+magma.addColorStop(
+0,
+"#ffff33"
+);
+
+
+magma.addColorStop(
+0.3,
+"#ff9800"
+);
+
+
+magma.addColorStop(
+1,
+"#b32000"
+);
+
+
+
+ctx.fillStyle=magma;
+
+
+ctx.fill();
+
+
+
+
+
+
+
+// حباب سطح ماگما
+
+
+ctx.beginPath();
+
+
+ctx.arc(
+w/2,
+420-magmaHeight,
+100,
+Math.PI,
+0
+);
+
+
+ctx.fillStyle="#ff5722";
+
+
+ctx.fill();
+
+
+
+
+
+
+
+
+// -------------------------
+// دهانه آتشفشان
+// -------------------------
+
+
+
+ctx.beginPath();
+
+
+ctx.ellipse(
+w/2,
+80,
+85,
+35,
+0,
+0,
+Math.PI*2
+);
+
+
+
+ctx.fillStyle="#0b0807";
+
+ctx.fill();
+
+
+
+ctx.strokeStyle="#9b7660";
+
+ctx.lineWidth=6;
+
+ctx.stroke();
+
+
+
+
+
+ctx.restore();
+
+}
+// =====================================
+// حلقه انیمیشن
+// =====================================
+
+
+function animate(){
+
+
+    drawVolcano();
+
+
+    drawParticles();
+
+
+    updateParticles();
+
+
+    requestAnimationFrame(
+    animate
+    );
+
+
+}
+
+// =====================================
+// سیستم ذرات آتشفشان
+// =====================================
+
+
+let particles = [];
+
+let lava = [];
+
+let bubbles = [];
+
+
+
+
+
+// =====================================
+// ساخت ذرات فوران
+// =====================================
+
+
+function createParticles(){
+
+
+    let amount =
+    2 + intensity * 5;
+
+
+
+    for(let i=0;i<amount;i++){
+
+
+        particles.push({
+
+            x:
+            canvas.width/2,
+
+
+            y:
+            80,
+
+
+            vx:
+            (Math.random()-0.5)
+            *
+            (2+intensity),
+
+
+
+            vy:
+            -(
+            Math.random()
+            *
+            (4+intensity*2)
+            ),
+
+
+
+            size:
+            Math.random()*5+3,
+
+
+
+            type:
+            Math.random()>0.75?
+            "rock":
+            "lava"
+
+
+        });
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+// =====================================
+// دود آتشفشان
+// =====================================
+
+
+function createSmoke(){
+
+
+    for(let i=0;i<intensity+2;i++){
+
+
+        particles.push({
+
+            x:
+            canvas.width/2+
+            Math.random()*80-40,
+
+
+            y:70,
+
+
+            vx:
+            Math.random()-0.5,
+
+
+            vy:
+            -Math.random()*2,
+
+
+            size:
+            Math.random()*20+10,
+
+
+            type:"smoke"
+
+
+        });
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// حرکت ذرات
+// =====================================
+
+
+function updateParticles(){
+
+
+    for(let i=particles.length-1;i>=0;i--){
+
+
+
+        let p=particles[i];
+
+
+
+        p.x+=p.vx;
+
+        p.y+=p.vy;
+
+
+        p.vy+=0.08;
+
+
+
+        if(
+        p.y>canvas.height ||
+        p.size<0
+        ){
+
+
+            particles.splice(i,1);
+
+
+        }
+
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// رسم ذرات
+// =====================================
+
+
+function drawParticles(){
+
+
+    particles.forEach(p=>{
+
+
+        ctx.beginPath();
+
+
+
+        if(p.type=="lava"){
+
+
+            ctx.fillStyle="#ff4500";
+
+
+        }
+
+
+        else if(p.type=="rock"){
+
+
+            ctx.fillStyle="#333";
+
+
+        }
+
+
+        else{
+
+
+            ctx.fillStyle=
+            "rgba(180,180,180,.25)";
+
+
+        }
+
+
+
+
+        ctx.arc(
+
+        p.x,
+
+        p.y,
+
+        p.size,
+
+        0,
+
+        Math.PI*2
+
+        );
+
+
+
+        ctx.fill();
+
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// حرکت گدازه روی کوه
+// =====================================
+
+
+function createLava(){
+
+
+    lava.push({
+
+
+        x:
+        canvas.width/2,
+
+
+        y:100,
+
+
+        speed:
+        1+intensity/2
+
+
+    });
+
+
+}
+
+
+
+
+function drawLava(){
+
+
+
+    ctx.strokeStyle="#ff5722";
+
+
+    ctx.lineWidth=9;
+
+
+    ctx.lineCap="round";
+
+
+
+    lava.forEach(l=>{
+
+
+        ctx.beginPath();
+
+
+
+        ctx.moveTo(
+
+        canvas.width/2,
+
+        100
+
+        );
+
+
+        ctx.lineTo(
+
+        l.x,
+
+        l.y
+
+        );
+
+
+
+        ctx.stroke();
+
+
+
+        l.y+=l.speed;
+
+
+
+        l.x +=
+        (Math.random()-0.5)
+        *2;
+
+
+
+
+        if(
+        l.y>
+        canvas.height-80
+        ){
+
+
+            l.y=100;
+
+
+        }
+
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =====================================
+// حباب های گاز در ماگما
+// =====================================
+
+
+function createBubbles(){
+
+
+    if(pressure<20)
+    return;
+
+
+
+    for(let i=0;i<pressure/20;i++){
+
+
+        bubbles.push({
+
+
+            x:
+            canvas.width/2+
+            Math.random()*120-60,
+
+
+            y:420,
+
+
+            size:
+            Math.random()*5+3
+
+
+        });
+
+
+
+    }
+
+
+}
+
+
+
+
+
+
+function drawBubbles(){
+
+
+
+    bubbles.forEach((b,index)=>{
+
+
+        ctx.beginPath();
+
+
+
+        ctx.fillStyle=
+        "rgba(255,255,150,.8)";
+
+
+
+        ctx.arc(
+
+        b.x,
+
+        b.y,
+
+        b.size,
+
+        0,
+
+        Math.PI*2
+
+        );
+
+
+        ctx.fill();
+
+
+
+        b.y-=1.5;
+
+
+
+        if(b.y<330){
+
+
+            bubbles.splice(index,1);
+
+
+        }
+
+
+    });
+
+
+
+}
+
+
+
+
+
+
+
+
+// =====================================
+// اجرای فوران
+// =====================================
+
+
+setInterval(()=>{
+
+
+    if(eruption){
+
+
+
+        createParticles();
+
+        createSmoke();
+
+        createLava();
+
+        createBubbles();
+
+
+
+    }
+
+
+
+},150);
+
+
+
+
+
+
+
+
+
+// =====================================
+// اضافه کردن به رسم اصلی
+// =====================================
+
+
+let oldDrawVolcano =
+drawVolcano;
+
+
+
+drawVolcano=function(){
+
+
+    oldDrawVolcano();
+
+
+
+    drawParticles();
+
+
+    drawLava();
+
+
+    drawBubbles();
+
+
+
+    updateParticles();
+
+
+
+};
+
+animate();
+
+
+updateSystem();
+
+</script>
+
+
+
+
+<script src="MusicPlayer.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3ecdf">
+<title>اگر گرانش یک ثانیه از کل جهان حذف شود چه می‌شود؟</title>
+<style>
+  :root {
+    --paper: #f3ecdf; --ink: #241c16; --ink-soft: #5c4e43; --line: rgba(36,28,22,.14);
+    --accent: #9a3b24; --accent-2: #2f4f45; --gold: #b0893e; --card: #fffaf2; --paper-2: #efe6d4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: Tahoma, "Segoe UI", sans-serif;
+    background: radial-gradient(ellipse at 8% 0%, rgba(176,137,62,.11), transparent 40%), var(--paper);
+    color: var(--ink); line-height: 1.95; overflow-x: hidden;
+  }
+  .bar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(243,236,223,.94);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-in {
+    width: min(760px, calc(100% - 24px));
+    margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; font-size: 13px; gap: 10px;
+  }
+  .bar a { color: var(--accent-2); text-decoration: none; white-space: nowrap; }
+  .wrap { width: min(760px, calc(100% - 24px)); margin: 0 auto; padding: 18px 0 92px; }
+  .kicker { color: var(--accent); font-size: 12px; }
+  h1 { font-size: clamp(22px, 6.4vw, 40px); line-height: 1.4; margin: 8px 0 10px; }
+  .meta { color: var(--ink-soft); font-size: 13px; margin-bottom: 14px; }
+  .lead { font-size: clamp(15px, 3.6vw, 18px); color: var(--ink-soft); margin-bottom: 16px; }
+  h2 { font-size: clamp(18px, 4.5vw, 22px); margin: 26px 0 8px; }
+  p { margin-bottom: 12px; font-size: clamp(15px, 3.5vw, 16px); }
+  .frame {
+    width: 100%;
+    margin: 14px 0 20px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+  }
+  .frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .photo-slot {
+    width: 100%;
+    margin: 14px 0 20px;
+    border: 1px dashed rgba(154,59,36,.35);
+    background: repeating-linear-gradient(-45deg, rgba(176,137,62,.06), rgba(176,137,62,.06) 8px, transparent 8px, transparent 16px), #fffaf2;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 12px;
+    color: var(--ink-soft);
+  }
+  .photo-slot b { color: var(--accent); display: block; margin-bottom: 4px; font-size: 14px; }
+  .photo-slot span { font-size: 12px; line-height: 1.7; }
+  .photo-slot:has(img) {
+    aspect-ratio: auto;
+    height: auto;
+    padding: 0;
+    border-style: solid;
+    background: var(--paper-2);
+    display: block;
+  }
+  .photo-slot img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .note {
+    background: var(--card); border: 1px solid var(--line); border-right: 4px solid var(--gold);
+    padding: 12px 14px; margin: 8px 0 18px; font-size: 14px;
+  }
+  .home-btn {
+    position: fixed; z-index: 40; top: 52px; left: 10px;
+    padding: 8px 12px; background: var(--ink); color: #f3ecdf;
+    text-decoration: none; font-weight: 700; font-size: 12px; border-radius: 12px;
+  }
+  @media (min-width: 700px) {
+    .wrap { padding: 28px 0 90px; }
+    .home-btn { top: auto; bottom: 18px; left: 0; border-radius: 0 14px 14px 0; padding: 11px 18px; }
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-in">
+      <span>زمین‌شناسی</span>
+      <a href="../Maghalat.html">بازگشت به مقاله‌ها</a>
+    </div>
+  </div>
+  <article class="wrap">
+    <div class="kicker">فیزیک · آزمایش فکری</div>
+    <h1>اگر گرانش یک ثانیه از کل جهان حذف شود چه می‌شود؟</h1>
+    <div class="meta">یک ثانیه بدون چسب نامرئی کیهان</div>
+    <div class="frame">
+      <img src="images/GhatJazebe.png" alt="زمین از فضا">
+    </div>
+    <p class="lead">تصور کن در اتاقت نشسته‌ای، یک فنجان چای دستت است. یک چشم به هم زدن، آن نیروی نامرئی که همه چیز را کنار هم نگه می‌دارد برای یک ثانیه ما را به حال خودمان می‌گذارد. برای خودت، خانه‌ات، زمین و حتی منظومهٔ شمسی چه می‌شود؟</p>
+
+    <h2>گرانش چیست؟</h2>
+    <p>گرانش مثل چسب مخفی کیهان است. نیرویی که سیاره‌ها را دور خورشید می‌چرخاند، نمی‌گذارد در فضا شناور شویم و چای را داخل فنجان نگه می‌دارد. اگر حتی برای یک لحظه ناپدید شود، اثرش فوری و خیلی بزرگ است.</p>
+    <p>همان لحظه که گرانش خاموش شود، هر چیزی که محکم به جایی وصل نباشد شروع به شناور شدن می‌کند. این فقط مال ما و فنجان نیست. کل زمین از سطح تا هسته، کل منظومهٔ شمسی و حتی کهکشان، یک لحظه بی‌وزنی کامل را تجربه می‌کنند.</p>
+
+    <h2>زمین بدون گرانش</h2>
+    <p>گرانش زمین همه چیز را با شتابی حدود <b>۹٫۸ متر بر مجذور ثانیه</b> به طرف خودش می‌کشد. اگر این نیرو حذف شود، هر چیزی که روی زمین است — اقیانوس‌ها، جو، پوسته، آدم‌ها — دقیقاً با همین شتاب شروع به حرکت به بالا می‌کند.</p>
+    <p>با فرمول جابه‌جایی در شتاب یکنواخت می‌شود حساب کرد که در آن یک ثانیه، آب اقیانوس‌ها حدود <b>۴٫۹ متر</b> بالا می‌روند. در مقیاس یک لیوان کوچک است؛ در مقیاس اقیانوس عدد خیلی بزرگی است.</p>
+    <p>حالا گرانش برمی‌گردد. کل آن آب یک‌باره به طرف زمین سقوط می‌کند؛ باز با شتاب ۹٫۸. از ارتفاع ۴٫۹ متری، سرعت برخورد حدود <b>۳۵ کیلومتر بر ساعت</b> می‌شود. نتیجه می‌تواند موج‌هایی شبیه سونامی بسازد که ارتفاعشان در بعضی جاها خیلی بالا می‌رود و شهرهای ساحلی را تهدید کند.</p>
+
+    <h2>پوستهٔ زمین</h2>
+    <p>زمین لایه‌هایی دارد: جو، پوسته، گوشته، هستهٔ بیرونی و هستهٔ داخلی. در آن ثانیه، پوسته و جو بیشتر از بقیه اثر می‌گیرند.</p>
+    <p>پوسته برای لحظه‌ای بی‌وزن می‌شود. بدون کشش به پایین، و با فشار درونی زمین، ممکن است کمی از گوشته جدا شود. جابه‌جایی پوسته حدود <b>۲ تا ۵ سانتی‌متر</b> است. عدد کوچک به نظر می‌آید؛ اما اگر همان ۵ سانتی‌متر برگردد، سرعت برخورد نزدیک <b>۱ متر بر ثانیه</b> می‌شود. جرم پوسته آن‌قدر زیاد است که همین برخورد کوچک می‌تواند زمین‌لرزه‌های بسیار بزرگ در سراسر جهان راه بیندازد و آتشفشان‌های زیادی را یک‌باره بیدار کند.</p>
+    <h2>جو زمین</h2>
+    <p>در نبود گرانش، جو شروع به گسترده شدن و پراکنده شدن به سمت بالا می‌کند. مولکول‌های هوا از سطح فاصله می‌گیرند چون نیرویی آن‌ها را پایین نگه نمی‌دارد.</p>
+    <p>در طول یک ثانیه، مولکول‌ها به‌خاطر انرژی گرمایی‌شان بالا می‌روند. اگر سرعت گرمایی متوسط مولکول‌های اکسیژن را حدود <b>۵۵۰۰ متر بر ثانیه</b> بگیریم، لایه‌های بیرونی جو ممکن است چند کیلومتر به بیرون بروند و لایه‌های پایین‌تر هم چند صد متر بالاتر بیایند.</p>
+    <p>وقتی گرانش برگردد، جوی که باد کرده ناگهان به سمت سطح فشرده می‌شود. فشار هوا تند عوض می‌شود و بادهایی به قدرت طوفان‌های خیلی بزرگ در سراسر دنیا راه می‌افتد؛ همراه با باران و سیل.</p>
+
+    <h2>منظومهٔ شمسی و کیهان</h2>
+    <p>سیاره‌ها مدارشان را مدیون گرانش خورشیدند. اگر گرانش کل کیهان یک لحظه قطع شود، همه از مسیرشان منحرف می‌شوند. یک ثانیه در زندگی ما کوتاه است؛ در مقیاس مدارها اثرش می‌ماند.</p>
+    <p>شاید زمین دوباره دور خورشید بچرخد، اما مدار قبلی‌اش دقیق سر جایش نیست. همین تغییر کوچک می‌تواند در درازمدت فصل‌ها و آب‌وهوا را عوض کند. اگر دید را از چند سال جلوتر ببریم، احتمال به‌هم‌خوردن مسیر ستاره‌ها و کهکشان‌ها هم مطرح می‌شود.</p>
+    <p>یک تصویر ساده: چند آهن‌ربا نزدیک هم روی میز. اگر میز را تکان بدهی ممکن است به هم بخورند. کیهان خیلی بزرگ‌تر است. اگر این خاموشی را از منظومهٔ خودمان حساب کنیم، رسیدنش به جاهای دور مثل تکان دادن یک پتوی خیلی بزرگ می‌ماند؛ موج از این سر تا آن سر زمان می‌برد. شاید میلیون‌ها سال نوری طول بکشد تا آن سر کیهان اثر آن یک ثانیه را حس کند.</p>
+
+    <h2>از این یک ثانیه چه می‌ماند؟</h2>
+    <p>اگر کسی از موج ساحل، زمین‌لرزه، طوفان و تغییر فشار جو جان سالم به در ببرد، شاید فقط با چند جای‌زخم کوچک از برخورد به زمین این خاطره را برای بعد تعریف کند. این یک آزمایش فکری است تا بفهمیم گرانش چقدر آرام، و در عین حال چقدر محکم، همه چیز را سر جایش نگه داشته است. تا فکر بعدی، کنجکاو بمان.</p>
+  </article>
+  <a class="home-btn" href="../Maghalat.html">بازگشت به مقاله‌ها</a>
+<script src="../MusicPlayer.js"></script>
+</body>
+</html>

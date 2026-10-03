@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+ZalVerse | زال‌ورس
+</title>
+
+<link rel="icon"
+type="image/png"
+href="Web files/More photos/لوگو.png">
+
+<link rel="stylesheet"
+href="Web files/-- Lobby files/-- Lobby.css">
+
+<!-- ==========================
+     استایل‌های جدید بخش Hero (کاملاً هماهنگ با تم سایت)
+=========================== -->
+<style>
+.hero-section *, .hero-section *::before, .hero-section *::after {
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   حالت پیش‌فرض: تم روشن (روز)
+   رنگ‌ها کمی تیره‌تر شده‌اند تا روی پس‌زمینه سفید کاملاً واضح باشند.
+========================================================== */
+.hero-section {
+    /* استفاده از متغیرهای خود سایت برای هماهنگی کامل */
+    --hero-bg: var(--card-bg, #ffffff);
+    --hero-text: var(--text, #1d1d1f);
+    --hero-subtext: #64748b;
+    --hero-border: #86868b; /* خط‌چین مدارها کمی تیره‌تر برای وضوح بیشتر */
+    --hero-logo-bg: #e2e8f0; /* پس‌زمینه لوگو کمی تیره‌تر از سفید */
+    --hero-icon-bg: #f5f5f7; /* پس‌زمینه آیکون‌ها متمایز از سفید */
+    --hero-accent: #0071e3; /* رنگ آبی اصلی سایت */
+    
+    /* دکمه اصلی در تم روشن (آبی با متن سفید) */
+    --hero-btn-primary-bg: var(--hero-accent);
+    --hero-btn-primary-text: #ffffff;
+    --hero-btn-primary-shadow: 0 4px 15px rgba(0, 113, 227, 0.3);
+    --hero-btn-primary-hover-shadow: 0 8px 25px rgba(0, 113, 227, 0.4);
+    
+    /* دکمه ثانویه در تم روشن (شفاف با متن تیره) */
+    --hero-btn-secondary-bg: transparent;
+    --hero-btn-secondary-text: var(--text, #1d1d1f);
+    --hero-btn-secondary-border: #d2d2d7;
+    --hero-btn-secondary-hover-bg: rgba(0, 0, 0, 0.05);
+    
+    --hero-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    --hero-badge-bg: rgba(0, 0, 0, 0.04);
+    --hero-logo-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+    --hero-icon-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: clamp(30px, 5vw, 60px) clamp(20px, 4vw, 50px);
+    
+    max-width: 1250px;
+    width: calc(100% - 40px);
+    margin: clamp(20px, 4vw, 50px) auto;
+    border-radius: 24px;
+    
+    background-color: var(--hero-bg);
+    color: var(--hero-text);
+    
+    gap: clamp(30px, 5vw, 60px);
+    position: relative;
+    overflow: hidden;
+    direction: rtl;
+    
+    box-shadow: var(--hero-shadow);
+    border: 1px solid var(--hero-border);
+    transition: background-color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+/* =========================================================
+   حالت تاریک (شب)
+   وقتی data-theme="dark" به body اضافه می‌شود.
+========================================================== */
+[data-theme="dark"] .hero-section,
+body.night .hero-section {
+    --hero-bg: #0b1120;
+    --hero-text: #ffffff;
+    --hero-subtext: #94a3b8;
+    --hero-border: rgba(255, 255, 255, 0.1);
+    --hero-logo-bg: #0f172a;
+    --hero-icon-bg: #1e293b;
+    
+    /* دکمه اصلی در تم شب (سفید با متن تیره) */
+    --hero-btn-primary-bg: #ffffff;
+    --hero-btn-primary-text: #0f172a;
+    --hero-btn-primary-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+    --hero-btn-primary-hover-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+    
+    /* دکمه ثانویه در تم شب (شفاف با متن سفید) */
+    --hero-btn-secondary-bg: transparent;
+    --hero-btn-secondary-text: #ffffff;
+    --hero-btn-secondary-border: rgba(255, 255, 255, 0.15);
+    --hero-btn-secondary-hover-bg: rgba(255, 255, 255, 0.05);
+    
+    --hero-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    --hero-badge-bg: rgba(255, 255, 255, 0.05);
+    --hero-logo-shadow: 0 0 50px rgba(59, 130, 246, 0.6), inset 0 0 20px rgba(59, 130, 246, 0.4);
+    --hero-icon-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+/* استایل‌های بخش متنی */
+.hero-text {
+    flex: 1;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-badge {
+    align-self: flex-start;
+    padding: 8px 16px;
+    border-radius: 50px;
+    background: var(--hero-badge-bg);
+    border: 1px solid var(--hero-border);
+    color: var(--hero-subtext);
+    font-size: clamp(0.8rem, 1vw, 0.95rem);
+    margin-bottom: 20px;
+    backdrop-filter: blur(5px);
+    transition: all 0.4s ease;
+}
+
+.hero-title {
+    font-size: clamp(2rem, 4vw + 1rem, 3.2rem);
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 15px;
+    color: var(--hero-text);
+}
+
+.hero-title .highlight {
+    color: var(--hero-accent);
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+.hero-subtitle {
+    font-size: clamp(1rem, 1.5vw + 0.5rem, 1.15rem);
+    color: var(--hero-subtext);
+    line-height: 1.8;
+    margin-bottom: 30px;
+    transition: color 0.4s ease;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.hero-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--hero-btn-primary-bg);
+    color: var(--hero-btn-primary-text);
+    padding: clamp(12px, 1.5vw, 16px) clamp(20px, 2.5vw, 32px);
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: clamp(0.95rem, 1vw, 1.1rem);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: var(--hero-btn-primary-shadow);
+}
+
+.hero-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--hero-btn-primary-hover-shadow);
+}
+
+.hero-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--hero-btn-secondary-bg);
+    color: var(--hero-btn-secondary-text);
+    padding: clamp(12px, 1.5vw, 16px) clamp(20px, 2.5vw, 32px);
+    border-radius: 12px;
+    border: 1px solid var(--hero-btn-secondary-border);
+    font-weight: bold;
+    font-size: clamp(0.95rem, 1vw, 1.1rem);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.hero-btn-secondary:hover {
+    background: var(--hero-btn-secondary-hover-bg);
+}
+
+/* استایل‌های بخش تصویری (مدارها و لوگو) */
+.hero-visual {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.orbit-container {
+    position: relative;
+    width: clamp(280px, 35vw, 420px);
+    height: clamp(280px, 35vw, 420px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.orbit {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px dashed var(--hero-border);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    transition: border-color 0.4s ease;
+}
+
+.orbit-1 {
+    width: 100%;
+    height: 100%;
+    animation: rotateOrbit 25s linear infinite;
+}
+
+.orbit-2 {
+    width: 70%;
+    height: 70%;
+    animation: rotateOrbit 15s linear infinite reverse;
+}
+
+.orbit-icon {
+    position: absolute;
+    width: clamp(35px, 4vw, 50px);
+    height: clamp(35px, 4vw, 50px);
+    background: var(--hero-icon-bg);
+    border: 1px solid var(--hero-border);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(16px, 2vw, 22px);
+    box-shadow: var(--hero-icon-shadow);
+    color: var(--hero-text);
+    z-index: 5;
+    transition: all 0.4s ease;
+}
+
+.orbit-1 .orbit-icon:nth-child(1) { top: -22px; left: 50%; transform: translateX(-50%); }
+.orbit-1 .orbit-icon:nth-child(2) { bottom: -22px; left: 50%; transform: translateX(-50%); }
+.orbit-2 .orbit-icon:nth-child(1) { top: -22px; left: 50%; transform: translateX(-50%); }
+.orbit-2 .orbit-icon:nth-child(2) { bottom: -22px; left: 50%; transform: translateX(-50%); }
+
+.hero-logo {
+    width: 35%;
+    height: 35%;
+    background: var(--hero-logo-bg);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: var(--hero-logo-shadow);
+    border: 2px solid var(--hero-accent);
+    position: relative;
+    z-index: 10;
+    transition: all 0.4s ease;
+}
+
+.hero-logo img {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+}
+
+/* انیمیشن چرخش لوگو: هر ۵ ثانیه، ۳ دور کامل */
+@keyframes spinThreeTimes {
+    0% { transform: rotate(0deg); }
+    10% { transform: rotate(0deg); }
+    60% { transform: rotate(1080deg); }
+    100% { transform: rotate(1080deg); }
+}
+
+.spin-animation {
+    animation: spinThreeTimes 5s ease-in-out infinite;
+}
+
+@keyframes rotateOrbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ==========================
+   واکنش‌گرایی برای موبایل و تبلت
+========================== */
+@media (max-width: 900px) {
+    .hero-section {
+        flex-direction: column-reverse;
+        text-align: center;
+        padding: 30px 20px;
+        gap: 25px;
+        width: calc(100% - 30px);
+        margin: 15px auto;
+        border-radius: 20px;
+    }
+    .hero-text {
+        align-items: center;
+        max-width: 100%;
+    }
+    .hero-badge {
+        align-self: center;
+    }
+    .hero-title {
+        font-size: clamp(1.8rem, 6vw, 2.5rem);
+    }
+    .hero-buttons {
+        justify-content: center;
+        width: 100%;
+        flex-direction: column;
+    }
+    .hero-btn-primary, .hero-btn-secondary {
+        width: 100%;
+        max-width: 350px;
+    }
+    .orbit-container {
+        width: clamp(240px, 80vw, 300px);
+        height: clamp(240px, 80vw, 300px);
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+
+<!--========================
+      SKY BACKGROUND
+=========================-->
+
+<div id="sky">
+
+    <!-- خورشید -->
+    <div id="sun"></div>
+
+    <!-- ماه -->
+    <div id="moon"></div>
+
+    <!-- ستاره‌ها (با جاوااسکریپت ساخته می‌شوند) -->
+    <div id="stars"></div>
+
+    <!-- شهاب -->
+    <div id="meteor"></div>
+
+    <!-- ابرها -->
+    <div id="clouds">
+
+        <div class="cloud cloud1"></div>
+
+        <div class="cloud cloud2"></div>
+
+        <div class="cloud cloud3"></div>
+
+    </div>
+
+</div>
+<!--========================
+      SPLASH
+=========================-->
+<!-- <div id="splash-screen">
+
+<img
+src="Web files/More photos/splash.jpg"
+alt="Splash">
+
+</div>
+ -->
+
+<!--========================
+      NAVBAR
+=========================-->
+
+<nav class="navbar">
+
+<div class="nav-logo">
+
+<img
+src="Web files/More photos/logo.png"
+alt="Logo">
+
+<button 
+class="nav-btn"
+onclick="goHome()">
+
+ZalVerse | زال‌ورس
+
+</button>
+
+</div>
+
+
+
+<div class="nav-menu">
+
+<button
+class="nav-btn"
+onclick="openAbout()">
+
+درباره سایت
+
+</button>
+
+
+
+<button
+class="nav-btn"
+onclick="openHelp()">
+
+راهنما
+
+</button>
+
+
+
+<button
+class="nav-btn"
+onclick="openNews()">
+
+تازه ها
+
+</button>
+
+
+
+<button
+class="nav-btn"
+onclick="openSupport()">
+
+پشتیبانی
+
+</button>
+
+<button 
+class="nav-btn"
+onclick="openRobotSettings()">
+تنظیمات
+</button>
+
+
+
+
+<button
+class="nav-btn random-btn"
+onclick="randomSimulator()">
+
+🎲 آزمایش تصادفی
+
+</button>
+
+
+
+<button
+class="nav-icon"
+onclick="focusSearch()">
+
+🔍
+
+</button>
+<button 
+class="nav-icon"
+id="themeBtn"
+onclick="toggleTheme()">
+🌓
+</button>
+
+<!-- <button 
+class="nav-icon"
+id="skyBtn"
+onclick="toggleSky()">
+🌌
+</button> -->
+
+
+
+
+</div>
+
+</nav>
+
+
+
+
+<!-- پس‌زمینه تار -->
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+
+<span class="close-btn" onclick="document.getElementById('profileModal').style.display='none'">
+    &times;
+</span>
+
+        <img src="Web files/More photos/Me.png" class="profile-img">
+
+        <h2>امیرعلی زال</h2>
+
+<p>
+
+سلام من امیرعلی زال هستم، دانش‌آموز دبیرستان فرهنگ دوره 37 و متولد سال 1392. این سایت را در سال 1405 با هدف راحت‌تر شدن تدریس علوم استاد محمدی ثابت و یادگیری بهتر دانش‌آموزان طراحی کرده‌ام. <br><br>
+
+در این مجموعه می‌توانید از کارت‌های متنوع آموزشی استفاده کنید که با کلیک روی هرکدام به صفحه مربوط به آن منتقل می‌شوید و به شبیه‌سازهای علمی، مدل‌های آموزشی و مطالب مختلف علوم دسترسی پیدا می‌کنید. <br><br>
+
+علاقه من به فناوری، برنامه‌نویسی و طراحی باعث شد این پروژه را ایجاد کنم تا آموزش علوم ساده‌تر، جذاب‌تر و تعاملی‌تر شود و ابزارهای مفیدی در اختیار دانش‌آموزان و اساتید قرار گیرد.<br><br>
+
+امیدوارم استفاده از این سایت برای شما مفید، آموزنده و لذت‌بخش باشد. :)     <br>
+</p>
+
+    </div>
+</div>
+
+
+
+<!-- ==========================
+        HELP
+========================== -->
+
+<div id="helpModal" class="popup-modal">
+
+<div class="popup-box">
+
+<span class="popup-close" onclick="closeModal('helpModal')">✕</span>
+
+
+<h2>❓ راهنمای کامل استفاده از زال‌ورس</h2>
+
+
+<p>
+👋 به زال‌ورس خوش آمدید.
+<br>
+اینجا می‌توانی علوم مختلف را فقط با خواندن یاد نگیری، بلکه با شبیه‌سازهای تعاملی آزمایش کنی، کشف کنی و تجربه به دست بیاوری.
+</p>
+
+
+
+<h3>🔬 شبیه‌سازهای علمی</h3>
+
+<ul>
+
+<li>
+در صفحه اصلی کارت‌های مختلف علمی را مشاهده می‌کنی.
+</li>
+
+<li>
+با انتخاب هر کارت وارد محیط شبیه‌سازی همان موضوع می‌شوی.
+</li>
+
+<li>
+هر شبیه‌ساز امکانات مخصوص خود را دارد؛ مانند تغییر شرایط، مشاهده حرکت‌ها، انجام آزمایش و بررسی نتیجه‌ها.
+</li>
+
+<li>
+برای یادگیری بهتر، پیشنهاد می‌شود فقط توضیحات را نخوانی و با بخش‌های تعاملی آزمایش انجام دهی.
+</li>
+
+</ul>
+
+
+
+
+<h3>🔎 جستجو و پیدا کردن مطالب</h3>
+
+<ul>
+
+<li>
+از نوار جستجو برای پیدا کردن سریع شبیه‌سازها استفاده کن.
+</li>
+
+<li>
+جستجو در نام کارت، توضیحات و کلمات مرتبط انجام می‌شود.
+</li>
+
+<li>
+می‌توانی موضوعاتی مانند:
+زیست، شیمی، فیزیک، زمین و فضا یا نام یک آزمایش را جستجو کنی.
+</li>
+
+</ul>
+
+
+
+
+<h3>📚 دسته‌بندی موضوعات</h3>
+
+<ul>
+
+<li>
+کارت‌ها در دسته‌های علمی مختلف قرار گرفته‌اند.
+</li>
+
+<li>
+با انتخاب هر دسته فقط مطالب مرتبط نمایش داده می‌شوند.
+</li>
+
+<li>
+این بخش کمک می‌کند سریع‌تر موضوع مورد علاقه خود را پیدا کنی.
+</li>
+
+</ul>
+
+
+
+
+<h3>⭐ علاقه‌مندی‌ها</h3>
+
+<ul>
+
+<li>
+روی علامت ⭐ کنار هر کارت کلیک کن تا آن شبیه‌ساز به علاقه‌مندی‌ها اضافه شود.
+</li>
+
+<li>
+کارت‌های مورد علاقه در بالای صفحه قرار می‌گیرند.
+</li>
+
+<li>
+انتخاب‌های تو ذخیره می‌شوند و بعد از ورود دوباره باقی می‌مانند.
+</li>
+
+</ul>
+
+
+
+
+<h3>🤖 زال‌بات</h3>
+
+<ul>
+
+<li>
+زال‌بات دستیار هوشمند سایت است و درباره امکانات سایت، نکته‌های علمی و پیشنهادهای آموزشی صحبت می‌کند.
+</li>
+
+<li>
+با کلیک روی ربات می‌توانی وارد پروفایل کاربری شوی.
+</li>
+
+<li>
+ربات با توجه به فعالیت‌های تو می‌تواند پیشنهادهای مرتبط بدهد.
+</li>
+
+<li>
+در تنظیمات می‌توانی فعال یا غیرفعال بودن ربات، اندازه، زمان پیام‌ها و پس‌زمینه را تغییر دهی.
+</li>
+
+</ul>
+
+
+
+
+<h3>👤 پروفایل کاربری</h3>
+
+<ul>
+
+<li>
+با کلیک روی زال‌بات می‌توانی پروفایل خود را باز کنی.
+</li>
+
+<li>
+در پروفایل اطلاعاتی مانند سطح، امتیاز، ماموریت‌ها، اولین ورود و شبیه‌سازهای کشف شده نمایش داده می‌شود.
+</li>
+
+<li>
+با انجام فعالیت‌های مختلف امتیاز کسب کن و سطح خود را افزایش بده.
+</li>
+
+</ul>
+
+
+
+
+<h3>🎯 ماموریت‌های روزانه</h3>
+
+<ul>
+
+<li>
+هر روز ماموریت‌های جدید برای انجام دادن دریافت می‌کنی.
+</li>
+
+<li>
+با باز کردن بخش‌های مختلف سایت و انجام فعالیت‌ها ماموریت‌ها کامل می‌شوند.
+</li>
+
+<li>
+با کامل کردن ماموریت‌ها امتیاز دریافت می‌کنی.
+</li>
+
+</ul>
+
+
+
+
+<h3>🌓 حالت روشن و تاریک</h3>
+
+<ul>
+
+<li>
+با دکمه تغییر تم می‌توانی بین حالت روز و شب جابه‌جا شوی.
+</li>
+
+<li>
+انتخاب تم ذخیره می‌شود و در ورودهای بعدی باقی می‌ماند.
+</li>
+
+<li>
+زال‌بات نیز می‌تواند با حالت روز و شب هماهنگ شود.
+</li>
+
+</ul>
+
+
+
+
+<h3>🌌 پس‌زمینه سایت</h3>
+
+<ul>
+
+<li>
+در تنظیمات می‌توانی بین پس‌زمینه پویا و ساده انتخاب کنی.
+</li>
+
+<li>
+در حالت پویا، افکت‌هایی مانند ستاره‌ها و شهاب‌ها نمایش داده می‌شوند.
+</li>
+
+<li>
+انتخاب پس‌زمینه ذخیره می‌شود.
+</li>
+
+</ul>
+
+
+
+
+<h3>🎲 انتخاب تصادفی شبیه‌ساز</h3>
+
+<ul>
+
+<li>
+با گزینه آزمایش تصادفی، سایت یک شبیه‌ساز را به صورت اتفاقی انتخاب می‌کند.
+</li>
+
+<li>
+کارت انتخاب شده مشخص می‌شود تا بتوانی موضوعات جدید را کشف کنی.
+</li>
+
+</ul>
+
+
+
+
+<h3>🖼 گالری تصاویر</h3>
+
+<ul>
+
+<li>
+برای مشاهده تصاویر موجود در گالری روی آن‌ها کلیک کن.
+</li>
+
+<li>
+تصویر به صورت بزرگ نمایش داده می‌شود.
+</li>
+
+<li>
+برای خروج می‌توانی روی علامت ✕ یا خارج از تصویر کلیک کنی.
+</li>
+
+</ul>
+
+
+
+
+<h3>📊 آمار سایت</h3>
+
+<ul>
+
+<li>
+در بخش درباره سایت می‌توانی اطلاعاتی  را مشاهده کنی.
+</li>
+
+<li>
+فعالیت‌های تو در سایت باعث ثبت پیشرفت و آمار کاربری می‌شود.
+</li>
+
+</ul>
+
+
+
+
+<h3>💡 نکات مهم</h3>
+
+<ul>
+
+<li>
+برای بهترین تجربه از آخرین نسخه Chrome یا Edge استفاده کن.
+</li>
+
+<li>
+سایت برای لپ‌تاپ و کامپیوتر طراحی شده است.
+</li>
+
+<li>
+اگر مشکلی دیدی یا پیشنهادی داشتی از بخش پشتیبانی استفاده کن.
+</li>
+
+<li>
+به یاد داشته باش: بهترین روش یادگیری علوم، تجربه کردن است 🔬✨
+</li>
+
+</ul>
+
+
+</div>
+
+</div>
+
+
+
+
+<!--========================
+      NEWS
+=========================-->
+
+<div
+id="newsModal"
+class="popup-modal">
+
+<div class="popup-box">
+
+<span
+class="popup-close"
+onclick="closeModal('newsModal')">
+
+×
+
+</span>
+
+<h2>
+🚀 تازه‌ها
+</h2>
+
+<p>
+آخرین تغییرات و نسخه‌های زال‌ورس:
+</p>
+
+
+<h3>
+🟪 نسخه 3.0 | گسترش آزمایشگاه علمی
+</h3>
+
+<ul>
+
+<li>
+📚 اضافه شدن کارت «مقالات علمی» و گسترش محتوای آموزشی سایت؛ در حال حاضر این بخش شامل <strong>۱۹ مقاله</strong> علمی و آموزشی است.
+</li>
+
+<li>
+💎 اضافه شدن کارت «کانی‌ها» برای آشنایی با کانی‌ها، ویژگی‌ها و آزمایش‌های مربوط به آن‌ها.
+</li>
+
+<li>
+🧲 اضافه شدن کارت «آهنربا» برای بررسی قطب‌های آهنربا و مشاهده و آزمایش میدان مغناطیسی.
+</li>
+
+<li>
+🧪 اضافه شدن کارت «آزمایشگاه مواد» برای انجام آزمایش‌های مختلف با مواد و مشاهده نتیجه ترکیب و تغییر آن‌ها.
+</li>
+
+<li>
+💡 اضافه شدن کارت «آزمایش نور» برای بررسی پدیده‌هایی مانند بازتاب، شکست، عبور نور، عدسی و تغییر مسیر نور.
+</li>
+
+<li>
+🗑️ حذف شدن کارت «بانک فایل‌ها» به دلیل حجم بسیار زیاد فایل‌های موردنیاز و جلوگیری از سنگین شدن و کاهش سرعت سایت.
+</li>
+
+<li>
+🎨 بهبود ظاهر کلی کارت‌ها، صفحات و بخش‌های مختلف سایت برای داشتن رابط کاربری منظم‌تر و حرفه‌ای‌تر.
+</li>
+
+<li>
+🐛 رفع باگ‌های جزئی و اصلاح مشکلات کوچک موجود در شبیه‌سازها، کارت‌ها و بخش‌های مختلف سایت.
+</li>
+
+
+<li>
+🌐 اضافه شدن پروژه به صفحه GitHub توسعه‌دهنده برای دسترسی عمومی‌تر به پروژه و مشاهده روند توسعه آن:
+<br><br>
+
+<a
+href="https://github.com/AAliZal"
+target="_blank"
+rel="noopener noreferrer">
+
+🔗 github.com/AAliZal
+
+</a>
+
+</li>
+
+
+
+</ul>
+
+
+
+<h3>
+🟩 نسخه 2.0 | نسخه هوشمند و تعاملی
+</h3>
+
+<ul>
+
+<li>
+بهبود شبیه‌ساز مولکول و حذف مولکول‌های اضافی، نمایش نام مولکول، درصد ترکیب عناصر و مشخص کردن اتم‌هایی که در ساخت مولکول استفاده شده‌اند با علامت تأیید ✅.
+</li>
+
+<li>
+بهبود سیستم آلیاژها، حذف تشخیص‌های اشتباه و دقیق‌تر شدن بررسی ترکیب فلزات.
+</li>
+
+<li>
+اصلاح اطلاعات جدول مندلیف و بهتر شدن توضیحات کارت‌های آموزشی.
+</li>
+
+<li>
+اضافه شدن توضیحات کامل‌تر برای کارت‌ها و اضافه شدن پنل توضیحات به شبیه‌سازهای گوارش و کشتی.
+</li>
+
+<li>
+اضافه شدن قابلیت ضربان قلب خودکار و حرکت باز و بسته شدن دریچه‌های میترال و سه‌لختی در شبیه‌ساز قلب.
+</li>
+
+<li>
+اضافه شدن کارت‌های جدید و گسترش مجموعه شبیه‌سازهای علمی شامل:
+<br>
+🌬️ شُش،
+🌌 فضا،
+🧪 آزمایشگاه شیمی،
+🌋 آتشفشان،
+🩸 خون،
+💡 مدار،
+🔭 شگفتی‌های علم،
+🔬 کشف‌های علمی
+</li>
+
+<li>
+اضافه شدن فایل‌های جدید به بانک فایل‌ها و مرتب‌سازی ساختار پوشه‌های پروژه.
+</li>
+
+
+<li>
+اضافه شدن نوار اصلی سایت برای دسترسی سریع‌تر به بخش‌های مختلف.
+</li>
+
+<li>
+دسته‌بندی کارت‌ها در گروه‌های زیست، شیمی، فیزیک، زمین و فضا و غیره.
+</li>
+
+<li>
+اضافه شدن جستجو با کلمات کلیدی مخصوص هر کارت برای پیدا کردن سریع‌تر مطالب.
+</li>
+
+<li>
+حذف فایل کامل پروژه از بانک فایل‌ها به دلیل حجم بالا و جلوگیری از ایجاد اختلال در سایت.
+</li>
+
+
+<li>
+اضافه شدن سیستم علاقه‌مندی‌ها با ستاره روی کارت‌ها؛ کارت‌های مورد علاقه در بالای لیست قرار می‌گیرند و امکان فعال یا غیرفعال کردن آن‌ها وجود دارد.
+</li>
+
+
+<li>
+اضافه شدن پس‌زمینه پویا شامل خورشید، ماه، ستاره‌ها، ابرها و شهاب‌ها با امکان تغییر بین پس‌زمینه پویا و ساده از تنظیمات.
+</li>
+
+
+<li>
+بهبود سیستم تم روشن و تاریک و ذخیره آخرین حالت انتخاب‌شده کاربر.
+</li>
+
+
+<li>
+اضافه شدن زال‌بات هوشمند با قابلیت تغییر حالت، واکنش به کارت‌ها، پیام‌های خودکار و هماهنگی با تم روز و شب.
+</li>
+
+<li>
+اضافه شدن تنظیمات زال‌بات که شامل قابلیت فعال یا غیرفعال کردن ربات، تغییر اندازه، تنظیم پس‌زمینه و شخصی‌سازی ربات است.
+</li>
+
+
+<li>
+اضافه شدن پروفایل کاربر؛ با کلیک روی زال‌بات می‌توان اطلاعاتی مانند سطح، امتیاز، تعداد شبیه‌سازهای کشف‌شده، آمار فعالیت‌ها و ماموریت‌های روزانه را مشاهده کرد.
+</li>
+
+
+<li>
+اضافه شدن سیستم ماموریت‌های روزانه با انتخاب تصادفی، دریافت امتیاز و نمایش پیام موفقیت هنگام انجام ماموریت‌ها.
+</li>
+
+<li>
+زال‌بات رفتار های شما را برسی میکند و با توجه به علاقه‌مندی‌های شما کارت های مربوطه را پیشنهاد می‌دهد.
+</li>
+
+</ul>
+
+
+
+<h3>
+🟦 نسخه 1.0 | اولین نسخه زال‌ورس
+</h3>
+
+<ul>
+
+<li>
+ایجاد اولین نسخه سایت با هدف آموزش علوم به صورت تعاملی و جذاب.
+</li>
+
+<li>
+طراحی صفحه اصلی لابی و کارت‌های آموزشی برای ورود به شبیه‌سازها.
+</li>
+
+<li>
+اضافه شدن اولین مجموعه شبیه‌سازها شامل:
+</li>
+
+<ul>
+
+<li>🔬 میکروسکوپ</li>
+<li>🧪 جدول ۱۱۸ عنصر شیمی</li>
+<li>📂 بانک فایل‌ها</li>
+<li>⚙️ آلیاژ</li>
+<li>⚛️ اتم</li>
+<li>💧 چرخه آب</li>
+<li>🌡️ دماسنج</li>
+<li>⚡ انرژی‌ها</li>
+<li>❤️ قلب</li>
+<li>🧬 مولکول</li>
+<li>🧰 ابزارهای علمی</li>
+<li>🔌 رسانایی</li>
+<li>🦠 یاخته</li>
+<li>🍎 گوارش</li>
+<li>🚢 کشتی</li>
+
+</ul>
+
+
+<li>
+اضافه شدن جستجوی ساده برای پیدا کردن کارت‌ها.
+</li>
+
+<li>
+ایجاد ساختار اولیه فایل‌ها و صفحات سایت.
+</li>
+
+<li>
+اضافه شدن بخش‌های اولیه درباره سایت، راهنما و پشتیبانی.
+</li>
+
+<li>
+ساخت پایه اولیه یک محیط آموزشی که بعدها به نسخه هوشمند و تعاملی تبدیل شد.
+</li>
+
+</ul>
+
+
+</div>
+
+</div>
+
+
+
+<!--========================
+      SUPPORT
+=========================-->
+
+<div id="supportModal" class="popup-modal">
+
+<div class="popup-box">
+
+<span class="popup-close" onclick="closeModal('supportModal')">✕</span>
+
+<h2>🛠 پشتیبانی</h2>
+
+<p>
+
+اگر با مشکلی مواجه شدید، ایده‌ای برای شبیه‌ساز جدید دارید یا می‌خواهید پیشنهادی ارائه دهید، خوشحال می‌شوم با من در ارتباط باشید.
+
+<br><br>
+
+برای ارتباط با پشتیبانی در پیام‌رسان‌های <b>بله</b> و <b>ایتا</b> به آیدی زیر پیام دهید:
+
+<br><br>
+
+📩 <b>@zal_otako</b>
+
+<br><br>
+
+منتظر دریافت گزارش‌ها، پیشنهادها و ایده‌های شما هستم. 🌱
+
+</p>
+
+</div>
+
+</div>
+    <br>
+
+
+
+
+<!--========================
+      THEME
+=========================-->
+
+
+
+
+<!-- ==========================
+        HERO SECTION (به صورت پنل)
+========================== -->
+<section class="hero-section">
+    <!-- بخش متنی (سمت راست) -->
+    <div class="hero-text">
+        <span class="hero-badge">آزمایشگاه تعاملی علوم</span>
+        <h1 class="hero-title">
+            علوم را فقط نخوان؛ <span class="highlight">کشفش کن.</span>
+        </h1>
+        <p class="hero-subtitle">
+            در زال‌ورس می‌توانی مفاهیم علوم را با شبیه‌ساز، آزمایش، مقاله و ابزارهای تعاملی تجربه کنی.
+        </p>
+        <div class="hero-buttons">
+            <a href="#mainGrid" class="hero-btn-primary">
+                شروع یک آزمایش ←
+            </a>
+            <a href="#mainGrid" class="hero-btn-secondary">
+                مشاهده موضوعات
+            </a>
+        </div>
+    </div>
+
+    <!-- بخش تصویری (سمت چپ) -->
+    <div class="hero-visual">
+        <div class="orbit-container">
+            <!-- مدارهای چرخان -->
+            <div class="orbit orbit-1">
+                <div class="orbit-icon">⚡</div>
+                <div class="orbit-icon">❄️</div>
+            </div>
+            <div class="orbit orbit-2">
+                <div class="orbit-icon">🌍</div>
+                <div class="orbit-icon">⚛️</div>
+            </div>
+            
+            <!-- لوگوی مرکزی با انیمیشن چرخش -->
+            <div class="hero-logo">
+                <!-- از لوگوی خود سایت استفاده شده است -->
+                <img src="Web files/More photos/لوگو.png" alt="ZalVerse Logo" class="spin-animation">
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<div class="search-container">
+
+<input
+
+type="text"
+
+id="searchInput"
+
+dir="rtl"
+
+onkeyup="filterCards()"
+
+placeholder="نام شبیه‌ساز، موضوع یا کلمه‌کلیدی را جستجو کنید...">
+
+</div>
+
+<div class="category-box">
+
+<button onclick="setCategory('all',this)" class="category-btn active">
+همه
+</button>
+
+<button onclick="setCategory('bio',this)" class="category-btn">
+🧬 زیست
+</button>
+
+<button onclick="setCategory('chem',this)" class="category-btn">
+⚗️ شیمی
+</button>
+
+<button onclick="setCategory('physics',this)" class="category-btn">
+⚡ فیزیک
+</button>
+
+<button onclick="setCategory('earth',this)" class="category-btn">
+🌍 زمین و فضا
+</button>
+
+<button onclick="setCategory('other',this)" class="category-btn">
+📚 غیره
+</button>
+
+</div>
+
+<div
+class="grid"
+id="mainGrid">
+
+<a href="Web files/Microskop.html" class="card bio"
+data-robot='[
+"با این شبیه‌ساز می‌توانی دنیای کوچک سلول‌ها را کشف کنی 🔬",
+"آماده‌ای با چشم یک دانشمند به دنیای سلول‌ها نگاه کنی؟ 🧬",
+"یک دنیای کوچک اما شگفت‌انگیز در انتظار توست!"
+]'
+data-category="bio" data-keywords="میکروسکوپ microscope سلول یاخته بافت باکتری ویروس قارچ عدسی بزرگنمایی لام اسلاید آزمایش ذره">
+    <span class="icon"><img src="Web files/Icons/Icon1.png" alt=""></span>
+    <h3>میکروسکوپ</h3>
+    <p>مشاهده چندین بافت و ذره با لرزش طبیعی</p>
+</a>
+
+<a href="Web files/jadval.html" class="card chem"
+data-robot='[
+"تمام عناصر جدول تناوبی را کشف کن 🧪",
+"هر عنصر داستان و ویژگی‌های خودش را دارد!",
+"آماده‌ای دنیای شیمی را بهتر بشناسی؟ ⚛️"
+]'
+data-category="chem" data-keywords="عنصر جدول تناوبی شیمی chemistry periodic element اتم فلز نافلز گاز هالوژن لانتانید اکتینید">
+    <span class="icon"><img src="Web files/Icons/Icon2.png" alt=""></span>
+    <h3>۱۱۸ عنصر شیمی</h3>
+    <p>اطلس کامل عناصر به زبان فارسی</p>
+</a>
+
+<a href="Web files/Aliaj.html" class="card chem"
+data-robot='[
+"فلزها را ترکیب کن و آلیاژهای جدید بساز ⚙️",
+"ببین ترکیب فلزها چه نتیجه‌ای می‌دهد!",
+"مثل یک مهندس مواد آزمایش کن."
+]'
+data-category="chem" data-keywords="آلیاژ alloy فلز آهن فولاد استیل مس برنز برنج آلومینیوم نیکل کروم قلع روی ترکیب">
+    <span class="icon"><img src="Web files/Icons/Icon4.png" alt=""></span>
+    <h3>آلیاژ</h3>
+    <p>تجربه ساخت و ترکیب آلیاژ شخصی</p>
+</a>
+
+<a href="Web files/Atom.html" class="card chem"
+data-robot='[
+"به دنیای شگفت‌انگیز اتم‌ها سفر کن ⚛️",
+"پروتون، نوترون و الکترون را از نزدیک ببین.",
+"ساختار اتم را به‌صورت تعاملی کشف کن."
+]'
+data-category="chem" data-keywords="اتم atom پروتون نوترون الکترون هسته مدار بور کوانتوم عنصر یون">
+    <span class="icon"><img src="Web files/Icons/Icon5.png" alt=""></span>
+    <h3>اتم</h3>
+    <p>شبیه‌ساز اتم و ذرات زیراتمی</p>
+</a>
+
+<a href="Web files/CharkheAb.html" class="card earth"
+data-robot='[
+"سفر یک قطره آب را دنبال کن 💧",
+"از تبخیر تا بارش، چرخه آب را ببین.",
+"طبیعت همیشه در حال گردش است!"
+]'
+data-category="earth" data-keywords="چرخه آب آب تبخیر میعان بارش ابر باران برف رودخانه دریا hydrologic water cycle">
+    <span class="icon"><img src="Web files/Icons/Icon6.png" alt=""></span>
+    <h3>چرخه آب</h3>
+    <p>شبیه‌ساز فرآیند چرخه آب در زمین</p>
+</a>
+
+<a href="Web files/DamaSanj.html" class="card physics"
+data-robot='[
+"دما را به‌صورت زنده اندازه بگیر 🌡️",
+"ببین گرما چه تأثیری بر دماسنج دارد.",
+"آزمایش تغییرات دما را امتحان کن."
+]'
+data-category="physics" data-keywords="دماسنج دما گرما سرما thermometer سانتیگراد سلسیوس فارنهایت جیوه الکل">
+    <span class="icon"><img src="Web files/Icons/Icon7.png" alt=""></span>
+    <h3>دماسنج</h3>
+    <p>شبیه‌ساز ساده از عملکرد دماسنج</p>
+</a>
+
+<a href="Web files/Enerji.html" class="card energy"
+data-robot='[
+"منابع مختلف انرژی را بررسی کن ⚡",
+"ببین برق چگونه تولید می‌شود.",
+"با انرژی‌های تجدیدپذیر بیشتر آشنا شو."
+]'
+data-category="physics" data-keywords="انرژی برق خورشیدی بادی آبی هسته ای زمین گرمایی انرژی تجدیدپذیر renewable electricity">
+    <span class="icon"><img src="Web files/Icons/Icon8.png" alt=""></span>
+    <h3>انرژی‌ها</h3>
+    <p>بررسی انواع روش‌های تولید برق</p>
+</a>
+
+<a href="Web files/Ghalb.html" class="card bio"
+data-robot='[
+"ضربان قلب را از نزدیک مشاهده کن ❤️",
+"گردش خون در بدن را دنبال کن.",
+"قلب چگونه بدون توقف کار می‌کند؟"
+]'
+data-category="bio" data-keywords="قلب heart خون گردش خون دهلیز بطن دریچه نبض ضربان رگ سرخرگ سیاهرگ">
+    <span class="icon"><img src="Web files/Icons/Icon9.png" alt=""></span>
+    <h3>قلب</h3>
+    <p>آناتومی و شبیه‌ساز پمپاژ خون</p>
+</a>
+
+<a href="Web files/Molkool.html" class="card chem"
+data-robot='[
+"اتم‌ها را کنار هم قرار بده و مولکول بساز 🧬",
+"پیوندهای شیمیایی را تجربه کن.",
+"ببین مواد چگونه از اتم‌ها تشکیل می‌شوند."
+]'
+data-category="chem" data-keywords="مولکول molecule پیوند شیمیایی کووالانسی یونی آب اکسیژن هیدروژن co2 h2o">
+    <span class="icon"><img src="Web files/Icons/Icon10.png" alt=""></span>
+    <h3>مولکول</h3>
+    <p>ترکیب اتم‌ها و ساختارهای مولکولی</p>
+</a>
+
+<a href="Web files/NirooSanj.html" class="card physics"
+data-robot='[
+"ابزارهای علمی را امتحان کن و اندازه‌گیری انجام بده 🧰",
+"نیرو، جرم و وزن را در عمل مقایسه کن.",
+"مثل یک دانشمند آزمایشگاه کار کن!"
+]'
+data-category="physics" data-keywords="نیروسنج ترازو جرم وزن نیرو spring balance فیزیک آزمایش laboratory">
+    <span class="icon"><img src="Web files/Icons/Icon11.png" alt=""></span>
+    <h3>ابزارهای علمی</h3>
+    <p>نیروسنج، ترازو و آزمایش‌های فیزیک</p>
+</a>
+
+<a href="Web files/Garma.html" class="card physics"
+data-robot='[
+"ببین کدام مواد گرما را عبور می‌دهند 🔌",
+"رساناها و نارساناها را آزمایش کن.",
+"با چند آزمایش ساده مفهوم رسانایی را یاد بگیر."
+]'
+data-category="physics" data-keywords="رسانایی conductivity برق رسانا نارسانا فلز سیم مدار جریان مقاومت">
+    <span class="icon"><img src="Web files/Icons/Icon12.png" alt=""></span>
+    <h3>آزمایش رسانایی</h3>
+    <p>تست رسانایی مواد با افکت‌های رنگی</p>
+</a>
+
+<a href="Web files/Yakhte.html" class="card bio"
+data-robot='[
+"به درون یک یاخته سفر کن 🦠",
+"اجزای سلول را از نزدیک بررسی کن.",
+"هر بخش یاخته وظیفه‌ای مهم دارد!"
+]'
+data-category="bio" data-keywords="یاخته سلول cell هسته غشا سیتوپلاسم میتوکندری کلروپلاست واکوئل ریبوزوم">
+    <span class="icon"><img src="Web files/Icons/Icon13.png" alt=""></span>
+    <h3>یاخته</h3>
+    <p>مشاهده میکروسکوپی اجزای یاخته</p>
+</a>
+
+<a href="Web files/Govaresh.html" class="card bio"
+data-robot='[
+"مسیر حرکت غذا در بدن را دنبال کن 🍎",
+"ببین غذا چگونه هضم می‌شود.",
+"اندام‌های دستگاه گوارش را بهتر بشناس."
+]'
+data-category="bio" data-keywords="گوارش معده روده دهان مری کبد لوزالمعده هضم digestion digestive system">
+    <span class="icon"><img src="Web files/Icons/Icon14.png" alt=""></span>
+    <h3>گوارش</h3>
+    <p>مشاهده مسیر و اندام‌های گوارشی</p>
+</a>
+
+<a href="Web files/Kashti.html" class="card physics"
+data-robot='[
+"کشتی خودت را بساز و روی آب آزمایش کن 🚢",
+"راز شناور ماندن کشتی‌ها را کشف کن.",
+"آیا کشتی تو غرق می‌شود یا شناور می‌ماند؟"
+]'
+data-category="physics" data-keywords="کشتی ship قایق شناوری چگالی ارشمیدس buoyancy آب دریا موتور">
+    <span class="icon"><img src="Web files/Icons/Icon15.png" alt=""></span>
+    <h3>کشتی</h3>
+    <p>شبیه ساز ساخت و آزمایش کشتی</p>
+</a>
+
+<a href="Web files/Cheshm.html" class="card bio"
+data-robot='[
+"ساختار چشم انسان را کاوش کن 👁️",
+"ببین نور چگونه به تصویر تبدیل می‌شود.",
+"راز بینایی را کشف کن!"
+]'
+data-category="bio" data-keywords="چشم eye قرنیه مردمک عدسی شبکیه عنبیه بینایی نور عصب بینایی">
+    <span class="icon"><img src="Web files/Icons/Icon16.png" alt=""></span>
+    <h3>چشم</h3>
+    <p>مشاهده اجزای چشم انسان در شرایط مختلف</p>
+</a>
+
+<a href="Web files/Madar.html" class="card physics"
+data-robot='[
+"مدارهای الکتریکی مختلف بساز 💡",
+"لامپ را روشن کن و مدارهای تازه امتحان کن.",
+"با برق و جریان به‌صورت عملی آشنا شو."
+]'
+data-category="physics" data-keywords="مدار circuit برق باتری لامپ مقاومت سیم کلید ولتاژ جریان الکترون">
+    <span class="icon"><img src="Web files/Icons/Icon17.png" alt=""></span>
+    <h3>مدار</h3>
+    <p>ساخت مدار برق به صورت دستی و آزمایش آن</p>
+</a>
+
+<a href="Web files/Shosh.html" class="card bio"
+data-robot='[
+"عملکرد شش‌ها را از نزدیک مشاهده کن 🫁",
+"ببین هنگام تنفس چه اتفاقی می‌افتد.",
+"سفر اکسیژن در بدن را دنبال کن."
+]'
+data-category="bio" data-keywords="شش ریه lung تنفس اکسیژن دی اکسید کربن نای نایژه آلوئول نفس">
+    <span class="icon"><img src="Web files/Icons/Icon18.png" alt=""></span>
+    <h3>شُش</h3>
+    <p>آناتومی و شبیه‌ساز شش</p>
+</a>
+
+<a href="Web files/Faza.html" class="card earth"
+data-robot='[
+"به سفری در منظومه شمسی برو 🚀",
+"سیاره‌ها و ستاره‌ها را از نزدیک ببین.",
+"فضای بی‌کران پر از شگفتی است!"
+]'
+data-category="earth" data-keywords="فضا space منظومه شمسی سیاره خورشید ماه زمین مریخ مشتری زحل ستاره کهکشان سیارک">
+    <span class="icon"><img src="Web files/Icons/Icon19.png" alt=""></span>
+    <h3>فضا</h3>
+    <p>شبیه ساز سیاره ها, سیارک ها و ... در منظومه شمسی</p>
+</a>
+
+<a href="Web files/MizAzmayesh.html" class="card chem"
+data-robot='[
+"اینجا می‌توانی واکنش‌های شیمیایی مختلف را امتحان کنی ⚗️",
+"مواد مختلف را ترکیب کن و نتیجه واکنش را ببین 🧪",
+"مثل یک شیمیدان واقعی آزمایش‌های جذاب انجام بده!"
+]'
+data-category="chem" data-keywords="آزمایشگاه شیمی chemistry آزمایش واکنش اسید باز رسوب گاز محلول بشر لوله آزمایش">
+    <span class="icon"><img src="Web files/Icons/Icon20.png" alt=""></span>
+    <h3>آزمایشگاه شیمی</h3>
+    <p>شبیه ساز واکنش‌های شیمیایی، ترکیب مواد، تولید گاز، رسوب و تغییرات دما</p>
+</a>
+
+<a href="Web files/Atashfeshan.html" class="card earth"
+data-robot='[
+"قدرت آتشفشان‌ها را از نزدیک مشاهده کن 🌋",
+"حرکت ماگما و فوران زمین را شبیه‌سازی کن.",
+"رازهای درون زمین را کشف کن!"
+]'
+data-category="earth" data-keywords="آتشفشان volcano ماگما گدازه lava فوران زمین لرزه کوه آذرین">
+    <span class="icon"><img src="Web files/Icons/Icon21.png" alt=""></span>
+    <h3>آتشفشان</h3>
+    <p>شبیه ساز فوران آتشفشان، حرکت ماگما، فشار زیرزمینی و تشکیل گدازه</p>
+</a>
+
+<a href="Web files/Khoon.html" class="card bio"
+data-robot='[
+"دنیای شگفت‌انگیز خون را بررسی کن 🩸",
+"سلول‌های خونی و عملکرد بدن را کشف کن.",
+"ببین بدن چگونه با بیماری‌ها مبارزه می‌کند!"
+]'
+data-category="bio" data-keywords="خون blood گلبول قرمز گلبول سفید پلاکت پلاسما واکسن ایمنی باکتری ویروس زخم انعقاد هموگلوبین">
+    <span class="icon"><img src="Web files/Icons/Icon22.png" alt=""></span>
+    <h3>خون</h3>
+    <p>بررسی سلول‌های خونی، حرکت در رگ، مقابله با باکتری‌ها، عملکرد واکسن و ترمیم زخم</p>
+</a>
+
+<a href="Web files/Makhloot.html" class="card chem"
+data-robot='[
+"مواد مختلف را با هم مخلوط کن و واکنش‌های شیمیایی را ببین 🧪",
+"با ابزارهای آزمایشگاهی کار کن و نتیجه ترکیب مواد را بررسی کن.",
+"مواد را ترکیب کن، تغییرات را مشاهده کن و با واکنش‌های شیمیایی آشنا شو!"
+]'
+data-category="chem"
+data-keywords="شیمی chemistry ماده مواد مخلوط ترکیب واکنش واکنش شیمیایی آزمایشگاه ابزار آزمایشگاهی محلول اسید باز رسوب تغییر رنگ دما">
+
+    <span class="icon">
+        <img src="Web files/Icons/Icon23.png" alt="">
+    </span>
+
+    <h3>آزمایشگاه مواد</h3>
+    <p>ترکیب مواد مختلف، استفاده از ابزارهای آزمایشگاهی و مشاهده واکنش‌ها و تغییرات شیمیایی</p>
+
+</a>
+
+<a href="Web files/Meghnatis.html" class="card physics"
+data-robot='[
+"میدان مغناطیسی آهن‌ربا را از نزدیک مشاهده کن 🧲",
+"آهن‌رباها را حرکت بده و ببین چگونه یکدیگر را جذب یا دفع می‌کنند!",
+"قدرت میدان مغناطیسی و رفتار قطب‌های آهن‌ربا را کشف کن."
+]'
+data-category="physics" data-keywords="آهن ربا آهنربا magnet مغناطیس magnetic میدان مغناطیسی قطب شمال جنوب جذب دفع نیرو خطوط میدان">
+
+    <span class="icon"><img src="Web files/Icons/Icon24.png" alt=""></span>
+    <h3>آهن‌ربا</h3>
+    <p>مشاهده میدان مغناطیسی و آزمایش جذب و دفع آهن‌رباها</p>
+</a>
+
+<a href="Web files/Kani.html" class="card earth"
+data-robot='[
+"۱۵ کانی مختلف را بررسی کن و سختی آن‌ها را با هم مقایسه کن 💎",
+"کانی‌ها را روی هم بکش و ببین کدام کانی روی دیگری خراش ایجاد می‌کند!",
+"با آزمایش خراش، سختی کانی‌ها را کشف کن."
+]'
+data-category="earth" data-keywords="کانی mineral سنگ سختی خراش آزمایش خراش مقیاس موس Mohs کوارتز الماس کلسیت تالک فلدسپات">
+
+    <span class="icon"><img src="Web files/Icons/Icon25.png" alt=""></span>
+    <h3>کانی‌ها</h3>
+    <p>آزمایش سختی ۱۵ کانی با ایجاد خراش و مقایسه آن‌ها</p>
+</a>
+
+<a href="Web files/Noor.html" class="card physics"
+data-robot='[
+"رفتار نور را با منشور، عدسی و سایه بررسی کن 🔦",
+"ببین نور چگونه می‌شکند، تغییر مسیر می‌دهد و سایه ایجاد می‌کند.",
+"با آزمایش‌های مختلف، راز شکست نور و عملکرد عدسی‌ها را کشف کن!"
+]'
+data-category="physics" data-keywords="نور light شکست نور refraction منشور prism سایه عدسی lens بازتاب آینه کانون فوکوس پرتو">
+
+    <span class="icon"><img src="Web files/Icons/Icon26.png" alt=""></span>
+    <h3>آزمایش نور</h3>
+    <p>آزمایش شکست نور با منشور، ایجاد سایه و بررسی عملکرد عدسی</p>
+</a>
+
+<a href="Web files/Maghalat.html" class="card file"
+data-robot='[
+"مقاله‌های علمی و آموزشی را بخوان و چیزهای جدید یاد بگیر 📚",
+"موضوعات جذاب علمی را در مقاله‌های مختلف کشف کن.",
+"آماده‌ای دانش خودت را با مطالعه مقاله‌های جدید بیشتر کنی؟ 🔬"
+]'
+data-category="other" data-keywords="مقاله مقالات مقاله علمی آموزش دانش science article articles مطالب آموزشی تحقیق پژوهش">
+
+    <span class="icon"><img src="Web files/Icons/Icon27.png" alt=""></span>
+    <h3>مقاله‌ها</h3>
+    <p>مجموعه‌ای از مقاله‌های علمی و آموزشی</p>
+</a>
+
+
+
+
+
+
+</div>
+
+<br><br><br>
+<br><br><br>
+<br><br><br>
+<!-- Modern Text Box Component -->
+<div class="modern-text-box">
+  <p class="modern-text-box__content">
+مجموعه‌ای از تصاویر استاد محمدی ثابت در این قسمت قرار دارد.  </p>
+</div>
+
+<!-- Photo Gallery Component -->
+<div id="GG" class="photo-gallery-no-caption">
+
+  <div class="gallery-item-no-caption">
+    <div class="gallery-item__frame">
+      <img src="Web files/Teacher/M1.png" alt="Photo 1" class="gallery-item__img">
+    </div>
+  </div>
+
+  <div class="gallery-item-no-caption">
+    <div class="gallery-item__frame">
+      <img src="Web files/Teacher/M2.png" alt="Photo 2" class="gallery-item__img">
+    </div>
+  </div>
+
+  <div class="gallery-item-no-caption">
+    <div class="gallery-item__frame">
+      <img src="Web files/Teacher/M3.png" alt="Photo 3" class="gallery-item__img">
+    </div>
+  </div>
+
+  <div class="gallery-item-no-caption">
+    <div class="gallery-item__frame">
+      <img src="Web files/Teacher/M4.png" alt="Photo 4" class="gallery-item__img">
+    </div>
+  </div>
+
+  <div class="gallery-item-no-caption">
+    <div class="gallery-item__frame">
+      <img src="Web files/Teacher/M5.png" alt="Photo 5" class="gallery-item__img">
+    </div>
+  </div>
+
+  <div class="gallery-item-no-caption">
+    <div class="gallery-item__frame">
+      <img src="Web files/Teacher/M6.png" alt="Photo 6" class="gallery-item__img">
+    </div>
+  </div>
+
+  <div class="gallery-item-no-caption">
+    <div class="gallery-item__frame">
+      <img src="Web files/Teacher/M7.png" alt="Photo 7" class="gallery-item__img">
+    </div>
+  </div>
+
+  <div class="gallery-item-no-caption">
+    <div class="gallery-item__frame">
+      <img src="Web files/Teacher/M8.png" alt="Photo 8" class="gallery-item__img">
+    </div>
+  </div>
+
+</div>
+
+
+<div class="code-stats">
+    <p id="statsText">
+        در حال محاسبه...
+    </p>
+</div>
+
+<footer>طراحی شده توسط امیرعلی زال - ۱۴۰۵</footer>
+
+
+
+
+
+<!-- تنظیمات ربات -->
+
+<div id="robotSettings" class="popup-modal">
+
+
+<div class="popup-box">
+
+
+<span 
+class="popup-close"
+onclick="closeRobotSettings()">
+
+✕
+</span>
+
+
+<h2>
+🤖 تنظیمات 
+</h2>
+
+
+
+<label>
+
+فعال بودن ربات:
+
+<input 
+type="checkbox"
+id="robotEnable"
+checked>
+
+</label>
+
+
+
+<br><br>
+
+
+<label>
+
+اندازه ربات:
+
+<select id="robotSize">
+
+<option value="small">
+کوچک
+</option>
+
+<option value="medium" selected>
+متوسط
+</option>
+
+<option value="large">
+بزرگ
+</option>
+
+</select>
+
+</label>
+
+
+
+<br><br>
+
+
+
+
+
+<label>
+
+پس زمینه:
+<select id="robotBackground">
+
+<option value="dynamic">
+پویا 🌌
+</option>
+
+<option value="simple">
+ساده ☀️
+</option>
+
+</select>
+
+
+</label>
+
+<br><br>
+
+<label>
+
+ پیام‌های خودکار ربات:
+
+<input 
+type="checkbox"
+id="robotAutoTalk"
+checked>
+
+</label>
+
+
+<br><br>
+
+
+<label>
+
+زمان پیام‌های ربات:
+<select id="robotTalkTime">
+
+<option value="15000">
+هر ۱۵ ثانیه
+</option>
+
+<option value="30000">
+هر ۳۰ ثانیه
+</option>
+
+<option value="60000">
+هر ۱ دقیقه
+</option>
+
+<option value="120000" selected>
+هر ۲ دقیقه
+</option>
+
+<option value="300000">
+هر ۵ دقیقه
+</option>
+
+</select>
+
+</label>
+
+
+<br><br>
+
+
+<label>
+
+مدت نمایش پیام ربات:
+
+<select id="robotMessageTime">
+
+<option value="5000">
+۵ ثانیه
+</option>
+
+<option value="8000" selected>
+۸ ثانیه
+</option>
+
+<option value="15000">
+۱۵ ثانیه
+</option>
+
+</select>
+
+</label>
+
+
+<br><br>
+
+
+<label>
+
+🎵 موزیک پس‌زمینه:
+
+<input
+type="checkbox"
+id="musicEnableCheckbox"
+checked>
+
+</label>
+
+</div>
+
+</div>
+
+<!-- =============================
+        USER PROFILE PANEL
+============================= -->
+
+
+<div id="userProfilePanel" class="popup-modal">
+
+
+<div class="popup-box user-profile-box">
+
+
+<span 
+class="popup-close"
+onclick="closeUserProfile()">
+
+✕
+
+</span>
+
+
+<h2>
+🤖 پروفایل من
+</h2>
+
+
+<div id="userProfileContent">
+
+</div>
+
+
+</div>
+
+
+</div>
+<!-- =============================
+        ZALBOT
+============================= -->
+
+<div id="zalbot-container">
+
+    <img 
+    id="zalbot-image"
+    src="Web files/Robot img/آرام - روز.png"
+    alt="ZalBot">
+
+    <div id="zalbot-message">
+        
+    </div>
+
+</div>
+
+<script src="Web files/UserSystem.js"></script>
+<script src="Web files/-- Lobby files/-- Lobby.js"></script>
+
+<script src="Web files/MusicPlayer.js"></script>
+</body>
+</html>

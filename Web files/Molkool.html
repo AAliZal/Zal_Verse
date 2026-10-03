@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+
+<meta charset="UTF-8"><title>آزمایشگاه ۱۸۰ ترکیب</title>
+<style>
+:root{--p:#00f2ff;--bg:#0a0a0c}body{background:var(--bg);color:#fff;font-family:tahoma;margin:0;display:flex;height:100vh;overflow:hidden}
+.side{width:300px;background:#151518;display:flex;flex-direction:column;border-left:2px solid #333}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;overflow-y:auto;flex:1}
+.el{background:#222;padding:6px 2px;text-align:center;border-radius:4px;cursor:pointer;font-size:10px;border:1px solid #333}.el:hover{background:var(--p);color:#000}
+.lab{flex:1;position:relative;display:flex;flex-direction:column;background:radial-gradient(circle,#1a2a3a,#000)}.chamber{flex:1;position:relative}
+.atom{position:absolute;width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;box-shadow:0 0 12px rgba(255,255,255,0.2)}
+.panel{height:120px;background:rgba(0,0,0,0.9);display:flex;justify-content:space-around;align-items:center;border-top:2px solid #444;padding:0 20px}
+.res-h{font-size:2.5rem;color:var(--p);font-weight:bold}#m-n{font-size:1.6rem;color:#ffce45}#m-f{color:#aaa;font-size:1rem}
+.btn{background:#f44;color:#fff;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:bold}
+.home-btn{
+    position:fixed;
+    top:15px;
+    right:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:15px 0 0 15px;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-left:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+</style>
+</head>
+<body>
+<div class="lab"><div class="chamber" id="ch"></div><div class="panel">
+<div><div id="m-n">...</div><div id="m-f"></div></div>
+<div style="text-align:center"><small>تطابق:</small><div id="pct" class="res-h">0%</div></div>
+<button class="btn" onclick="location.reload()">تخلیه</button></div></div>
+<div class="side"><div id="info" style="padding:10px;text-align:center;color:#ffce45">عنصر را انتخاب کنید</div><div class="grid" id="gr"></div></div>
+
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+
+<script>
+const E="H|هیدروژن,He|هلیوم,Li|لیتیوم,Be|بریلیوم,B|بور,C|کربن,N|نیتروژن,O|اکسیژن,F|فلوئور,Ne|نئون,Na|سدیم,Mg|منیزیم,Al|آلومینیوم,Si|سیلیسیم,P|فسفر,S|گوگرد,Cl|کلر,Ar|آرگون,K|پتاسیم,Ca|کلسیم,Sc|اسکاندیم,Ti|تیتانیم,V|وانادیم,Cr|کروم,Mn|منگنز,Fe|آهن,Co|کبالت,Ni|نیکل,Cu|مس,Zn|روی,Ga|گالیم,Ge|ژرمانیم,As|آرسنیک,Se|سلنیم,Br|برم,Kr|کریپتون,Rb|روبیدیوم,Sr|استرانسیم,Y|ایتریم,Zr|زیرکونیم,Nb|نیوبیم,Mo|مولیبدن,Tc|تکنسیوم,Ru|روتنیم,Rh|رودیم,Pd|پالادیم,Ag|نقره,Cd|کادمیوم,In|ایندیم,Sn|قلع,Sb|آنتیموان,Te|تلوریم,I|ید,Xe|گزنون,Cs|سزیوم,Ba|باریوم,La|لانتان,Ce|سریم,Pr|پرازئودیمیم,Nd|نئودیمیم,Pm|پرومتیم,Sm|ساماریم,Eu|اروپیم,Gd|گادولینیم,Tb|تربیم,Dy|دیسپروزیم,Ho|هولمیم,Er|اربیم,Tm|تولیم,Yb|ایتربیم,Lu|لوتتیم,Hf|هافنیم,Ta|تانتالیم,W|تنگستن,Re|رنیم,Os|اسمیم,Ir|ایریدیم,Pt|پلاتین,Au|طلا,Hg|جیوه,Tl|تالیوم,Pb|سرب,Bi|بیسموت,Po|پولونیم,At|استاتین,Rn|رادون,Fr|فرانسیم,Ra|رادیم,Ac|اکتینیم,Th|توریم,Pa|پروتاکتینیم,U|اورانیوم,Np|نپتونیم,Pu|پلوتونیم,Am|امریسیوم,Cm|کوریوم,Bk|برکلیم,Cf|کالیفرنیم,Es|اینشتینیم,Fm|فرمیم,Md|مندلیفیم,No|نوبلیم,Lr|لارنسیم,Rf|رادرفوردیم,Db|دوبنیم,Sg|سیبورگیم,Bh|بوهریم,Hs|هسیم,Mt|مایتنریم,Ds|دارمشتادیم,Rg|رونتگنیم,Cn|کوپرنیسیم,Nh|نیهونیم,Fl|فلروویم,Mc|مسکوویم,Lv|لیورموریم,Ts|تنسین,Og|اوگانسون";
+const M = "آب|H2O1, دی‌اکسید کربن|C1O2, سدیم کلراید|Na1Cl1, متان|C1H4, آمونیاک|N1H3, اسید سولفوریک|H2S1O4, گلوکز|C6H12O6, اتانول|C2H6O1, کافئین|C8H10N4O2, آسپرین|C9H8O4, بنزن|C6H6, جوش‌شیرین|Na1H1C1O3, جوهر نمک|H1Cl1, تی‌ان‌تی|C7H5N3O6, شکر|C12H22O11, کلروفرم|C1H1Cl3, هماتیت|Fe2O3, آب اکسیژنه|H2O2, اوزون|O3, پتاسیم نیترات|K1N1O3, کات کبود|Cu1S1O4, اوره|C1H4N2O1, مورفین|C17H19N1O3, نیکوتین|C10H14N2, پنی‌سیلین|C16H18N2O4S1, آدرنالین|C9H13N1O3, کلسترول|C27H46O1, فسفر سفید|P4, گوگرد|S8, فرمالدهید|C1H2O1, خردل|C4H8Cl2S1, پروژسترون|C21H30O2, استیلن|C2H2, آنتیموان سولفید|Sb2S3, سولفات مس|Cu1S1O4, دی‌اکسید گوگرد|S1O2, مونوکسید کربن|C1O1, سدیم هیدروکسید|Na1O1H1, کلسیم کربنات|Ca1C1O3, اسید نیتریک|H1N1O3, اسید فسفریک|H3P1O4, آمونیوم کلرید|N1H4Cl1, گچ|Ca1S1O4, کوارتز|Si1O2, متانول|C1H4O1, استون|C3H6O1, گلیسرین|C3H8O3, سدیم کربنات|Na2C1O3, پتاسیم پرمنگنات|K1Mn1O4, دی‌کلرومتان|C1H2Cl2, گلیسین|C2H5N1O2, ویتامین C|C6H8O6, کافور|C10H16O1, باکالیت|C7H6O2, پلی‌اتیلن|C2H4, تتراکلرید کربن|C1Cl4, هیدروژن سیانید|H1C1N1, استیک اسید|C2H4O2, آلومینا|Al2O3, منیزیم اکسید|Mg1O1, روی سولفید|Zn1S1, نقره نیترات|Ag1N1O3, باریوم سولفات|Ba1S1O4, لیتیم فلوراید|Li1F1, سدیم فلوراید|Na1F1, کلسیم کلرید|Ca1Cl2, پتاسیم کلرید|K1Cl1, سدیم برماید|Na1Br1, هیدرید بریلیم|Be1H2, تری‌فلورید بور|B1F3, اسکاندیم مونوسولفید|Sc1S1, دی‌اکسید تیتانیوم|Ti1O2, پنتااکسید وانادیم|V2O5, پتاسیم دی‌کرومات|K2Cr2O7";
+const inv = {};
+const mols = [];
+
+// ---------- ساخت دیتابیس مولکول ----------
+
+M.split(",").forEach(x => {
+
+    let [name, formula] = x.split("|");
+
+    let atoms = {};
+
+    formula.match(/([A-Z][a-z]*)(\d+)/g).forEach(p => {
+
+        let [, sym, count] = p.match(/([A-Z][a-z]*)(\d+)/);
+
+        atoms[sym] = parseInt(count);
+
+    });
+
+    mols.push({
+        n: name,
+        s: formula.replace(/\d+/g, x => `<sub>${x}</sub>`),
+        f: atoms
+    });
+
+});
+// ---------- تشخیص خودکار اتم های استفاده شده ----------
+const usedAtoms = new Set();
+
+mols.forEach(m => {
+
+    for(let atom in m.f){
+
+        usedAtoms.add(atom);
+
+    }
+
+});
+
+// ---------- ساخت جدول عناصر ----------
+E.split(",").forEach(x => {
+
+    let [sym, name] = x.split("|");
+
+    let d = document.createElement("div");
+
+    d.className = "el";
+
+    let status = usedAtoms.has(sym) ? "✅" : "❌";
+
+    d.innerHTML = `<b>${sym}</b><br>${name}<br>${status}`;
+
+    d.onclick = () => {
+
+        inv[sym] = (inv[sym] || 0) + 1;
+
+        let a = document.createElement("div");
+
+        a.className = "atom";
+
+        a.innerText = sym;
+
+        a.style.background =
+            `hsl(${Math.random()*360},70%,50%)`;
+
+        a.style.left = Math.random()*80+10+"%";
+        a.style.top = Math.random()*80+10+"%";
+
+        ch.appendChild(a);
+
+        calc();
+
+    };
+
+    gr.appendChild(d);
+
+});
+
+// ---------- محاسبه ----------
+function calc(){
+
+    let best = null;
+
+    let bestPercent = 0;
+
+    mols.forEach(m=>{
+
+        // اگر اتم اضافه‌ای وجود داشته باشد که داخل مولکول نیست
+        for(let s in inv){
+
+            if(!(s in m.f)) return;
+
+        }
+
+        let score = 0;
+
+        let totalNeed = 0;
+
+        let penalty = 0;
+
+        for(let s in m.f){
+
+            let need = m.f[s];
+
+            let have = inv[s] || 0;
+
+            totalNeed += need;
+
+            score += Math.min(need,have);
+
+            // جریمه برای تعداد اضافه
+            if(have > need){
+
+                penalty += (have-need)*12;
+
+            }
+
+        }
+
+        let percent = score/totalNeed*100;
+
+        percent -= penalty;
+
+        if(percent<0) percent=0;
+
+        if(percent>100) percent=100;
+
+        if(percent>bestPercent){
+
+            bestPercent=percent;
+
+            best=m;
+
+        }
+
+    });
+
+    if(best==null){
+
+        document.getElementById("m-n").innerText = "مولکولی یافت نشد";
+        document.getElementById("m-f").innerHTML = "";
+        document.getElementById("pct").innerText = "0%";
+        return;
+
+    }
+
+    document.getElementById("m-n").innerText = best.n;
+    document.getElementById("m-f").innerHTML = best.s;
+    document.getElementById("pct").innerText = Math.round(bestPercent) + "%";
+
+}
+// --------------------------------------- 
+
+</script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

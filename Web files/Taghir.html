@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05070d">
+<title>تغییر فیزیکی یا شیمیایی؟ — آزمایشگاه شیمی</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #05070d;
+  --panel: rgba(16, 22, 34, 0.82);
+  --border: rgba(100, 130, 170, 0.16);
+  --border-hi: rgba(0, 210, 255, 0.5);
+  --accent: #00d2ff;
+  --accent-2: #00ff88;
+  --warn: #ffb84d;
+  --err: #ff4d6d;
+  --text: #e8eef7;
+  --muted: #7c8aa0;
+  --phys: #4da6ff;
+  --chem: #ff7a45;
+}
+
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: Tahoma, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse at 12% 8%, rgba(0,210,255,0.10), transparent 55%),
+    radial-gradient(ellipse at 88% 92%, rgba(0,255,136,0.07), transparent 55%);
+  padding: 6px;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr 300px;
+  gap: 10px;
+  height: calc(100vh - 12px);
+  height: calc(100dvh - 12px);
+  position: relative;
+  z-index: 1;
+}
+
+.panel {
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.panel::-webkit-scrollbar { width: 5px; }
+.panel::-webkit-scrollbar-thumb { background: rgba(0,210,255,0.25); border-radius: 3px; }
+
+.panel-title {
+  font-size: 11.5px; font-weight: 700; color: var(--accent);
+  margin-bottom: 10px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ===== LEFT: PROGRESS / LEVELS ===== */
+.stat-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-bottom: 10px;
+}
+.stat-card {
+  background: rgba(8,12,20,0.55);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 6px;
+  text-align: center;
+}
+.stat-card b {
+  display: block; font-size: 18px; color: var(--accent);
+  line-height: 1.2;
+}
+.stat-card span { font-size: 9px; color: var(--muted); }
+
+.progress-wrap { margin-bottom: 12px; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 9.5px; color: var(--muted); margin-bottom: 5px;
+}
+.progress-bar {
+  height: 8px; border-radius: 99px;
+  background: rgba(8,12,20,0.7);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.level-list { display: flex; flex-direction: column; gap: 4px; }
+.level-dot {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(8,12,20,0.4);
+  border: 1px solid transparent;
+  font-size: 10px; color: var(--muted);
+  cursor: pointer;
+  transition: 0.15s;
+}
+.level-dot:hover { border-color: var(--border); color: var(--text); }
+.level-dot.current {
+  border-color: rgba(0,210,255,0.45);
+  background: rgba(0,60,90,0.4);
+  color: var(--accent);
+}
+.level-dot.ok { color: var(--accent-2); }
+.level-dot.bad { color: var(--err); }
+.level-dot .n {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.level-dot.current .n { background: rgba(0,210,255,0.25); color: var(--accent); }
+.level-dot.ok .n { background: rgba(0,255,136,0.18); color: var(--accent-2); }
+.level-dot.bad .n { background: rgba(255,77,109,0.18); color: var(--err); }
+.level-dot .ttl {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ===== STAGE ===== */
+.stage { display: flex; flex-direction: column; gap: 8px; min-height: 0; min-width: 0; }
+
+.canvas-wrap {
+  flex: 1; position: relative;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(0,210,255,0.06), transparent 60%),
+    linear-gradient(180deg, rgba(10,14,22,0.6), rgba(5,7,13,0.9));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.5);
+  min-height: 0;
+  display: flex; flex-direction: column;
+}
+
+.scene-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px 0;
+  gap: 8px;
+}
+.badge-q {
+  font-size: 10px; color: var(--accent);
+  background: rgba(0,40,60,0.85);
+  padding: 4px 11px; border-radius: 7px;
+  border: 1px solid rgba(0,210,255,0.4);
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+}
+.badge-type-hint {
+  font-size: 10px; color: var(--muted);
+  background: rgba(8,12,20,0.75);
+  padding: 4px 9px; border-radius: 7px;
+  border: 1px solid var(--border);
+}
+
+.scene {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 16px 6px;
+  min-height: 0;
+  position: relative;
+}
+
+.art-box {
+  width: min(100%, 420px);
+  height: 168px;
+  position: relative;
+  margin-bottom: 8px;
+}
+.art-box svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+.q-title {
+  font-size: 18px; font-weight: 700; text-align: center;
+  margin-bottom: 4px; line-height: 1.45;
+}
+.q-sub {
+  font-size: 12px; color: var(--muted); text-align: center;
+  max-width: 520px; line-height: 1.7; margin-bottom: 8px;
+}
+
+.signs-row {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  min-height: 28px; margin-bottom: 4px;
+}
+.sign-chip {
+  font-size: 10px; padding: 4px 9px; border-radius: 99px;
+  border: 1px solid var(--border);
+  background: rgba(8,12,20,0.6);
+  color: var(--text);
+  display: flex; align-items: center; gap: 4px;
+  opacity: 0; transform: translateY(6px);
+  animation: chipIn 0.35s ease forwards;
+}
+.sign-chip.phys { border-color: rgba(77,166,255,0.45); color: #b8dcff; }
+.sign-chip.chem { border-color: rgba(255,122,69,0.5); color: #ffd0b8; }
+@keyframes chipIn { to { opacity: 1; transform: none; } }
+
+.result-banner {
+  display: none;
+  text-align: center;
+  font-size: 13px; font-weight: 700;
+  padding: 6px 12px; border-radius: 10px;
+  margin: 2px 0 6px;
+}
+.result-banner.show { display: block; }
+.result-banner.ok {
+  color: var(--accent-2);
+  background: rgba(0,255,136,0.08);
+  border: 1px solid rgba(0,255,136,0.3);
+}
+.result-banner.bad {
+  color: var(--err);
+  background: rgba(255,77,109,0.08);
+  border: 1px solid rgba(255,77,109,0.3);
+}
+
+/* ===== CHOICE BAR ===== */
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.choice {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit; color: var(--text);
+  border: 1px solid var(--border);
+  transition: 0.18s;
+  min-height: 64px;
+}
+.choice:disabled { opacity: 0.55; cursor: default; transform: none !important; }
+.choice .ico { font-size: 22px; line-height: 1; }
+.choice .nm { font-size: 13px; font-weight: 700; }
+.choice .hint { font-size: 9px; color: var(--muted); }
+.choice.phys {
+  background: linear-gradient(160deg, rgba(20,50,90,0.75), rgba(16,22,34,0.9));
+}
+.choice.phys:hover:not(:disabled) {
+  border-color: var(--phys);
+  box-shadow: 0 0 0 1px var(--phys), 0 6px 18px rgba(77,166,255,0.28);
+  transform: translateY(-2px);
+}
+.choice.chem {
+  background: linear-gradient(160deg, rgba(80,32,16,0.75), rgba(16,22,34,0.9));
+}
+.choice.chem:hover:not(:disabled) {
+  border-color: var(--chem);
+  box-shadow: 0 0 0 1px var(--chem), 0 6px 18px rgba(255,122,69,0.28);
+  transform: translateY(-2px);
+}
+.choice.correct-flash {
+  border-color: var(--accent-2) !important;
+  box-shadow: 0 0 0 1px var(--accent-2), 0 0 22px rgba(0,255,136,0.4) !important;
+}
+.choice.wrong-flash {
+  border-color: var(--err) !important;
+  box-shadow: 0 0 0 1px var(--err), 0 0 18px rgba(255,77,109,0.35) !important;
+}
+.next-btn {
+  min-width: 86px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,210,255,0.35);
+  background: linear-gradient(160deg, rgba(0,90,120,0.75), rgba(16,22,34,0.9));
+  color: var(--text);
+  font-family: inherit; font-weight: 700; font-size: 12px;
+  cursor: pointer;
+  padding: 8px;
+  transition: 0.18s;
+}
+.next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,210,255,0.3); }
+.next-btn:disabled { opacity: 0.35; cursor: default; transform: none; box-shadow: none; }
+
+/* ===== TEACHER ===== */
+.teacher-panel-box {
+  background: linear-gradient(160deg, rgba(10,24,40,0.75), rgba(16,22,34,0.8));
+  border: 1px solid rgba(0,210,255,0.3);
+  border-radius: 11px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 18px rgba(0,0,0,0.35);
+  min-height: 160px;
+}
+.teacher-panel-box.reaction {
+  border-color: rgba(0,255,136,0.4);
+  background: linear-gradient(160deg, rgba(10,26,20,0.75), rgba(16,22,34,0.8));
+}
+.teacher-panel-box.heat {
+  border-color: rgba(255,140,40,0.4);
+  background: linear-gradient(160deg, rgba(30,16,8,0.75), rgba(16,22,34,0.8));
+}
+.tp-title {
+  font-size: 11px; font-weight: 700; color: var(--accent);
+  margin-bottom: 7px; display: flex; align-items: center; gap: 5px;
+  padding-bottom: 6px; border-bottom: 1px solid rgba(0,210,255,0.15);
+}
+.teacher-panel-box.reaction .tp-title { color: var(--accent-2); border-color: rgba(0,255,136,0.15); }
+.teacher-panel-box.heat .tp-title { color: var(--warn); border-color: rgba(255,140,40,0.15); }
+.tp-body { font-size: 11px; line-height: 1.9; color: var(--text); }
+.tp-body b { color: var(--accent); }
+.teacher-panel-box.reaction .tp-body b { color: var(--accent-2); }
+.teacher-panel-box.heat .tp-body b { color: var(--warn); }
+
+.info-box {
+  background: linear-gradient(160deg, rgba(33,42,58,0.55), rgba(16,22,34,0.7));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 10.5px; line-height: 1.8; margin-bottom: 9px;
+}
+.info-label {
+  display: block; font-size: 10px; color: var(--accent);
+  font-weight: 700; margin-bottom: 4px;
+}
+
+.reset-btn {
+  width: 100%; padding: 9px 0;
+  background: linear-gradient(135deg,#ff4d6d,#c62828);
+  color: #fff; border: none; border-radius: 9px;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  transition: 0.2s; font-family: inherit;
+  box-shadow: 0 0 10px rgba(255,77,109,0.3);
+  margin-top: 4px;
+}
+.reset-btn:hover { transform: translateY(-2px); box-shadow: 0 0 16px rgba(255,77,109,0.6); }
+.reset-btn:active { transform: scale(0.97); }
+
+.legend-grid { display: grid; grid-template-columns: 1fr; gap: 4px; font-size: 9.5px; line-height: 1.55; }
+.legend-item {
+  padding: 5px 7px; border-radius: 6px;
+  background: rgba(8,12,20,0.5);
+  border-right: 3px solid var(--accent);
+}
+.legend-item.chem { border-right-color: var(--chem); }
+.legend-item.phys { border-right-color: var(--phys); }
+.legend-item b { display: block; color: var(--text); margin-bottom: 1px; font-size: 9.5px; }
+.legend-item span { color: var(--muted); font-size: 9px; }
+
+/* HOME */
+.home-btn {
+  position: fixed; bottom: 18px; left: 0; z-index: 9999;
+  padding: 10px 20px 10px 16px;
+  background: linear-gradient(135deg, #00d2ff, #0066ff);
+  color: #fff; text-decoration: none; font-weight: 700; font-size: 12px;
+  border-radius: 0 13px 13px 0;
+  box-shadow: 0 6px 22px rgba(0,210,255,0.4);
+  transition: 0.25s;
+  display: flex; align-items: center; gap: 7px;
+}
+.home-btn:hover { padding-right: 30px; box-shadow: 0 8px 30px rgba(0,210,255,0.8); }
+.home-btn svg { width: 14px; height: 14px; }
+
+.mobile-info-btn {
+  display: none;
+  position: absolute;
+  bottom: 12px; right: 12px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0,210,255,0.9), rgba(0,102,255,0.9));
+  color: #fff; border: none;
+  font-size: 20px; cursor: pointer;
+  box-shadow: 0 6px 22px rgba(0,210,255,0.5);
+  z-index: 100;
+}
+
+.modal {
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  padding: 16px;
+  animation: fadeIn 0.25s ease;
+}
+.modal.show { display: flex; align-items: center; justify-content: center; }
+.modal-content {
+  background: var(--panel);
+  border: 1px solid var(--border-hi);
+  border-radius: 16px;
+  padding: 16px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+}
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { font-size: 13px; color: var(--accent); font-weight: 700; }
+.modal-close {
+  background: rgba(255,77,109,0.2);
+  border: 1px solid rgba(255,77,109,0.4);
+  color: var(--err);
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.end-screen {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(5,7,13,0.88);
+  backdrop-filter: blur(10px);
+  z-index: 20;
+  padding: 20px;
+  text-align: center;
+}
+.end-screen.show { display: flex; }
+.end-screen h2 { font-size: 22px; color: var(--accent); margin-bottom: 8px; }
+.end-screen p { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 14px; }
+.end-score { font-size: 42px; font-weight: 700; color: var(--accent-2); margin-bottom: 6px; }
+.end-actions { display: flex; gap: 8px; }
+
+/* SVG scene bits */
+.float { animation: floaty 2.6s ease-in-out infinite; }
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.flicker { animation: flick 0.35s ease-in-out infinite alternate; }
+@keyframes flick { from { opacity: 0.7; } to { opacity: 1; } }
+.rise { animation: rise 2.2s linear infinite; }
+@keyframes rise { from { transform: translateY(8px); opacity: 0.8; } to { transform: translateY(-18px); opacity: 0; } }
+.spin-slow { transform-origin: center; animation: spin 8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 1000px) {
+  .app { grid-template-columns: 180px 1fr 240px; gap: 8px; }
+  .panel { padding: 10px; }
+  .q-title { font-size: 16px; }
+  .art-box { height: 140px; }
+}
+
+@media (max-width: 768px) {
+  html, body { padding: 0; }
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 0;
+    height: 100vh; height: 100dvh;
+    padding: 0;
+  }
+  .levels-panel {
+    border-radius: 0 0 14px 14px;
+    padding: 8px 10px;
+    max-height: none; overflow: visible;
+    background: rgba(12, 18, 28, 0.95);
+    backdrop-filter: blur(20px);
+    padding-top: max(8px, env(safe-area-inset-top, 0px));
+  }
+  .levels-panel .panel-title,
+  .levels-panel .legend-mini { display: none; }
+  .level-list {
+    display: flex; flex-direction: row;
+    overflow-x: auto; gap: 6px;
+    scrollbar-width: none;
+  }
+  .level-list::-webkit-scrollbar { display: none; }
+  .level-dot { flex-shrink: 0; min-width: max-content; }
+  .level-dot .ttl { max-width: 72px; }
+  .stat-row { margin-bottom: 6px; }
+  .progress-wrap { margin-bottom: 6px; }
+
+  .stage { gap: 0; padding: 6px; }
+  .canvas-wrap { border-radius: 12px; }
+  .art-box { height: 120px; }
+  .q-title { font-size: 15px; }
+  .q-sub { font-size: 11px; }
+
+  .toolbar {
+    border-radius: 14px 14px 0 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    background: rgba(12, 18, 28, 0.95);
+  }
+  .info-panel { display: none; }
+  .mobile-info-btn { display: flex; align-items: center; justify-content: center; }
+
+  .home-btn {
+    top: max(8px, env(safe-area-inset-top, 0px));
+    right: 8px; bottom: auto; left: auto;
+    padding: 7px 12px; border-radius: 10px; font-size: 10px;
+    background: linear-gradient(135deg, rgba(0,210,255,0.9), rgba(0,102,255,0.9));
+    backdrop-filter: blur(8px);
+    z-index: 50;
+  }
+  .home-btn svg { width: 12px; height: 12px; }
+  .home-btn:hover { padding-right: 12px; }
+}
+
+@media (max-width: 380px) {
+  .choice .nm { font-size: 12px; }
+  .q-title { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="panel levels-panel">
+    <div class="panel-title">🎯 مرحله‌ها</div>
+    <div class="stat-row">
+      <div class="stat-card"><b id="scoreVal">0</b><span>امتیاز</span></div>
+      <div class="stat-card"><b id="streakVal">0</b><span>پشت‌سرهم</span></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>پیشرفت</span><span id="progText">1 / 12</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    </div>
+    <div class="level-list" id="levelList"></div>
+    <div class="legend-mini" style="margin-top:12px">
+      <div class="info-box" style="margin:0">
+        <span class="info-label">یادآوری سریع</span>
+        <div class="legend-grid">
+          <div class="legend-item phys"><b>تغییر فیزیکی</b><span>شکل یا حالت عوض می‌شود؛ مادهٔ جدید ساخته نمی‌شود.</span></div>
+          <div class="legend-item chem"><b>تغییر شیمیایی</b><span>مادهٔ تازه ساخته می‌شود؛ معمولاً برگشت‌ناپذیر است.</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="canvas-wrap" id="canvasWrap">
+      <div class="scene-head">
+        <div class="badge-q" id="qBadge">سؤال ۱ از ۱۲</div>
+        <div class="badge-type-hint">نشانه‌ها را نگاه کن، بعد انتخاب کن</div>
+      </div>
+      <div class="scene">
+        <div class="art-box" id="artBox"></div>
+        <div class="q-title" id="qTitle">عنوان</div>
+        <div class="q-sub" id="qSub">توضیح کوتاه</div>
+        <div class="signs-row" id="signsRow"></div>
+        <div class="result-banner" id="resultBanner"></div>
+      </div>
+      <button class="mobile-info-btn" id="mobileInfoBtn" title="اطلاعات">📖</button>
+      <div class="end-screen" id="endScreen">
+        <div class="end-score" id="endScore">0</div>
+        <h2 id="endTitle">آفرین دانشمند!</h2>
+        <p id="endMsg"></p>
+        <div class="end-actions">
+          <button class="next-btn" style="min-width:140px;padding:12px 16px" onclick="restartGame()">شروع دوباره</button>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="choice phys" id="btnPhys" onclick="answer('phys')">
+        <span class="ico">❄️</span>
+        <span class="nm">تغییر فیزیکی</span>
+        <span class="hint">همان ماده، شکل یا حالت تازه</span>
+      </button>
+      <button class="choice chem" id="btnChem" onclick="answer('chem')">
+        <span class="ico">🔥</span>
+        <span class="nm">تغییر شیمیایی</span>
+        <span class="hint">مادهٔ جدید ساخته می‌شود</span>
+      </button>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>بعدی ←</button>
+    </div>
+  </main>
+
+  <aside class="panel info-panel">
+    <div class="panel-title">👨‍🏫 استاد شیمی</div>
+    <div class="teacher-panel-box" id="teacherBox">
+      <div class="tp-title" id="tpTitle">📖 راهنما</div>
+      <div class="tp-body" id="tpBody">
+        به بازی <b>تغییر فیزیکی یا شیمیایی؟</b> خوش آمدی!<br><br>
+        هر صحنه یک اتفاق روزمره است. بگو این تغییر <b>فیزیکی</b> است یا <b>شیمیایی</b>. بعد از پاسخ، نشانه‌ها را می‌بینی.
+      </div>
+    </div>
+    <div class="info-box">
+      <span class="info-label">🔎 نشانه‌های مهم</span>
+      <div class="legend-grid">
+        <div class="legend-item phys"><b>فیزیکی</b><span>ذوب، انجماد، تبخیر، خرد شدن، حل شدن، تغییر شکل</span></div>
+        <div class="legend-item chem"><b>شیمیایی</b><span>تغییر رنگ پایدار، گاز، رسوب، گرما/نور، بوی تازه، مادهٔ جدید</span></div>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="restartGame()">🗑️ شروع دوباره</button>
+  </aside>
+</div>
+
+<div class="modal" id="infoModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>👨‍🏫 استاد شیمی</h3>
+      <button class="modal-close" id="infoModalClose">✕</button>
+    </div>
+    <div class="teacher-panel-box" id="teacherBoxMobile" style="margin-bottom:10px">
+      <div class="tp-title" id="tpTitleMobile">📖 راهنما</div>
+      <div class="tp-body" id="tpBodyMobile">راهنما</div>
+    </div>
+    <div class="info-box">
+      <span class="info-label">🔎 نشانه‌های مهم</span>
+      <div class="legend-grid">
+        <div class="legend-item phys"><b>فیزیکی</b><span>ذوب، انجماد، تبخیر، خرد شدن، حل شدن، تغییر شکل</span></div>
+        <div class="legend-item chem"><b>شیمیایی</b><span>تغییر رنگ پایدار، گاز، رسوب، گرما/نور، بوی تازه، مادهٔ جدید</span></div>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="restartGame()">🗑️ شروع دوباره</button>
+  </div>
+</div>
+
+<a href="../index.html" class="home-btn">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12H5M12 19l-7-7 7-7"/>
+  </svg>
+  بازگشت
+</a>
+
+<script>
+const QUESTIONS = [
+  {
+    id: 'ice',
+    title: 'یخ در لیوان آب ذوب می‌شود',
+    sub: 'تکه یخ کم‌کم آب می‌شود و شکلش عوض می‌گردد.',
+    kind: 'phys',
+    signs: [
+      { icon: '💧', text: 'تغییر حالت: جامد → مایع' },
+      { icon: '↩️', text: 'برگشت‌پذیر: دوباره یخ می‌زند' },
+      { icon: '🧊', text: 'همان ماده: هنوز H₂O است' }
+    ],
+    teach: {
+      t: '❄️ ذوب یخ — فیزیکی',
+      type: '',
+      b: 'ذوب فقط <b>حالت ماده</b> را عوض می‌کند. مولکول‌های آب همان آب می‌مانند؛ فقط از شبکهٔ بلوری آزاد می‌شوند. اگر دوباره سرد شود، یخ برمی‌گردد. نشانهٔ مهم: <b>تغییر حالت بدون مادهٔ جدید</b>.'
+    },
+    art: 'ice'
+  },
+  {
+    id: 'paper-tear',
+    title: 'کاغذ را پاره می‌کنیم',
+    sub: 'یک برگه به چند تکه کوچک تبدیل می‌شود.',
+    kind: 'phys',
+    signs: [
+      { icon: '✂️', text: 'تغییر شکل و اندازه' },
+      { icon: '📄', text: 'جنس کاغذ عوض نشده' },
+      { icon: '🧩', text: 'می‌شود تکه‌ها را کنار هم گذاشت' }
+    ],
+    teach: {
+      t: '✂️ پاره شدن — فیزیکی',
+      type: '',
+      b: 'خرد شدن و پاره شدن فقط <b>اندازه و شکل</b> را عوض می‌کند. سلولز کاغذ هنوز همان سلولز است. هیچ مادهٔ تازه‌ای ساخته نشده؛ پس تغییر <b>فیزیکی</b> است.'
+    },
+    art: 'paper'
+  },
+  {
+    id: 'sugar',
+    title: 'شکر در چای حل می‌شود',
+    sub: 'دانه‌های شکر ناپدید می‌شوند و چای شیرین می‌گردد.',
+    kind: 'phys',
+    signs: [
+      { icon: '🍵', text: 'حل شدن در حلال' },
+      { icon: '👅', text: 'طعم شیرین باقی است' },
+      { icon: '☀️', text: 'با تبخیر آب، شکر برمی‌گردد' }
+    ],
+    teach: {
+      t: '🍬 حل شدن شکر — فیزیکی',
+      type: '',
+      b: 'حل شدن یعنی مولکول‌های شکر بین مولکول‌های آب پخش می‌شوند. <b>مادهٔ جدید ساخته نمی‌شود</b>. اگر آب چای تبخیر شود، بلور شکر دوباره دیده می‌شود. پس این تغییر فیزیکی است.'
+    },
+    art: 'sugar'
+  },
+  {
+    id: 'burn-paper',
+    title: 'کاغذ روی شعله می‌سوزد',
+    sub: 'کاغذ سیاه می‌شود، دود بلند می‌شود و خاکستر می‌ماند.',
+    kind: 'chem',
+    signs: [
+      { icon: '🔥', text: 'شعله و گرما' },
+      { icon: '💨', text: 'دود و گاز تازه' },
+      { icon: '🖤', text: 'خاکستر: مادهٔ جدید' },
+      { icon: '🚫', text: 'برگشت به کاغذ ممکن نیست' }
+    ],
+    teach: {
+      t: '🔥 سوختن کاغذ — شیمیایی',
+      type: 'heat',
+      b: 'سوختن یک واکنش شیمیایی است: کربن کاغذ با اکسیژن هوا ترکیب می‌شود و <b>گاز CO₂، بخار آب و خاکستر</b> می‌سازد. نشانه‌ها: شعله، دود، تغییر رنگ پایدار و مادهٔ جدید. کاغذ سوخته دیگر کاغذ نیست.'
+    },
+    art: 'burn'
+  },
+  {
+    id: 'rust',
+    title: 'دوچرخه در باران زنگ می‌زند',
+    sub: 'رنگ براق آهن کم‌کم قهوه‌ای و پوسته‌پوسته می‌شود.',
+    kind: 'chem',
+    signs: [
+      { icon: '🎨', text: 'تغییر رنگ پایدار' },
+      { icon: '🧱', text: 'مادهٔ جدید: زنگ آهن' },
+      { icon: '💧', text: 'آب و اکسیژن لازم است' },
+      { icon: '🚫', text: 'برگشت سخت و کند' }
+    ],
+    teach: {
+      t: '🧱 زنگ زدن — شیمیایی',
+      type: 'reaction',
+      b: 'آهن با اکسیژن و رطوبت واکنش می‌دهد و <b>اکسید آهن</b> (زنگ) می‌سازد. رنگ قهوه‌ای نشانهٔ مادهٔ تازه است. زنگ دیگر آهن خالص نیست؛ بنابراین تغییر شیمیایی است.'
+    },
+    art: 'rust'
+  },
+  {
+    id: 'steam',
+    title: 'آب جوش به بخار تبدیل می‌شود',
+    sub: 'از کتری ابر سفید بیرون می‌آید.',
+    kind: 'phys',
+    signs: [
+      { icon: '♨️', text: 'تغییر حالت: مایع → گاز' },
+      { icon: '🌡️', text: 'نزدیک ۱۰۰ درجه' },
+      { icon: '💧', text: 'همان H₂O است' }
+    ],
+    teach: {
+      t: '💨 تبخیر آب — فیزیکی',
+      type: 'heat',
+      b: 'جوشیدن فقط به مولکول‌ها انرژی می‌دهد تا از مایع فرار کنند. فرمول ماده عوض نمی‌شود: هنوز آب است. بخار روی شیشه سرد دوباره قطره می‌شود. نشانه: <b>تغییر حالت برگشت‌پذیر</b>.'
+    },
+    art: 'steam'
+  },
+  {
+    id: 'soda',
+    title: 'جوش‌شیرین در سرکه می‌جوشد',
+    sub: 'کف سفید و حباب زیاد بالا می‌آید.',
+    kind: 'chem',
+    signs: [
+      { icon: '🫧', text: 'تولید گاز CO₂' },
+      { icon: '🌡️', text: 'کمی تغییر دما' },
+      { icon: '🧪', text: 'نمک تازه + آب' }
+    ],
+    teach: {
+      t: '🫧 جوش‌شیرین و سرکه — شیمیایی',
+      type: 'reaction',
+      b: 'اسید استیک با بی‌کربنات سدیم واکنش می‌دهد:<br><i>NaHCO₃ + CH₃COOH → CO₂↑ + H₂O + نمک استات</i><br>حباب‌ها گاز کربن‌دی‌اکسید هستند. گاز تازه = نشانهٔ قوی تغییر شیمیایی. همین ایده در کیک برای پف کردن استفاده می‌شود.'
+    },
+    art: 'fizz'
+  },
+  {
+    id: 'glass-crack',
+    title: 'لیوان شیشه‌ای ناگهان از شوک گرمایی ترک می‌خورد',
+    sub: 'لیوان داغ را با آب خیلی سرد می‌شوییم و شیشه ترک می‌خورد؛ مادهٔ تازه‌ای دیده نمی‌شود.',
+    kind: 'phys',
+    signs: [
+      { icon: '🪟', text: 'شکل و یکپارچگی شیشه تغییر کرده' },
+      { icon: '🌡️', text: 'اختلاف دمای شدید علت ترک است' },
+      { icon: '🔍', text: 'ترک‌خوردن به‌تنهایی مادهٔ جدید نمی‌سازد' },
+      { icon: '⚠️', text: 'برگشت‌ناپذیر بودن به‌تنهایی معیار شیمیایی نیست' }
+    ],
+    teach: {
+      t: '🔍 ترک شیشه — فیزیکی، حتی اگر برگشت‌ناپذیر باشد',
+      type: '',
+      b: 'اینجا یک دام مهم وجود دارد: شیشه ممکن است دیگر به شکل اول برنگردد، اما <b>ترک‌خوردن خودش واکنش شیمیایی نیست</b>. ترکیب شیمیایی شیشه تغییر نکرده و مادهٔ تازه‌ای ساخته نشده است. پس تغییر <b>فیزیکی</b> است. برگشت‌ناپذیری به‌تنهایی دلیل شیمیایی بودن نیست.'
+    },
+    art: 'glass'
+  },
+  {
+    id: 'sour-milk',
+    title: 'شیر چند روز می‌ماند و ترش می‌شود',
+    sub: 'ممکن است فقط بوی شیر تغییر کرده باشد، اما درون آن فرایند تازه‌ای رخ داده است.',
+    kind: 'chem',
+    signs: [
+      { icon: '🥛', text: 'بوی تازه و متفاوت ایجاد می‌شود' },
+      { icon: '🧪', text: 'اسیدیته و ترکیب مواد تغییر می‌کند' },
+      { icon: '⚪', text: 'پروتئین‌ها می‌توانند لخته شوند' },
+      { icon: '🧠', text: 'تغییر بو به‌تنهایی کافی نیست؛ علت تغییر مهم است' }
+    ],
+    teach: {
+      t: '🥛 ترش شدن شیر — شیمیایی',
+      type: 'reaction',
+      b: 'ترش شدن شیر فقط «تغییر بو» نیست. فعالیت میکروارگانیسم‌ها باعث تبدیل برخی مواد و تولید اسیدها می‌شود و در نتیجه ترکیب و خواص شیر تغییر می‌کند. ایجاد مواد با خواص تازه، معیار اصلی <b>تغییر شیمیایی</b> است.'
+    },
+    art: 'milk'
+  },
+  {
+    id: 'copper',
+    title: 'سطح مس در هوای مرطوب به‌تدریج سبز می‌شود',
+    sub: 'هیچ شعله یا حبابی دیده نمی‌شود؛ فقط پس از مدت طولانی یک لایهٔ سبز روی سطح شکل می‌گیرد.',
+    kind: 'chem',
+    signs: [
+      { icon: '🟢', text: 'رنگ پایدار و لایهٔ تازه روی سطح' },
+      { icon: '🌬️', text: 'واکنش آهسته با مواد موجود در هوا' },
+      { icon: '🐢', text: 'آهسته بودن واکنش، شیمیایی بودن آن را رد نمی‌کند' },
+      { icon: '🧱', text: 'لایهٔ جدید از مواد واکنش‌داده تشکیل می‌شود' }
+    ],
+    teach: {
+      t: '🟢 سبز شدن مس — شیمیایی',
+      type: 'reaction',
+      b: 'این سؤال برای گمراه کردن طراحی شده: <b>نه شعله داریم، نه حباب و نه تغییر سریع</b>. با این حال سطح مس با مواد موجود در هوا و رطوبت واکنش می‌دهد و ترکیبات تازه‌ای در سطح ایجاد می‌شوند. بنابراین تغییر <b>شیمیایی</b> است. سرعت واکنش معیار نوع تغییر نیست.'
+    },
+    art: 'copper'
+  },
+  {
+    id: 'sugar-caramel',
+    title: 'شکر را آن‌قدر گرم می‌کنیم که طلایی و سپس قهوه‌ای شود',
+    sub: 'در ابتدا شکر ذوب می‌شود، اما با ادامهٔ گرما رنگ و بو تغییر می‌کند.',
+    kind: 'chem',
+    signs: [
+      { icon: '🍬', text: 'ذوب شدن اولیهٔ شکر به‌تنهایی فیزیکی است' },
+      { icon: '🔥', text: 'با ادامهٔ گرما واکنش‌های تازه رخ می‌دهد' },
+      { icon: '🟤', text: 'رنگ و بو به‌طور پایدار تغییر می‌کنند' },
+      { icon: '🧪', text: 'مواد جدید با خواص متفاوت تشکیل می‌شوند' }
+    ],
+    teach: {
+      t: '🍯 کاراملی شدن شکر — شیمیایی',
+      type: 'heat',
+      b: 'این سؤال دو مرحله دارد و همین نکته آن را سخت می‌کند: <b>ذوب شکر</b> در ابتدا یک تغییر فیزیکی است؛ اما وقتی حرارت ادامه پیدا می‌کند و شکر به مواد قهوه‌ای با بو و خواص تازه تبدیل می‌شود، فرایند <b>شیمیایی</b> رخ داده است. پس باید به مرحله‌ای که سؤال دربارهٔ آن می‌پرسد دقت کرد.'
+    },
+    art: 'caramel'
+  },
+  {
+    id: 'candle-trap',
+    title: 'در یک شمع روشن، موم نزدیک شعله ذوب و بخشی از آن می‌سوزد',
+    sub: 'در یک صحنه هم‌زمان هم موم مایع داریم و هم مصرف شدن موم در شعله.',
+    kind: 'chem',
+    signs: [
+      { icon: '🕯️', text: 'ذوب موم: تغییر فیزیکی' },
+      { icon: '🔥', text: 'سوختن بخار موم: تغییر شیمیایی' },
+      { icon: '⚖️', text: 'یک پدیده می‌تواند چند فرایند هم‌زمان داشته باشد' },
+      { icon: '🎯', text: 'اگر دربارهٔ سوختن بپرسیم، پاسخ شیمیایی است' }
+    ],
+    teach: {
+      t: '🕯️ شمع روشن — یک صحنه، دو نوع تغییر',
+      type: 'heat',
+      b: 'این سخت‌ترین دام بازی است: نمی‌توان کل صحنه را بدون دقت فقط «فیزیکی» یا «شیمیایی» نامید. <b>ذوب موم</b> فیزیکی است، اما <b>سوختن بخار موم</b> با اکسیژن یک تغییر شیمیایی است. چون سؤال از بخش «سوختن» می‌پرسد، پاسخ <b>شیمیایی</b> است. مهم است که هر فرایند را جداگانه بررسی کنیم.'
+    },
+    art: 'candle'
+  },
+];
+
+const ARTS = {
+  ice() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="148" rx="120" ry="10" fill="rgba(0,0,0,0.25)"/>
+      <rect x="130" y="70" width="160" height="78" rx="10" fill="rgba(80,160,220,0.18)" stroke="rgba(180,220,255,0.45)" stroke-width="3"/>
+      <rect x="138" y="108" width="144" height="34" rx="6" fill="rgba(58,160,255,0.35)"/>
+      <g class="float">
+        <path d="M186 86 l18 -22 18 22 -8 28 h-20 z" fill="rgba(200,230,255,0.85)" stroke="rgba(255,255,255,0.7)"/>
+        <path d="M196 92 l8 -12 8 12 -4 16 h-8 z" fill="rgba(255,255,255,0.45)"/>
+      </g>
+      <circle cx="168" cy="122" r="4" fill="rgba(220,240,255,0.6)"/>
+      <circle cx="250" cy="126" r="3" fill="rgba(220,240,255,0.5)"/>
+    </svg>`;
+  },
+  paper() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="148" rx="110" ry="9" fill="rgba(0,0,0,0.25)"/>
+      <g transform="translate(118,48) rotate(-8)">
+        <rect width="90" height="78" rx="3" fill="#e8eef7"/>
+        <path d="M10 18 h70 M10 30 h58 M10 42 h66 M10 54 h40" stroke="rgba(16,22,34,0.25)" stroke-width="3"/>
+      </g>
+      <g transform="translate(230,62) rotate(12)">
+        <path d="M0 8 L70 0 L78 68 L8 78 Z" fill="#d5deea"/>
+        <path d="M14 24 h46 M14 36 h38" stroke="rgba(16,22,34,0.2)" stroke-width="3"/>
+      </g>
+    </svg>`;
+  },
+  sugar() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="90" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <path d="M150 58 h120 l18 80 H132 z" fill="rgba(90,50,20,0.35)" stroke="rgba(220,180,120,0.4)" stroke-width="3"/>
+      <path d="M158 92 h104 l10 40 H148 z" fill="rgba(160,90,30,0.55)"/>
+      <circle cx="188" cy="78" r="3.2" fill="#f8f4e8"/>
+      <circle cx="206" cy="72" r="2.4" fill="#f8f4e8"/>
+      <circle cx="224" cy="80" r="3" fill="#f8f4e8"/>
+      <circle cx="198" cy="86" r="2" fill="#fff"/>
+    </svg>`;
+  },
+  burn() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="100" ry="8" fill="rgba(0,0,0,0.3)"/>
+      <path d="M168 118 l18 -46 22 8 -8 48 z" fill="#2a2a2a"/>
+      <path d="M186 78 l10 -8 8 6 -4 14 z" fill="#1a1a1a"/>
+      <g class="flicker">
+        <ellipse cx="196" cy="58" rx="14" ry="24" fill="rgba(255,140,30,0.85)"/>
+        <ellipse cx="196" cy="52" rx="7" ry="14" fill="rgba(255,230,140,0.95)"/>
+      </g>
+      <g class="rise" opacity="0.6">
+        <circle cx="214" cy="40" r="6" fill="rgba(180,180,180,0.4)"/>
+        <circle cx="226" cy="28" r="8" fill="rgba(160,160,160,0.3)"/>
+      </g>
+    </svg>`;
+  },
+  rust() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="120" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <rect x="96" y="92" width="228" height="16" rx="4" fill="#6e7278"/>
+      <circle cx="132" cy="100" r="22" fill="#5a5e64" stroke="#444" stroke-width="6"/>
+      <circle cx="288" cy="100" r="22" fill="#5a5e64" stroke="#444" stroke-width="6"/>
+      <circle cx="132" cy="100" r="8" fill="#2a2c30"/>
+      <circle cx="288" cy="100" r="8" fill="#2a2c30"/>
+      <rect x="150" y="70" width="120" height="14" rx="4" fill="#7a7f88"/>
+      <rect x="200" y="54" width="14" height="22" fill="#6e7278"/>
+      <path d="M118 88 q10 6 18 0" stroke="#b87333" stroke-width="4" fill="none"/>
+      <path d="M250 86 q16 8 28 2" stroke="#b87333" stroke-width="5" fill="none"/>
+      <circle cx="168" cy="96" r="4" fill="#b87333"/>
+      <circle cx="270" cy="94" r="5" fill="#8a4a22"/>
+    </svg>`;
+  },
+  steam() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="80" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <path d="M162 78 h96 v52 a20 20 0 0 1 -20 20 h-56 a20 20 0 0 1 -20 -20 z" fill="rgba(180,200,220,0.25)" stroke="rgba(200,230,255,0.5)" stroke-width="3"/>
+      <rect x="198" y="58" width="24" height="22" rx="4" fill="rgba(180,200,220,0.3)" stroke="rgba(200,230,255,0.45)"/>
+      <g class="rise">
+        <ellipse cx="210" cy="46" rx="10" ry="8" fill="rgba(200,220,255,0.45)"/>
+        <ellipse cx="198" cy="32" rx="8" ry="6" fill="rgba(200,220,255,0.3)"/>
+        <ellipse cx="222" cy="28" rx="9" ry="7" fill="rgba(200,220,255,0.35)"/>
+      </g>
+    </svg>`;
+  },
+  fizz() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="70" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <path d="M168 70 h84 l12 70 H156 z" fill="rgba(200,224,160,0.28)" stroke="rgba(200,224,160,0.55)" stroke-width="3"/>
+      <path d="M174 108 h72 l6 28 H168 z" fill="rgba(200,224,160,0.4)"/>
+      <g class="float">
+        <circle cx="196" cy="96" r="4" fill="rgba(180,230,220,0.7)"/>
+        <circle cx="214" cy="88" r="6" fill="rgba(180,230,220,0.55)"/>
+        <circle cx="228" cy="100" r="3.5" fill="rgba(180,230,220,0.7)"/>
+        <circle cx="206" cy="78" r="3" fill="rgba(180,230,220,0.5)"/>
+      </g>
+    </svg>`;
+  },
+  egg() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="90" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <ellipse cx="210" cy="108" rx="86" ry="28" fill="#3a3228"/>
+      <ellipse cx="210" cy="104" rx="70" ry="22" fill="#f4f0e0"/>
+      <ellipse cx="210" cy="104" rx="22" ry="16" fill="#f0c14a"/>
+    </svg>`;
+  },
+  wax() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="80" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <rect x="150" y="118" width="120" height="16" rx="4" fill="#3a3228"/>
+      <path d="M186 70 h48 v50 h-48 z" fill="#f2e2b6"/>
+      <ellipse cx="210" cy="70" rx="24" ry="7" fill="#f7ecc8"/>
+      <path d="M198 118 q12 16 28 2" fill="#e8c34d"/>
+      <rect x="207" y="54" width="6" height="18" fill="#d8d0b8"/>
+    </svg>`;
+  },
+  apple() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="80" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <path d="M168 86 c0-28 28-40 42-28 14-12 42 0 42 28 0 36-28 58-42 58s-42-22-42-58z" fill="#e24a4a"/>
+      <path d="M210 62 c8-16 22-18 28-10" stroke="#3a7a32" stroke-width="5" fill="none"/>
+      <path d="M210 78 v66" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+      <path d="M186 96 c8 10 16 12 22 6" stroke="#8a4a22" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <circle cx="236" cy="110" r="7" fill="#8a4a22" opacity="0.7"/>
+    </svg>`;
+  },
+  mix() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="90" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <rect x="140" y="62" width="140" height="80" rx="12" fill="rgba(180,220,255,0.08)" stroke="rgba(180,220,255,0.35)" stroke-width="3"/>
+      <circle cx="178" cy="108" r="5" fill="#d4a72c"/>
+      <circle cx="198" cy="120" r="4" fill="#f5f7fa"/>
+      <circle cx="220" cy="104" r="5" fill="#d4a72c"/>
+      <circle cx="242" cy="118" r="4" fill="#f5f7fa"/>
+      <circle cx="188" cy="96" r="3.5" fill="#f5f7fa"/>
+      <circle cx="230" cy="92" r="4.5" fill="#d4a72c"/>
+      <circle cx="210" cy="128" r="3" fill="#f5f7fa"/>
+    </svg>`;
+  },
+  glass() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="95" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <path d="M155 58 h110 l-10 82 h-90 z" fill="rgba(180,220,255,0.12)" stroke="rgba(200,230,255,0.65)" stroke-width="4"/>
+      <path d="M180 72 L205 95 L194 118 L218 136" stroke="rgba(230,245,255,0.8)" stroke-width="3"/>
+      <path d="M205 95 L232 78" stroke="rgba(230,245,255,0.8)" stroke-width="3"/>
+    </svg>`;
+  },
+  milk() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="82" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <path d="M168 62 h84 l10 78 h-104 z" fill="rgba(245,245,235,0.18)" stroke="rgba(240,245,250,0.55)" stroke-width="3"/>
+      <path d="M170 104 q40 12 80 0 v32 h-80z" fill="rgba(240,240,230,0.6)"/>
+      <circle cx="188" cy="84" r="3" fill="rgba(255,255,255,0.7)"/><circle cx="230" cy="94" r="4" fill="rgba(255,255,255,0.6)"/>
+    </svg>`;
+  },
+  copper() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="105" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <circle cx="210" cy="100" r="55" fill="#b87333" stroke="#d39a62" stroke-width="5"/>
+      <path d="M172 78 q18-18 34 0 t36 0 t28 8" stroke="#63a88a" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <circle cx="185" cy="116" r="7" fill="#4f9276"/><circle cx="224" cy="128" r="5" fill="#76b69a"/><circle cx="250" cy="94" r="6" fill="#5d9e80"/>
+    </svg>`;
+  },
+  caramel() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="90" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <path d="M150 92 q60-24 120 0 v45 h-120z" fill="#a96728" stroke="#d59a58" stroke-width="4"/>
+      <ellipse cx="210" cy="92" rx="60" ry="20" fill="#d28a3e"/>
+      <path d="M175 78 q35-14 70 0" stroke="#f0bd72" stroke-width="4" fill="none" opacity="0.8"/>
+      <g class="rise"><circle cx="195" cy="58" r="5" fill="rgba(230,190,130,0.35)"/><circle cx="225" cy="45" r="7" fill="rgba(230,190,130,0.25)"/></g>
+    </svg>`;
+  },
+  candle() {
+    return `<svg viewBox="0 0 420 168" fill="none">
+      <ellipse cx="210" cy="150" rx="70" ry="8" fill="rgba(0,0,0,0.25)"/>
+      <rect x="170" y="128" width="80" height="12" rx="3" fill="#3a3228"/>
+      <rect x="196" y="78" width="28" height="52" rx="4" fill="#f2e2b6"/>
+      <rect x="208" y="66" width="4" height="16" fill="#2a2a2a"/>
+      <g class="flicker">
+        <ellipse cx="210" cy="54" rx="10" ry="18" fill="rgba(255,150,40,0.9)"/>
+        <ellipse cx="210" cy="50" rx="5" ry="10" fill="rgba(255,230,140,0.95)"/>
+      </g>
+    </svg>`;
+  }
+};
+
+const state = {
+  i: 0,
+  score: 0,
+  streak: 0,
+  answered: false,
+  results: Array(QUESTIONS.length).fill(null) // 'ok' | 'bad'
+};
+
+const teacherBox = document.getElementById('teacherBox');
+const tpTitle = document.getElementById('tpTitle');
+const tpBody = document.getElementById('tpBody');
+const teacherBoxMobile = document.getElementById('teacherBoxMobile');
+const tpTitleMobile = document.getElementById('tpTitleMobile');
+const tpBodyMobile = document.getElementById('tpBodyMobile');
+
+function setTeacher(title, body, type = '') {
+  teacherBox.className = 'teacher-panel-box ' + type;
+  tpTitle.textContent = title;
+  tpBody.innerHTML = body;
+  teacherBoxMobile.className = 'teacher-panel-box ' + type;
+  tpTitleMobile.textContent = title;
+  tpBodyMobile.innerHTML = body;
+}
+
+function renderLevels() {
+  const el = document.getElementById('levelList');
+  el.innerHTML = QUESTIONS.map((q, idx) => {
+    let cls = '';
+    if (state.results[idx] === 'ok') cls = 'ok';
+    else if (state.results[idx] === 'bad') cls = 'bad';
+    if (idx === state.i) cls += ' current';
+    const mark = state.results[idx] === 'ok' ? '✓' : state.results[idx] === 'bad' ? '✕' : (idx + 1);
+    return `<div class="level-dot ${cls}" onclick="jumpTo(${idx})">
+      <span class="n">${mark}</span>
+      <span class="ttl">${q.title.split(' ')[0]} ${q.title.split(' ')[1] || ''}</span>
+    </div>`;
+  }).join('');
+}
+
+function jumpTo(idx) {
+  if (state.results[idx] == null && idx !== state.i) return;
+  state.i = idx;
+  state.answered = state.results[idx] != null;
+  showQuestion(true);
+}
+
+function showQuestion(keepAnswered) {
+  const q = QUESTIONS[state.i];
+  document.getElementById('qBadge').textContent = `سؤال ${state.i + 1} از ${QUESTIONS.length}`;
+  document.getElementById('qTitle').textContent = q.title;
+  document.getElementById('qSub').textContent = q.sub;
+  document.getElementById('artBox').innerHTML = (ARTS[q.art] || ARTS.ice)();
+  document.getElementById('endScreen').classList.remove('show');
+
+  const banner = document.getElementById('resultBanner');
+  const signs = document.getElementById('signsRow');
+  const btnP = document.getElementById('btnPhys');
+  const btnC = document.getElementById('btnChem');
+  const next = document.getElementById('nextBtn');
+
+  btnP.classList.remove('correct-flash', 'wrong-flash');
+  btnC.classList.remove('correct-flash', 'wrong-flash');
+
+  if (!keepAnswered || !state.answered) {
+    state.answered = false;
+    signs.innerHTML = '';
+    banner.className = 'result-banner';
+    banner.textContent = '';
+    btnP.disabled = false;
+    btnC.disabled = false;
+    next.disabled = true;
+    setTeacher('🤔 فکر کن',
+      'این اتفاق روزمره را ببین. آیا <b>مادهٔ جدیدی</b> ساخته شده؟<br><br>' +
+      'اگر فقط شکل، اندازه یا حالت عوض شده، فیزیکی است.<br>' +
+      'اگر رنگ پایدار، گاز، گرما یا مادهٔ تازه دیدی، شیمیایی است.',
+      '');
+  } else {
+    reveal(state.results[state.i] === 'ok', true);
+  }
+
+  document.getElementById('scoreVal').textContent = state.score;
+  document.getElementById('streakVal').textContent = state.streak;
+  document.getElementById('progText').textContent = `${Math.min(state.i + 1, QUESTIONS.length)} / ${QUESTIONS.length}`;
+  document.getElementById('progFill').style.width = ((state.i) / QUESTIONS.length * 100) + '%';
+  renderLevels();
+}
+
+function answer(kind) {
+  if (state.answered) return;
+  const q = QUESTIONS[state.i];
+  const ok = kind === q.kind;
+  state.answered = true;
+  state.results[state.i] = ok ? 'ok' : 'bad';
+  if (ok) {
+    state.streak += 1;
+    state.score += 10 + Math.min(10, (state.streak - 1) * 2);
+  } else {
+    state.streak = 0;
+  }
+  reveal(ok, false);
+  document.getElementById('scoreVal').textContent = state.score;
+  document.getElementById('streakVal').textContent = state.streak;
+  renderLevels();
+}
+
+function reveal(ok, silent) {
+  const q = QUESTIONS[state.i];
+  const banner = document.getElementById('resultBanner');
+  const signs = document.getElementById('signsRow');
+  const btnP = document.getElementById('btnPhys');
+  const btnC = document.getElementById('btnChem');
+  const next = document.getElementById('nextBtn');
+
+  btnP.disabled = true;
+  btnC.disabled = true;
+  next.disabled = false;
+  next.textContent = state.i === QUESTIONS.length - 1 ? 'نتیجه' : 'بعدی ←';
+
+  const rightBtn = q.kind === 'phys' ? btnP : btnC;
+  const wrongBtn = q.kind === 'phys' ? btnC : btnP;
+  rightBtn.classList.add('correct-flash');
+  if (!ok) wrongBtn.classList.add('wrong-flash');
+
+  banner.className = 'result-banner show ' + (ok ? 'ok' : 'bad');
+  banner.textContent = ok
+    ? (q.kind === 'phys' ? 'درست! این یک تغییر فیزیکی است.' : 'درست! این یک تغییر شیمیایی است.')
+    : (q.kind === 'phys' ? 'نه — این تغییر فیزیکی است، ماده جدید ساخته نشده.' : 'نه — این تغییر شیمیایی است، ماده تازه ساخته شده.');
+
+  signs.innerHTML = q.signs.map((s, i) =>
+    `<span class="sign-chip ${q.kind}" style="animation-delay:${i * 0.08}s">${s.icon} ${s.text}</span>`
+  ).join('');
+
+  setTeacher(q.teach.t, q.teach.b, q.teach.type);
+}
+
+function nextQuestion() {
+  if (!state.answered) return;
+  if (state.i >= QUESTIONS.length - 1) {
+    finish();
+    return;
+  }
+  state.i += 1;
+  state.answered = false;
+  showQuestion(false);
+}
+
+function finish() {
+  document.getElementById('progFill').style.width = '100%';
+  const ok = state.results.filter(r => r === 'ok').length;
+  const total = QUESTIONS.length;
+  document.getElementById('endScore').textContent = state.score;
+  document.getElementById('endTitle').textContent = ok === total ? 'دانشمند کامل!' : ok >= total - 2 ? 'عالی بود!' : 'خوب پیش رفتی!';
+  document.getElementById('endMsg').innerHTML =
+    `${ok} از ${total} پاسخ درست.<br>` +
+    (ok === total
+      ? 'همهٔ نشانه‌های فیزیکی و شیمیایی را شناختی.'
+      : 'یک‌بار دیگر بازی کن و به نشانه‌ها دقیق‌تر نگاه کن: گاز، رنگ تازه، شعله یعنی شیمیایی؛ ذوب و حل شدن یعنی فیزیکی.');
+  document.getElementById('endScreen').classList.add('show');
+  setTeacher('🏁 پایان بازی',
+    `امتیازت <b>${state.score}</b> شد و <b>${ok}</b> پاسخ درست دادی.<br><br>` +
+    'یادت باشد: اگر ماده همان ماده بماند، فیزیکی است. اگر مادهٔ تازه ساخته شود، شیمیایی است.',
+    'reaction');
+}
+
+function restartGame() {
+  state.i = 0;
+  state.score = 0;
+  state.streak = 0;
+  state.answered = false;
+  state.results = Array(QUESTIONS.length).fill(null);
+  document.getElementById('endScreen').classList.remove('show');
+  document.getElementById('infoModal').classList.remove('show');
+  showQuestion(false);
+}
+
+const infoModal = document.getElementById('infoModal');
+document.getElementById('mobileInfoBtn').addEventListener('click', () => infoModal.classList.add('show'));
+document.getElementById('infoModalClose').addEventListener('click', () => infoModal.classList.remove('show'));
+infoModal.addEventListener('click', e => { if (e.target === infoModal) infoModal.classList.remove('show'); });
+
+showQuestion(false);
+</script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

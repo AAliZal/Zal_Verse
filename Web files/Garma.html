@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شبیه‌ساز انتقال گرما</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --iron: #8d9aa0; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh;
+            background:
+                radial-gradient(700px 280px at 80% 0%, rgba(255, 120, 40, .16), transparent 55%),
+                #0c0e12;
+            color: #f4f7fb;
+            font-family: Vazirmatn, Tahoma, sans-serif;
+        }
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            padding: 16px 22px;
+        }
+        h1 { margin: 0; font-size: 20px; }
+        .topbar p { margin: 4px 0 0; color: #9aa6b2; font-size: 13px; }
+        .home-btn {
+            padding: 10px 16px; border-radius: 12px; text-decoration: none; color: #fff; font-weight: 700;
+            background: linear-gradient(135deg, #00b4d8, #0066ff);
+            box-shadow: 0 8px 18px rgba(0, 119, 255, .28);
+        }
+        .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px 28px; }
+        #dashboard {
+            background: #171b22; border: 1px solid #2a3140; border-radius: 18px;
+            padding: 14px; display: flex; gap: 12px; align-items: end; flex-wrap: wrap; margin-bottom: 16px;
+        }
+        label { display: block; font-size: 12px; color: #b7c0cb; margin-bottom: 6px; }
+        select, input[type="color"], button { font-family: inherit; }
+        select {
+            height: 42px; min-width: 150px; border-radius: 12px; border: 1px solid #3a4354;
+            background: #10141b; color: #fff; padding: 0 10px;
+        }
+        input[type="color"] {
+            width: 64px; height: 42px; border: 1px solid #3a4354; border-radius: 12px; background: #10141b; padding: 4px;
+        }
+        button {
+            height: 42px; padding: 0 16px; border: 0; border-radius: 12px; color: #fff; font-weight: 700; cursor: pointer;
+        }
+        #btn-fire { background: #d64545; }
+        #btn-fire.on { background: #1f8f5f; }
+        #btn-reset { background: #3a4354; }
+        #scene {
+            position: relative; height: 320px; border-radius: 18px; overflow: hidden;
+            background: linear-gradient(#151a22, #101318 70%);
+            border: 1px solid #2a3140;
+        }
+        .bench {
+            position: absolute; left: 8%; right: 8%; bottom: 54px; height: 12px; border-radius: 8px;
+            background: #2b313b;
+        }
+        .stand {
+            position: absolute; bottom: 66px; width: 8px; height: 78px; background: #4b5563; border-radius: 4px;
+        }
+        .stand.a { left: 22%; }
+        .stand.b { left: 70%; }
+        .clamp { position: absolute; top: -6px; left: -8px; width: 24px; height: 10px; background: #6b7280; border-radius: 4px; }
+        #rod-container { position: absolute; left: 18%; right: 12%; bottom: 132px; }
+        #temp-gauge { position: absolute; top: -34px; right: 0; color: #ffcc66; font-size: 13px; font-weight: 700; }
+        #rod {
+            height: 34px; border-radius: 8px 18px 18px 8px; position: relative; overflow: hidden;
+            background: var(--iron); transform-origin: right center; box-shadow: inset 0 2px 0 rgba(255,255,255,.25);
+            transition: height .4s ease, background .6s ease, opacity .6s ease, box-shadow .4s ease;
+        }
+        #heat-map { position: absolute; inset: 0; }
+
+        /* حالت سوختن چوب */
+        #rod.burned {
+            height: 22px;
+            border-radius: 8px;
+            background: #1a1a1a !important;
+            filter: grayscale(1) brightness(.6);
+            opacity: .85;
+            box-shadow: 0 0 22px rgba(255, 60, 0, .35), inset 0 0 12px rgba(0,0,0,.9);
+        }
+        #rod.burned #heat-map { display: none; }
+
+        /* حالت ذوب شدن فلز */
+        #rod.melted {
+            height: 16px;
+            border-radius: 22px;
+            background: linear-gradient(90deg, #ff5500, #ffcc00, #ff8a00) !important;
+            box-shadow: 0 0 34px rgba(255, 120, 0, .85), 0 8px 20px rgba(255, 60, 0, .35);
+        }
+        #rod.melted #heat-map {
+            opacity: .55;
+            mix-blend-mode: screen;
+        }
+
+        #stove {
+            position: absolute; left: 16%; bottom: 66px; width: 92px; height: 46px;
+            background: linear-gradient(#4b5563, #1f2937); border-radius: 10px 10px 4px 4px;
+        }
+        #stove::before {
+            content: ""; position: absolute; left: 10px; right: 10px; top: 8px; height: 8px; border-radius: 6px; background: #111;
+        }
+        .flame {
+            position: absolute; left: calc(16% + 28px); bottom: 108px; border-radius: 50% 50% 18% 18%;
+            opacity: 0; transform-origin: bottom center; pointer-events: none;
+        }
+        .flame-outer { width: 36px; height: 62px; background: #ff6a2a; filter: blur(1px); }
+        .flame-core { width: 16px; height: 40px; margin-right: 10px; background: #d8fbff; filter: blur(.4px); }
+        .flame.on { animation: flicker .18s infinite alternate; }
+        @keyframes flicker { from { transform: scaleY(.92); } to { transform: scaleY(1.08); } }
+        .stats {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px;
+        }
+        .stat, .note {
+            background: #171b22; border: 1px solid #2a3140; border-radius: 14px; padding: 12px;
+        }
+        .stat small { color: #9aa6b2; font-size: 12px; }
+        .stat b { display: block; margin-top: 4px; font-size: 18px; }
+        .note { margin-top: 12px; color: #c5ced8; font-size: 13px; line-height: 1.9; text-align: justify; }
+        @media (max-width: 700px) { .stats { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div>
+            <h1>شبیه‌ساز انتقال گرما</h1>
+            <p>گرما از سر میله که روی اجاق است به سر دیگر می‌رود.</p>
+        </div>
+        <a href="../index.html" class="home-btn">بازگشت به صفحه اصلی</a>
+    </div>
+
+    <div class="wrap">
+        <div id="dashboard">
+            <div>
+                <label for="matt">ماده میله</label>
+                <select id="matt" onchange="reset()">
+                    <option value="0.9" data-limit="962" data-name="نقره">نقره، رسانایی زیاد</option>
+                    <option value="0.4" data-limit="1538" data-name="آهن">آهن، رسانایی متوسط</option>
+                    <option value="0.05" data-limit="300" data-name="چوب">چوب، رسانایی کم</option>
+                </select>
+            </div>
+            <div>
+                <label for="baseColor">رنگ بدنه</label>
+                <input type="color" id="baseColor" value="#8d9aa0" onchange="updateRodColor()">
+            </div>
+            <button id="btn-fire" onclick="toggleHeat()">روشن کردن اجاق</button>
+            <button id="btn-reset" onclick="reset()">ریست</button>
+        </div>
+
+        <div id="scene">
+            <div class="stand a"><div class="clamp"></div></div>
+            <div class="stand b"><div class="clamp"></div></div>
+            <div id="rod-container">
+                <div id="temp-gauge">سر داغ: ۲۵°C</div>
+                <div id="rod"><div id="heat-map"></div></div>
+            </div>
+            <div class="flame flame-outer" id="flame-1"></div>
+            <div class="flame flame-core" id="flame-2"></div>
+            <div id="stove"></div>
+            <div class="bench"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat"><small>سر نزدیک شعله</small><b id="hot-end">۲۵°C</b></div>
+            <div class="stat"><small>سر دور</small><b id="cold-end">۲۵°C</b></div>
+            <div class="stat"><small>وضعیت</small><b id="state">آماده</b></div>
+        </div>
+        <p class="note" id="explain">
+            نقره گرما را سریع جابه‌جا می‌کند، آهن کندتر است و چوب تقریباً گرما را عبور نمی‌دهد. اگر دمای چوب به حدود ۳۰۰ درجه برسد می‌سوزد. فلزها تا نزدیک دمای ذوب داغ و سرخ می‌شوند و کمی هم منبسط می‌گردند.
+        </p>
+    </div>
+
+<script>
+    const PARTS = 24;
+    const AMBIENT = 25;
+    let temps = Array(PARTS).fill(AMBIENT);
+    let heating = false;
+    let burned = false;
+    let melted = false;
+    let timer = null;
+
+    const rod = document.getElementById("rod");
+    const heatMap = document.getElementById("heat-map");
+    const fa = new Intl.NumberFormat("fa-IR");
+
+    function material() {
+        const option = document.getElementById("matt").selectedOptions[0];
+        return {
+            k: Number(option.value),
+            limit: Number(option.dataset.limit),
+            name: option.dataset.name
+        };
+    }
+
+    function updateRodColor() {
+        if (!burned && !melted) {
+            rod.style.backgroundColor = document.getElementById("baseColor").value;
+        }
+    }
+
+    function setHeating(value) {
+        if (value && burned) return; // چوب سوخته دیگر روشن نمی‌شود
+
+        heating = value;
+        const btn = document.getElementById("btn-fire");
+        const f1 = document.getElementById("flame-1");
+        const f2 = document.getElementById("flame-2");
+
+        f1.style.opacity = heating ? "0.85" : "0";
+        f2.style.opacity = heating ? "0.95" : "0";
+        f1.classList.toggle("on", heating);
+        f2.classList.toggle("on", heating);
+
+        btn.classList.toggle("on", heating);
+        btn.textContent = heating ? "خاموش کردن اجاق" : "روشن کردن اجاق";
+
+        if (heating && !timer) startLoop();
+    }
+
+    function toggleHeat() {
+        setHeating(!heating);
+    }
+
+    function startLoop() {
+        timer = setInterval(() => {
+            const { k, limit, name } = material();
+            const next = temps.slice();
+
+            if (heating && !burned) {
+                next[0] += 18 * (0.35 + k);
+            }
+
+            for (let i = 0; i < PARTS; i++) {
+                const left = temps[i - 1] ?? temps[i];
+                const right = temps[i + 1] ?? temps[i];
+
+                next[i] += k * 0.34 * (left + right - 2 * temps[i]);
+                next[i] -= (next[i] - AMBIENT) * (heating ? 0.004 : 0.03);
+                next[i] = Math.max(AMBIENT, Math.min(limit, next[i]));
+            }
+
+            temps = next;
+
+            // --- چوب می‌سوزد ---
+            if (!burned && name === "چوب" && temps[0] >= limit - 1) {
+                burned = true;
+                rod.classList.add("burned");
+                setHeating(false);
+            }
+
+            // --- فلز ذوب می‌شود ---
+            if (!melted && name !== "چوب" && temps[0] >= limit - 1) {
+                melted = true;
+                rod.classList.add("melted");
+            }
+
+            if (!heating && temps.every((t) => t < AMBIENT + 0.4)) {
+                temps = Array(PARTS).fill(AMBIENT);
+                clearInterval(timer);
+                timer = null;
+            }
+
+            render(name, limit);
+        }, 50);
+    }
+
+    function heatColor(temp, limit) {
+        const hot = Math.min(1, Math.max(0, (temp - 180) / 700));
+        if (hot <= 0) return "transparent";
+        return "rgba(255," + Math.floor(70 + hot * 80) + ",0," + (0.25 + hot * 0.75) + ")";
+    }
+
+    function render(name, limit) {
+        const info = material();
+        name = name || info.name;
+        limit = limit || info.limit;
+
+        const hot = temps[0];
+        const cold = temps[PARTS - 1];
+
+        document.getElementById("temp-gauge").textContent =
+            "سر داغ: " + fa.format(Math.floor(hot)) + "°C";
+        document.getElementById("hot-end").textContent =
+            fa.format(Math.floor(hot)) + "°C";
+        document.getElementById("cold-end").textContent =
+            fa.format(Math.floor(cold)) + "°C";
+
+        const stops = temps
+            .map((t, i) => heatColor(t, limit) + " " + (i / (PARTS - 1) * 100) + "%")
+            .join(",");
+
+        // اصلاح جهت گرما: سر داغ (temps[0]) در سمت چپ است، پس گرادیان به راست می‌رود
+        heatMap.style.background = "linear-gradient(to right, " + stops + ")";
+
+        // انبساط حرارتی فقط وقتی میله سالم است
+        if (!burned && !melted) {
+            rod.style.transform = "scaleX(" + (1 + (hot - AMBIENT) * 0.00008) + ")";
+            rod.style.boxShadow = hot > 450
+                ? "0 0 18px rgba(255,90,0,.55)"
+                : "inset 0 2px 0 rgba(255,255,255,.25)";
+        }
+
+        // وضعیت
+        let state = heating ? "در حال گرم شدن" : hot > AMBIENT + 1 ? "در حال خنک شدن" : "آماده";
+        if (burned) state = "چوب سوخت";
+        else if (melted) state = "فلز ذوب شد";
+        else if (name === "چوب" && hot >= limit - 5) state = "نزدیک دمای سوختن";
+        else if (name !== "چوب" && hot >= limit - 5) state = "نزدیک دمای ذوب";
+
+        document.getElementById("state").textContent = state;
+    }
+
+    function reset() {
+        heating = false;
+        burned = false;
+        melted = false;
+        temps = Array(PARTS).fill(AMBIENT);
+
+        if (timer) { clearInterval(timer); timer = null; }
+
+        rod.classList.remove("burned");
+        rod.classList.remove("melted");
+        rod.style.transform = "";
+        rod.style.boxShadow = "";
+        rod.style.height = "";
+        rod.style.borderRadius = "";
+
+        document.getElementById("btn-fire").classList.remove("on");
+        document.getElementById("btn-fire").textContent = "روشن کردن اجاق";
+        document.getElementById("flame-1").style.opacity = "0";
+        document.getElementById("flame-2").style.opacity = "0";
+        document.getElementById("flame-1").classList.remove("on");
+        document.getElementById("flame-2").classList.remove("on");
+
+        updateRodColor();
+        render();
+    }
+
+    updateRodColor();
+    render();
+</script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

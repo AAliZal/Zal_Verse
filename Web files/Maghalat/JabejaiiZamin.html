@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3ecdf">
+<title>اگر بخواهیم زمین را از مدارش تکان بدهیم چند سفینه لازم است؟</title>
+<style>
+  :root {
+    --paper: #f3ecdf; --ink: #241c16; --ink-soft: #5c4e43; --line: rgba(36,28,22,.14);
+    --accent: #9a3b24; --accent-2: #2f4f45; --gold: #b0893e; --card: #fffaf2; --paper-2: #efe6d4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: Tahoma, "Segoe UI", sans-serif;
+    background: radial-gradient(ellipse at 8% 0%, rgba(176,137,62,.11), transparent 40%), var(--paper);
+    color: var(--ink); line-height: 1.95; overflow-x: hidden;
+  }
+  .bar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(243,236,223,.94);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-in {
+    width: min(760px, calc(100% - 24px));
+    margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; font-size: 13px; gap: 10px;
+  }
+  .bar a { color: var(--accent-2); text-decoration: none; white-space: nowrap; }
+  .wrap { width: min(760px, calc(100% - 24px)); margin: 0 auto; padding: 18px 0 92px; }
+  .kicker { color: var(--accent); font-size: 12px; }
+  h1 { font-size: clamp(22px, 6.4vw, 40px); line-height: 1.4; margin: 8px 0 10px; }
+  .meta { color: var(--ink-soft); font-size: 13px; margin-bottom: 14px; }
+  .lead { font-size: clamp(15px, 3.6vw, 18px); color: var(--ink-soft); margin-bottom: 16px; }
+  h2 { font-size: clamp(18px, 4.5vw, 22px); margin: 26px 0 8px; }
+  p { margin-bottom: 12px; font-size: clamp(15px, 3.5vw, 16px); }
+  .frame {
+    width: 100%;
+    margin: 14px 0 20px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+  }
+  .frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .photo-slot {
+    width: 100%;
+    margin: 14px 0 20px;
+    border: 1px dashed rgba(154,59,36,.35);
+    background: repeating-linear-gradient(-45deg, rgba(176,137,62,.06), rgba(176,137,62,.06) 8px, transparent 8px, transparent 16px), #fffaf2;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 12px;
+    color: var(--ink-soft);
+  }
+  .photo-slot b { color: var(--accent); display: block; margin-bottom: 4px; font-size: 14px; }
+  .photo-slot span { font-size: 12px; line-height: 1.7; }
+  .photo-slot:has(img) {
+    aspect-ratio: auto;
+    height: auto;
+    padding: 0;
+    border-style: solid;
+    background: var(--paper-2);
+    display: block;
+  }
+  .photo-slot img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .note {
+    background: var(--card); border: 1px solid var(--line); border-right: 4px solid var(--gold);
+    padding: 12px 14px; margin: 8px 0 18px; font-size: 14px;
+  }
+  .home-btn {
+    position: fixed; z-index: 40; top: 52px; left: 10px;
+    padding: 8px 12px; background: var(--ink); color: #f3ecdf;
+    text-decoration: none; font-weight: 700; font-size: 12px; border-radius: 12px;
+  }
+  @media (min-width: 700px) {
+    .wrap { padding: 28px 0 90px; }
+    .home-btn { top: auto; bottom: 18px; left: 0; border-radius: 0 14px 14px 0; padding: 11px 18px; }
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-in">
+      <span>زمین‌شناسی</span>
+      <a href="../Maghalat.html">بازگشت به مقاله‌ها</a>
+    </div>
+  </div>
+  <article class="wrap">
+    <div class="kicker">فیزیک · مدار زمین</div>
+    <h1>اگر بخواهیم زمین را از مدارش تکان بدهیم چند سفینه لازم است؟</h1>
+    <div class="meta">یک سؤال خفن، شش تریلیون موتور، و طنابی که دور سیاره کم می‌آید</div>
+    <div class="frame">
+      <img src="images/JabejaiiZamin.png" alt="زمین از فضا">
+    </div>
+    <p class="lead">اگر بخواهیم زمین را از مدارش حرکت بدهیم، چقدر سفینه و سوخت لازم داریم؟ سؤال خفنی است. شاید اول فکر کنی این ایده یک‌جورهایی غیرممکن است؛ ولی خب ما عاشق همین این‌ور و آن‌ورهای عجیب و چالش‌برانگیزیم.</p>
+
+    <h2>چقدر نیرو لازم است؟</h2>
+    <p>اول باید وزن زمین را بدانیم. جرم زمین حدود <b>۵٫۹۷ × ۱۰<sup>۲۴</sup> کیلوگرم</b> است؛ عددی سرسام‌آور. فرض کنیم فقط بخواهیم با یک شتاب خیلی کوچک تکانش بدهیم: یک میلی‌متر بر مجذور ثانیه، یعنی یک‌هزارم متر بر مجذور ثانیه. هرچه شتاب کمتر باشد حساب ساده‌تر می‌شود.</p>
+    <p>طبق قانون نیوتون، نیرو برابر جرم ضرب در شتاب است. می‌شود چیزی حدود <b>۵٫۹۷ × ۱۰<sup>۲۱</sup> نیوتون</b>. این‌قدر نیرو لازم است تا زمین را با همین شتاب ریز جابه‌جا کنیم.</p>
+    <h2>چند سفینه؟</h2>
+    <p>حالا ببینیم چند سفینه این نیرو را می‌سازند. فرض می‌کنیم هر سفینه بتواند یک گیگانیوتون نیرو بدهد. بشر هنوز چنین موتوری نساخته. موتور رپتور اسپیس‌ایکس حدود ۲۲۰۰ کیلونیوتون قدرت دارد و از پیشرفته‌ترین موتورهای امروز است. یک گیگانیوتون تقریباً ۴۵۰ برابر یک رپتور است. با این حال فرض می‌گیریم برای هر سفینه موتوری ساخته‌ایم که همان یک گیگانیوتون را بدهد.</p>
+    <p>حسابش ساده است: نیروی کل تقسیم بر نیروی هر سفینه. برای این کار باید حدود <b>۶ تریلیون</b> سفینه داشته باشیم. بله، شش تریلیون.</p>
+    <h2>انرژی را از کجا بیاوریم؟</h2>
+    <p>فقط برای تکان دادن زمین در یک ثانیه، کار انجام‌شده حدود <b>۲٫۹۸۵ × ۱۰<sup>۱۸</sup> ژول</b> است. اما اگر هر کدام از آن شش تریلیون سفینه در هر ثانیه ۱۰<sup>۹</sup> ژول بسوزاند، انرژی کل می‌شود <b>۶ × ۱۰<sup>۲۱</sup> ژول</b>؛ یک عدد با ۲۱ صفر جلوی شش.</p>
+    <p>هیچ منبع انرژی امروز زمین این عدد را یک‌جا نمی‌دهد. یک نیروگاه هسته‌ای معمولی سالانه حدود ۳ × ۱۰<sup>۱۶</sup> ژول می‌سازد. برای رسیدن به آن انرژی باید حدود ۲۰۰ هزار نیروگاه داشته باشیم، در حالی که حالا کمتر از ۵۰۰ تا داریم. اگر بخواهیم با نفت برویم، باید حدود ۱۵۰ تریلیون لیتر بسوزانیم؛ نه فقط ذخایر خودمان، بلکه انگار باید سیاره‌های دیگری پیدا کنیم که روزی حیات داشته‌اند و نفتشان را هم بیاوریم.</p>
+    <p>خورشید در هر ثانیه حدود ۳٫۸ × ۱۰<sup>۲۶</sup> ژول می‌فرستد. اگر حتی تکه‌ای کوچک از این انرژی را با صفحه‌های خورشیدی در فضا جمع کنیم، شاید به عددمان برسیم. باز هم فرض می‌گیریم انرژی جور شده.</p>
+
+    <h2>چطور سفینه‌ها را به زمین وصل کنیم؟</h2>
+    <p>عجیب‌ترین بخش کار، بستن سفینه‌ها با طناب‌های غول است. هر سفینه باید با یک طناب به زمین وصل شود تا نیرویش منتقل شود. فرض کنیم طول هر طناب برابر شعاع زمین باشد، یعنی ۶۳۷۱ کیلومتر. برای شش تریلیون سفینه، طول کل طناب‌ها حدود <b>۳٫۸ × ۱۰<sup>۱۶</sup> کیلومتر</b> می‌شود. با این مقدار می‌شود صدها میلیون بار دور زمین طناب پیچید. این حجم را از کجا بیاوریم و چطور بسازیم، خودش یک داستان دیگر است.</p>
+    <p>برای وصل کردن باید لنگرگاه روی سطح بسازیم. اگر ۳۶۰ نقطه در طول جغرافیایی در نظر بگیریم و هر نقطه دست‌کم یک میلیون متر مکعب بتن بخواهد، حجم کل به صدها میلیون متر مکعب می‌رسد. یک کارخانه بتن برای این حجم قرن‌ها وقت می‌خواهد؛ اگر بخواهیم در یک سال تمام شود، باید صدها کارخانه هم‌زمان کار کنند.</p>
+    <p>برای خود طناب بهتر است نانولولهٔ کربن باشد؛ سبک است و حدود صد برابر فولاد تاب می‌آورد. حتی با این ماده هم ساختن طنابی برای جابه‌جا کردن زمین، چندین برابر ذخیرهٔ کربن زمین و هزاران سال وقت می‌خواهد.</p>
+    <p>پس ایده قشنگ است، عددها هم درمی‌آیند، ولی سفینه، سوخت، بتن و طناب همه از حد زمین بزرگ‌ترند. تا فکر بعدی، کنجکاو بمان.</p>
+  </article>
+  <a class="home-btn" href="../Maghalat.html">بازگشت به مقاله‌ها</a>
+<script src="../MusicPlayer.js"></script>
+</body>
+</html>

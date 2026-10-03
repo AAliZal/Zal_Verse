@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>آزمایشگاه مدار الکتریکی</title>
+
+
+<style>
+
+*{
+    box-sizing:border-box;
+    font-family:tahoma;
+}
+
+
+body{
+
+    margin:0;
+    background:#101820;
+    color:white;
+
+}
+
+
+.lab{
+
+    width:100%;
+    height:100vh;
+    overflow:hidden;
+    background:
+    linear-gradient(135deg,#182848,#4b6cb7);
+
+    padding:20px;
+
+}
+
+
+
+h1{
+
+    text-align:center;
+    margin:5px;
+    color:#fff;
+
+}
+
+
+
+/* نوار ابزار */
+
+.toolbar{
+
+    height:70px;
+    display:flex;
+    justify-content:center;
+    gap:15px;
+
+}
+
+
+
+button{
+
+    background:#00c6ff;
+    border:none;
+    padding:12px 20px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+    color:white;
+
+}
+
+
+
+button:hover{
+
+    background:#0099cc;
+
+}
+
+
+
+/* میز آزمایشگاه */
+
+#workspace{
+
+    position:relative;
+
+    width:100%;
+    height:70%;
+
+    background:
+
+    linear-gradient(
+    90deg,
+    rgba(255,255,255,.05) 1px,
+    transparent 1px),
+
+    linear-gradient(
+    rgba(255,255,255,.05) 1px,
+    transparent 1px),
+
+    #252525;
+
+
+    background-size:40px 40px;
+
+
+    border-radius:20px;
+
+    border:4px solid #555;
+
+    overflow:hidden;
+
+}
+
+
+
+/* سیم ها */
+
+#wires{
+
+    position:absolute;
+
+    width:100%;
+    height:100%;
+
+    pointer-events:none;
+
+}
+
+
+
+/* قطعات */
+
+.component{
+
+    position:absolute;
+
+    width:90px;
+    height:90px;
+
+    border-radius:20px;
+
+    background:#333;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+
+    cursor:grab;
+
+    user-select:none;
+
+    border:3px solid #777;
+
+    font-size:35px;
+
+
+}
+
+
+
+.component span{
+
+    font-size:13px;
+
+    margin-top:5px;
+
+}
+
+
+
+/* نقطه اتصال */
+
+.pin{
+
+    width:14px;
+    height:14px;
+
+    background:#ffcc00;
+
+    border-radius:50%;
+
+    position:absolute;
+
+    border:2px solid black;
+
+}
+
+
+
+.pin.left{
+
+    left:-8px;
+
+    top:38px;
+
+}
+
+
+
+.pin.right{
+
+    right:-8px;
+
+    top:38px;
+
+}
+
+
+
+/* قطعات */
+
+.battery{
+
+    left:120px;
+    top:280px;
+
+}
+
+
+.lamp{
+
+    left:720px;
+    top:280px;
+
+}
+
+
+.switch{
+
+    left:350px;
+    top:280px;
+
+}
+
+
+.resistor{
+
+    left:520px;
+    top:280px;
+
+}
+
+
+
+
+/* اطلاعات */
+
+.panel{
+
+    margin-top:15px;
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:30px;
+
+
+}
+
+
+.box{
+
+    background:#111;
+
+    padding:15px 25px;
+
+    border-radius:15px;
+
+}
+.guide{
+
+position:absolute;
+
+right:20px;
+
+top:100px;
+
+
+width:250px;
+
+
+background:#111;
+
+border:2px solid #00c6ff;
+
+
+border-radius:15px;
+
+
+padding:15px;
+
+
+font-size:14px;
+
+
+line-height:1.8;
+
+
+}
+
+
+.guide h3{
+
+text-align:center;
+
+color:#00c6ff;
+
+}
+        .home-btn{
+    position:fixed;
+    top:15px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="lab">
+
+
+<h1>
+⚡ آزمایشگاه مدار الکتریکی دیجیتال
+</h1>
+
+
+<div class="toolbar">
+
+<button onclick="selectTool('wire')">
+🔌 سیم
+</button>
+
+
+<button onclick="toggleSwitch()">
+🔘 کلید
+</button>
+
+
+</div>
+
+
+
+<div id="workspace">
+
+
+<svg id="wires">
+
+</svg>
+
+
+
+<div class="component battery" id="battery">
+
+🔋
+
+<span>باتری</span>
+
+
+<div class="pin left"></div>
+<div class="pin right"></div>
+
+
+</div>
+
+
+
+<div class="component lamp" id="lamp">
+
+💡
+
+<span>لامپ</span>
+
+
+<div class="pin left"></div>
+<div class="pin right"></div>
+
+
+</div>
+
+
+
+
+<div class="component switch" id="switch">
+
+🔘
+
+<span>کلید</span>
+
+
+<div class="pin left"></div>
+<div class="pin right"></div>
+
+
+</div>
+
+
+
+
+
+<div class="component resistor" id="resistor">
+
+〰️
+
+<span>مقاومت</span>
+
+
+<div class="pin left"></div>
+<div class="pin right"></div>
+
+
+</div>
+
+
+
+
+</div>
+
+<div class="guide">
+
+<h3>📘 راهنما</h3>
+
+<p>
+1- قطعات را با موس جابه‌جا کنید.
+</p>
+
+<p>
+2- روی دکمه 🔌 سیم کلیک کنید.
+</p>
+
+<p>
+3- از نقطه زرد یک قطعه کلیک کنید و به نقطه زرد قطعه دیگر بکشید.
+</p>
+
+<p>
+4- برای روشن شدن لامپ باید مدار بسته باشد.
+</p>
+
+<p>
+5- با دکمه 🔘 کلید را باز و بسته کنید.
+</p>
+
+
+</div>
+
+<div class="panel">
+
+
+<div class="box">
+
+ولتاژ:
+<span id="voltage">
+0
+</span>
+V
+
+</div>
+
+
+<div class="box">
+
+جریان:
+<span id="current">
+0
+</span>
+A
+
+</div>
+
+
+
+<div class="box">
+
+مقاومت:
+<span id="resistance">
+0
+</span>
+Ω
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+
+
+<script>
+
+
+let workspace = document.getElementById("workspace");
+let svg = document.getElementById("wires");
+
+let selectedTool = null;
+
+let connections = [];
+
+let dragging = null;
+let offsetX = 0;
+let offsetY = 0;
+
+
+// انتخاب ابزار سیم
+
+function selectTool(tool){
+
+    selectedTool = tool;
+
+    workspace.style.cursor="crosshair";
+
+}
+
+
+
+// حرکت دادن قطعات
+document.querySelectorAll(".component").forEach(part=>{
+
+part.addEventListener("mousedown",e=>{
+
+
+if(selectedTool==="wire")
+return;
+
+
+let rect = part.getBoundingClientRect();
+
+
+dragging = part;
+
+
+offsetX = e.clientX - rect.left;
+offsetY = e.clientY - rect.top;
+
+
+part.style.cursor="grabbing";
+
+
+});
+
+
+});
+
+
+
+document.addEventListener("mousemove",e=>{
+
+
+if(dragging){
+
+
+let rect =
+workspace.getBoundingClientRect();
+
+
+let area =
+workspace.getBoundingClientRect();
+
+
+let x =
+e.clientX - area.left - offsetX;
+
+
+let y =
+e.clientY - area.top - offsetY;
+
+
+dragging.style.left=x+"px";
+
+dragging.style.top=y+"px";
+
+
+
+}
+
+
+
+});
+
+
+
+
+document.addEventListener("mouseup",()=>{
+
+
+if(dragging){
+
+dragging.style.cursor="grab";
+
+}
+
+
+dragging=null;
+
+
+});
+
+
+
+// ---- نسخه لمسی (گوشی) جابجایی قطعات ----
+
+document.querySelectorAll(".component").forEach(part=>{
+
+part.addEventListener("touchstart",e=>{
+
+if(selectedTool==="wire")
+return;
+
+if(e.touches.length!==1)
+return;
+
+let touch=e.touches[0];
+let rect=part.getBoundingClientRect();
+
+dragging=part;
+
+offsetX=touch.clientX-rect.left;
+offsetY=touch.clientY-rect.top;
+
+part.style.cursor="grabbing";
+
+},{passive:true});
+
+});
+
+
+
+document.addEventListener("touchmove",e=>{
+
+if(dragging && e.touches.length===1){
+
+e.preventDefault();
+
+let touch=e.touches[0];
+
+let area=
+workspace.getBoundingClientRect();
+
+let x=
+touch.clientX-area.left-offsetX;
+
+let y=
+touch.clientY-area.top-offsetY;
+
+dragging.style.left=x+"px";
+dragging.style.top=y+"px";
+
+}
+
+},{passive:false});
+
+
+
+document.addEventListener("touchend",()=>{
+
+if(dragging){
+
+dragging.style.cursor="grab";
+
+}
+
+dragging=null;
+
+});
+
+
+
+
+
+// -------------------------
+// سیستم کشیدن سیم
+// -------------------------
+
+
+let startPin=null;
+
+let drawingWire=false;
+let tempLine=null;
+
+
+
+workspace.addEventListener("mousedown",e=>{
+
+
+if(selectedTool!=="wire")
+return;
+
+
+if(e.target.classList.contains("pin")){
+
+
+startPin=e.target;
+
+drawingWire=true;
+
+
+tempLine=document.createElementNS(
+"http://www.w3.org/2000/svg",
+"line"
+);
+
+
+let p=getPinPosition(startPin);
+
+
+tempLine.setAttribute("x1",p.x);
+tempLine.setAttribute("y1",p.y);
+
+tempLine.setAttribute("x2",p.x);
+tempLine.setAttribute("y2",p.y);
+
+
+tempLine.setAttribute(
+"stroke",
+"#aaa"
+);
+
+
+tempLine.setAttribute(
+"stroke-width",
+"5"
+);
+
+
+svg.appendChild(tempLine);
+
+
+}
+
+});
+
+
+
+workspace.addEventListener("mousemove",e=>{
+
+
+if(!drawingWire)
+return;
+
+
+let rect =
+workspace.getBoundingClientRect();
+
+
+tempLine.setAttribute(
+"x2",
+e.clientX-rect.left
+);
+
+
+tempLine.setAttribute(
+"y2",
+e.clientY-rect.top
+);
+
+
+});
+
+
+
+workspace.addEventListener("mouseup",e=>{
+
+
+if(!drawingWire)
+return;
+
+
+
+if(
+e.target.classList.contains("pin") &&
+e.target!==startPin
+){
+
+
+tempLine.remove();
+
+
+createWire(
+startPin,
+e.target
+);
+
+
+}
+else{
+
+
+tempLine.remove();
+
+}
+
+
+drawingWire=false;
+startPin=null;
+
+
+});
+
+
+
+// ---- نسخه لمسی (گوشی) کشیدن سیم ----
+
+workspace.addEventListener("touchstart",e=>{
+
+if(selectedTool!=="wire")
+return;
+
+if(e.touches.length!==1)
+return;
+
+let touch=e.touches[0];
+
+let target=
+document.elementFromPoint(touch.clientX,touch.clientY);
+
+if(target && target.classList.contains("pin")){
+
+startPin=target;
+
+drawingWire=true;
+
+tempLine=document.createElementNS(
+"http://www.w3.org/2000/svg",
+"line"
+);
+
+let p=getPinPosition(startPin);
+
+tempLine.setAttribute("x1",p.x);
+tempLine.setAttribute("y1",p.y);
+
+tempLine.setAttribute("x2",p.x);
+tempLine.setAttribute("y2",p.y);
+
+tempLine.setAttribute("stroke","#aaa");
+tempLine.setAttribute("stroke-width","5");
+
+svg.appendChild(tempLine);
+
+}
+
+},{passive:true});
+
+
+
+workspace.addEventListener("touchmove",e=>{
+
+if(!drawingWire)
+return;
+
+e.preventDefault();
+
+let touch=e.touches[0];
+
+let rect=
+workspace.getBoundingClientRect();
+
+tempLine.setAttribute(
+"x2",
+touch.clientX-rect.left
+);
+
+tempLine.setAttribute(
+"y2",
+touch.clientY-rect.top
+);
+
+},{passive:false});
+
+
+
+workspace.addEventListener("touchend",e=>{
+
+if(!drawingWire)
+return;
+
+let touch=e.changedTouches[0];
+
+let target=
+document.elementFromPoint(touch.clientX,touch.clientY);
+
+if(
+target &&
+target.classList.contains("pin") &&
+target!==startPin
+){
+
+tempLine.remove();
+
+createWire(
+startPin,
+target
+);
+
+}
+else{
+
+tempLine.remove();
+
+}
+
+
+drawingWire=false;
+startPin=null;
+
+});
+
+
+
+
+
+
+
+function createWire(a,b){
+
+
+
+let line =
+document.createElementNS(
+"http://www.w3.org/2000/svg",
+"line"
+);
+
+
+
+let p1 =
+getPinPosition(a);
+
+
+let p2 =
+getPinPosition(b);
+
+
+
+line.setAttribute("x1",p1.x);
+line.setAttribute("y1",p1.y);
+
+
+line.setAttribute("x2",p2.x);
+line.setAttribute("y2",p2.y);
+
+
+
+line.setAttribute(
+"stroke",
+"#ddd"
+);
+
+
+line.setAttribute(
+"stroke-width",
+"5"
+);
+
+
+
+line.dataset.a =
+a.parentElement.id;
+
+
+line.dataset.b =
+b.parentElement.id;
+
+
+
+svg.appendChild(line);
+
+
+
+connections.push({
+
+a:a.parentElement.id,
+
+b:b.parentElement.id,
+
+line:line
+
+});
+
+
+
+checkCircuit();
+
+
+}
+
+
+
+
+function getPinPosition(pin){
+
+
+let r =
+pin.getBoundingClientRect();
+
+
+let w =
+workspace.getBoundingClientRect();
+
+
+
+return {
+
+x:r.left-w.left+r.width/2,
+
+y:r.top-w.top+r.height/2
+
+};
+
+
+}
+
+
+
+
+// حذف سیم با کلیک روی آن
+
+svg.addEventListener("click",e=>{
+
+
+if(e.target.tagName==="line"){
+
+
+
+let index =
+connections.findIndex(
+x=>x.line===e.target
+);
+
+
+
+if(index!=-1){
+
+connections.splice(index,1);
+
+}
+
+
+
+e.target.remove();
+
+
+
+checkCircuit();
+
+
+}
+
+
+});
+
+
+
+
+// بررسی وجود مسیر مدار
+
+
+function checkCircuit(){
+
+
+
+let graph={};
+
+
+
+connections.forEach(c=>{
+
+
+if(!graph[c.a])
+graph[c.a]=[];
+
+
+if(!graph[c.b])
+graph[c.b]=[];
+
+
+
+graph[c.a].push(c.b);
+
+graph[c.b].push(c.a);
+
+
+
+});
+
+
+
+let visited={};
+
+
+
+function search(node){
+
+
+
+if(node==="battery")
+return true;
+
+
+
+visited[node]=true;
+
+
+
+if(graph[node]){
+
+
+for(let next of graph[node]){
+
+
+if(!visited[next]){
+
+
+if(search(next))
+return true;
+
+
+}
+
+
+}
+
+
+
+}
+
+
+
+return false;
+
+
+
+}
+
+
+
+let result =
+search("battery");
+
+
+
+if(result){
+
+console.log("مدار بسته پیدا شد");
+
+
+}
+
+
+}
+
+// وضعیت کلید
+
+let switchOn = false;
+
+
+// روشن و خاموش کردن کلید
+
+function toggleSwitch(){
+
+    switchOn = !switchOn;
+
+
+    let sw =
+    document.getElementById("switch");
+
+
+    if(switchOn){
+
+        sw.style.background="#00aa55";
+        sw.innerHTML=
+        "🟢<span>کلید روشن</span>"+
+        '<div class="pin left"></div>'+
+        '<div class="pin right"></div>';
+
+    }
+    else{
+
+        sw.style.background="#333";
+
+        sw.innerHTML=
+        "🔘<span>کلید خاموش</span>"+
+        '<div class="pin left"></div>'+
+        '<div class="pin right"></div>';
+
+    }
+
+
+    checkCircuit();
+
+}
+
+
+
+
+
+// بررسی کامل مدار
+
+function checkCircuit(){
+
+
+let graph={};
+
+
+
+connections.forEach(c=>{
+
+
+if(!graph[c.a])
+graph[c.a]=[];
+
+
+if(!graph[c.b])
+graph[c.b]=[];
+
+
+graph[c.a].push(c.b);
+
+graph[c.b].push(c.a);
+
+
+
+});
+
+
+
+// اگر کلید خاموش باشد مدار قطع است
+
+if(!switchOn){
+
+turnOffLamp();
+
+return;
+
+}
+
+
+
+let visited={};
+
+
+
+function find(node){
+
+
+if(node==="lamp")
+return true;
+
+
+visited[node]=true;
+
+
+
+if(graph[node]){
+
+
+for(let n of graph[node]){
+
+
+if(!visited[n]){
+
+
+if(find(n))
+return true;
+
+
+}
+
+
+}
+
+
+}
+
+
+
+return false;
+
+
+}
+
+
+
+let circuit =
+find("battery");
+
+
+
+if(circuit){
+
+
+turnOnLamp();
+
+
+}
+
+else{
+
+
+turnOffLamp();
+
+
+}
+
+
+
+}
+
+
+
+
+
+// روشن کردن لامپ
+
+
+function turnOnLamp(){
+
+
+let lamp =
+document.getElementById("lamp");
+
+
+lamp.style.background=
+"#ffcc00";
+
+
+lamp.style.boxShadow=
+"0 0 40px yellow";
+
+
+
+document.getElementById("voltage")
+.innerHTML="12";
+
+
+document.getElementById("resistance")
+.innerHTML="6";
+
+
+document.getElementById("current")
+.innerHTML="2";
+
+
+
+startElectricFlow();
+
+
+}
+
+
+
+
+// خاموش کردن لامپ
+
+
+function turnOffLamp(){
+
+
+let lamp =
+document.getElementById("lamp");
+
+
+lamp.style.background="#333";
+
+
+lamp.style.boxShadow="none";
+
+
+
+document.getElementById("voltage")
+.innerHTML="0";
+
+
+document.getElementById("current")
+.innerHTML="0";
+
+
+stopElectricFlow();
+
+
+
+}
+
+
+
+
+
+// ------------------------
+// حرکت ذرات برق
+// ------------------------
+
+
+let particles=[];
+
+let flowTimer;
+
+
+
+function startElectricFlow(){
+
+
+
+stopElectricFlow();
+
+
+
+connections.forEach(c=>{
+
+
+let circle =
+document.createElementNS(
+"http://www.w3.org/2000/svg",
+"circle"
+);
+
+
+
+circle.setAttribute("r","6");
+
+
+circle.setAttribute(
+"fill",
+"#00ffff"
+);
+
+
+
+svg.appendChild(circle);
+
+
+
+particles.push({
+
+obj:circle,
+
+line:c.line,
+
+pos:0
+
+});
+
+
+});
+
+
+
+
+flowTimer =
+setInterval(()=>{
+
+
+particles.forEach(p=>{
+
+
+let line=p.line;
+
+
+
+let x1=
+Number(line.getAttribute("x1"));
+
+let y1=
+Number(line.getAttribute("y1"));
+
+
+let x2=
+Number(line.getAttribute("x2"));
+
+let y2=
+Number(line.getAttribute("y2"));
+
+
+
+p.pos+=0.02;
+
+
+if(p.pos>1)
+p.pos=0;
+
+
+
+let x=
+x1+(x2-x1)*p.pos;
+
+
+let y=
+y1+(y2-y1)*p.pos;
+
+
+
+p.obj.setAttribute("cx",x);
+
+p.obj.setAttribute("cy",y);
+
+
+
+});
+
+
+
+},30);
+
+
+
+}
+
+
+
+
+function stopElectricFlow(){
+
+
+clearInterval(flowTimer);
+
+
+particles.forEach(p=>{
+
+
+p.obj.remove();
+
+
+});
+
+
+particles=[];
+
+
+}
+
+
+
+
+// وقتی صفحه باز شد
+
+console.log(
+"آزمایشگاه مدار آماده است"
+);
+
+
+</script>
+
+
+<script src="MusicPlayer.js"></script>
+</body>
+
+</html>

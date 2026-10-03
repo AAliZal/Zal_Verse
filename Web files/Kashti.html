@@ -1,0 +1,623 @@
+<!DOCTYPE html><html><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta charset="UTF-8"><title>تست چگالی و کار کشتی</title><style>
+body{margin:0;font-family:tahoma;background:#0f172a;color:#fff;display:flex;flex-direction:row-reverse;height:100vh;overflow:hidden}
+#sidebar{width:300px;background:#1e293b;border-right:4px solid #38bdf8;padding:10px;overflow-y:auto;z-index:100}
+.label{font-size:11px;color:#38bdf8;text-align:center;margin:12px 0;border-bottom:1px solid #334155;padding-bottom:5px}
+.item,.placed{cursor:grab;display:flex;align-items:center;justify-content:center;position:relative;user-select:none}
+.item{background:#334155;border:2px solid #475569;margin:0 auto 8px}.wood{background:#78350f!important}.heavy{background:#475569}
+.sq-1-1{width:40px;height:40px}.sq-2-2{width:80px;height:80px}.rect-h{width:120px;height:40px}.rect-v{width:40px;height:120px}
+.sq-3-3{width:120px;height:120px}
+.plank-h{width:160px;height:40px}
+.plank-v{width:40px;height:160px}
+.foam{background:#cbd5e1!important;border-color:#94a3b8!important}
+.foam-sq{width:40px;height:40px}
+.foam-rect{width:80px;height:40px}
+.metal{background:#64748b!important;border-color:#475569!important}
+.metal-sq{width:40px;height:40px}
+.metal-rect{width:80px;height:40px}
+.metal-v{width:40px;height:120px}
+.motor{width:80px;height:80px;font-size:30px}.chimney{width:40px;height:80px;background:#0f172a!important;border-top:8px solid red}
+.sail{width:80px;height:120px;background:#f8fafc!important;border-radius:5px 40px 5px 40px;color:#333}
+.propeller{width:60px;height:60px;font-size:28px;background:#334155!important}
+.rudder{width:30px;height:80px;background:#334155!important;border-radius:0 15px 15px 0!important}
+
+.slot{
+    display:flex;
+    flex-direction:row-reverse;
+    align-items:center;
+    gap:8px;
+    margin:0 0 10px;
+    padding:4px;
+    border-radius:10px;
+    background:rgba(15,23,42,.45);
+    border:1px dashed #334155;
+    overflow:hidden;
+    min-width:0;
+}
+.slot .item{margin:0;flex-shrink:0}
+.item-desc{
+    font-size:10px;
+    color:#cbd5e1;
+    line-height:1.5;
+    flex:1;
+    min-width:0;
+    overflow-wrap:break-word;
+    word-wrap:break-word;
+    text-align:left;
+    direction:rtl;
+    font-weight:bold;
+}
+.item-desc b{color:#38bdf8;display:block;font-size:10.5px;margin-bottom:2px}
+
+#work-area{
+    flex:1;
+    position:relative;
+    background:#1e293b;
+    background-image:radial-gradient(#334155 1px,transparent 1px);
+    background-size:40px 40px;
+    overflow:hidden;
+    touch-action:none;
+    overscroll-behavior:none;
+}
+.placed{position:absolute;z-index:10}#ocean{position:absolute;bottom:0;width:100%;height:200px;background:rgba(14,165,233,.5);display:none;border-top:4px solid #38bdf8;z-index:50}
+.controls{position:absolute;bottom:15px;right:15px;display:flex;flex-direction:column;gap:10px;z-index:1000}
+.btn{padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:700;color:#fff;font-family:tahoma}
+#trash-can{width:65px;height:65px;background:#b91c1c;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:25px;border:3px solid #7f1d1d}
+.mass-tag{position:absolute;top:-16px;font-size:9px;background:#000;color:#38bdf8;padding:1px 3px;border-radius:3px;pointer-events:none}
+.steam{position:absolute;top:-20px;width:10px;height:10px;background:rgba(255,255,255,0.6);border-radius:50%;display:none;animation:puff 1.5s infinite}
+@keyframes puff{0%{transform:translateY(0) scale(1);opacity:0.8}100%{transform:translateY(-40px) scale(3);opacity:0}}.smoking .steam{display:block}
+#stats{position:absolute;top:20px;left:20px;background:rgba(15,23,42,0.95);padding:20px;border-radius:15px;border:2px solid #38bdf8;font-size:13px;display:none;z-index:1000;line-height:2;min-width:220px;box-shadow:0 0 20px rgba(0,0,0,0.5)}
+.home-btn{position:fixed;top:300px;left:0;z-index:9999;padding:12px 25px;background:linear-gradient(135deg,#00d2ff,#0066ff);color:white;text-decoration:none;font-weight:bold;border-radius:0 15px 15px 0;box-shadow:0 0 15px rgba(0,210,255,.5);transition:.3s;}
+.home-btn:hover{padding-right:35px;box-shadow:0 0 25px rgba(0,210,255,.9);}
+#notebook{position:absolute;left:350px;top:40px;width:260px;height:auto;background:#fef3c7;color:#1e293b;border:3px solid #92400e;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.35);z-index:900;cursor:grab;user-select:none;transition:opacity .4s,transform .4s;}
+.page{padding:12px;font-size:12px;line-height:1.8;height:auto;max-height:none;overflow:visible;}
+#notebook:active{cursor:grabbing;}
+.book-title{background:#92400e;color:#fff;padding:10px;text-align:center;font-weight:bold;font-size:16px;border-radius:9px 9px 0 0;}
+.page h3{margin:0 0 8px;color:#7c2d12;font-size:15px;}
+.page h4{margin:10px 0 5px;color:#92400e;font-size:13px;}
+.page p{margin:4px 0;}
+.st-row{display:flex;justify-content:space-between;border-bottom:1px solid #334155}.st-val{color:#38bdf8;font-weight:bold}.hidden{display:none!important}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:10000;padding:20px;box-sizing:border-box;}
+.modal-overlay.show{display:flex;}
+.mass-modal-box{width:min(340px,90vw);background:#1e293b;border:2px solid #38bdf8;border-radius:18px;padding:22px;box-sizing:border-box;box-shadow:0 15px 40px rgba(0,0,0,.5);direction:rtl;text-align:right;}
+.mass-modal-title{color:#38bdf8;font-size:18px;font-weight:bold;text-align:center;margin-bottom:15px;}
+.mass-modal-text{color:#e2e8f0;font-size:13px;margin-bottom:10px;}
+.mass-input-wrap{display:flex;align-items:center;gap:8px;direction:ltr;}
+.mass-input-wrap input{flex:1;min-width:0;padding:12px;border:2px solid #475569;border-radius:10px;background:#0f172a;color:#fff;font-family:tahoma;font-size:16px;outline:none;box-sizing:border-box;}
+.mass-input-wrap input:focus{border-color:#38bdf8;}
+.mass-input-wrap span{color:#38bdf8;font-weight:bold;}
+#mass-error{display:none;color:#f87171;font-size:11px;margin-top:8px;}
+.mass-modal-buttons{display:flex;gap:10px;margin-top:18px;}
+.mass-btn{flex:1;padding:12px;border:none;border-radius:10px;color:#fff;font-family:tahoma;font-weight:bold;font-size:13px;cursor:pointer;}
+.mass-btn.cancel{background:#475569;}
+.mass-btn.confirm{background:linear-gradient(135deg,#00d2ff,#0066ff);}
+.mass-btn:active{transform:scale(.97);}
+.delete-modal-box{width:min(340px,90vw);background:#1e293b;border:2px solid #ef4444;border-radius:18px;padding:22px;box-sizing:border-box;box-shadow:0 15px 40px rgba(0,0,0,.5);direction:rtl;text-align:center;}
+.delete-modal-icon{font-size:42px;margin-bottom:8px;}
+.delete-modal-title{color:#f87171;font-size:18px;font-weight:bold;margin-bottom:12px;}
+.delete-modal-text{color:#e2e8f0;font-size:13px;line-height:1.8;}
+.delete-modal-buttons{display:flex;gap:10px;margin-top:20px;}
+.delete-btn{flex:1;padding:12px;border:none;border-radius:10px;color:#fff;font-family:tahoma;font-weight:bold;font-size:13px;cursor:pointer;}
+.delete-btn.cancel{background:#475569;}
+.delete-btn.danger{background:#dc2626;}
+.delete-btn.danger:active,.delete-btn.cancel:active{transform:scale(.97);}
+.mobile-controls{display:none;gap:10px;justify-content:center;direction:ltr;touch-action:none;}
+.move-btn{width:65px;height:55px;border:none;border-radius:12px;background:#0ea5e9;color:white;font-size:24px;font-weight:bold;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.3);font-family:tahoma;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+.move-btn:active{background:#0284c7;transform:scale(.94);}
+</style></head><body>
+
+<div id="stats">
+<div class="st-row">جرم کل: <span id="m-val" class="st-val">0</span> kg</div>
+<div class="st-row">حجم کل: <span id="v-val" class="st-val">0</span> m³</div>
+<div class="st-row">چگالی میانگین: <span id="d-val" class="st-val">0</span></div>
+<div class="st-row">نیروی پیشرانه: <span id="f-val" class="st-val">0</span> N</div>
+<div class="st-row">سرعت حرکت: <span id="s-val" class="st-val">0</span> m/s</div>
+<div class="st-row">انرژی مصرفی: <span id="j-val" class="st-val">0</span> J</div>
+<div id="status-text" style="text-align:center;margin-top:10px;font-weight:bold;color:#10b981">وضعیت: پایدار</div>
+</div>
+<div id="sidebar">
+
+<div class="label">بدنه چوبی</div>
+
+<div class="slot">
+    <div class="item wood sq-1-1" draggable="true" ondragstart="dg(event)" data-t="sq-1-1" data-v="1" data-n="true"></div>
+    <div class="item-desc"><b>مکعب ۱×۱</b>بلوک کوچک چوبی؛ سبک و شناور.</div>
+</div>
+
+<div class="slot">
+    <div class="item wood sq-2-2" draggable="true" ondragstart="dg(event)" data-t="sq-2-2" data-v="4" data-n="true"></div>
+    <div class="item-desc"><b>مکعب ۲×۲</b>بلوک متوسط چوبی؛ پایهٔ بدنه.</div>
+</div>
+
+<div class="slot">
+    <div class="item wood sq-3-3" draggable="true" ondragstart="dg(event)" data-t="sq-3-3" data-v="9" data-n="true"></div>
+    <div class="item-desc"><b>مکعب ۳×۳</b>بلوک بزرگ؛ برای بدنهٔ اصلی کشتی.</div>
+</div>
+
+<div class="slot">
+    <div class="item wood rect-h" draggable="true" ondragstart="dg(event)" data-t="rect-h" data-v="3" data-n="true"></div>
+    <div class="item-desc"><b>تخته افقی</b>قطعه چوبی کشیده برای کف یا عرشه.</div>
+</div>
+
+<div class="slot">
+    <div class="item wood rect-v" draggable="true" ondragstart="dg(event)" data-t="rect-v" data-v="3" data-n="true"></div>
+    <div class="item-desc"><b>تخته عمودی</b>قطعه چوبی ایستاده؛ دیوارهٔ کشتی.</div>
+</div>
+
+<div class="slot">
+    <div class="item wood plank-h" draggable="true" ondragstart="dg(event)" data-t="plank-h" data-v="5" data-n="true"></div>
+    <div class="item-desc"><b>تخته بلند افقی</b>تختهٔ طولانی برای کف کشتی.</div>
+</div>
+
+<div class="slot">
+    <div class="item wood plank-v" draggable="true" ondragstart="dg(event)" data-t="plank-v" data-v="5" data-n="true"></div>
+    <div class="item-desc"><b>تخته بلند عمودی</b>تختهٔ بلند برای دیواره یا دکل.</div>
+</div>
+
+<div class="label">مواد سبک (فوم)</div>
+
+<div class="slot">
+    <div class="item foam foam-sq" draggable="true" ondragstart="dg(event)" data-t="foam-sq" data-v="1" data-m="0.1" data-mat="foam"></div>
+    <div class="item-desc"><b>فوم کوچک</b>خیلی سبک؛ شناوری را زیاد می‌کند.</div>
+</div>
+
+<div class="slot">
+    <div class="item foam foam-rect" draggable="true" ondragstart="dg(event)" data-t="foam-rect" data-v="2" data-m="0.2" data-mat="foam"></div>
+    <div class="item-desc"><b>فوم بزرگ</b>سبک‌تر از چوب؛ برای شناور ماندن.</div>
+</div>
+
+<div class="label">فلز و وزنه</div>
+
+<div class="slot">
+    <div class="item metal metal-sq" draggable="true" ondragstart="dg(event)" data-t="metal-sq" data-v="1" data-m="7.8" data-mat="metal"></div>
+    <div class="item-desc"><b>وزنه ۱×۱</b>قطعه فلزی سنگین؛ برای تعادل.</div>
+</div>
+
+<div class="slot">
+    <div class="item metal metal-rect" draggable="true" ondragstart="dg(event)" data-t="metal-rect" data-v="2" data-m="15.6" data-mat="metal"></div>
+    <div class="item-desc"><b>ورق فلزی</b>سنگین‌تر از چوب؛ مرکز جرم را پایین می‌برد.</div>
+</div>
+
+<div class="slot">
+    <div class="item metal metal-v" draggable="true" ondragstart="dg(event)" data-t="metal-v" data-v="3" data-m="23.4" data-mat="metal"></div>
+    <div class="item-desc"><b>وزنهٔ بزرگ</b>خیلی سنگین؛ خطر غرق شدن کشتی.</div>
+</div>
+
+<div class="label">تجهیزات مهندسی</div>
+
+<div class="slot">
+    <div class="item eng motor" draggable="true" ondragstart="dg(event)" data-t="motor" data-v="4" data-m="15" data-mat="eng">⚙️</div>
+    <div class="item-desc"><b>موتور ⚙️</b>نیروی پیشرانه تولید می‌کند.</div>
+</div>
+
+<div class="slot">
+    <div class="item eng sail" draggable="true" ondragstart="dg(event)" data-t="sail" data-v="6" data-m="3" data-mat="eng">⛵</div>
+    <div class="item-desc"><b>بادبان ⛵</b>با نیروی باد کشتی را می‌راند.</div>
+</div>
+
+<div class="slot">
+    <div class="item eng chimney" draggable="true" ondragstart="dg(event)" data-t="chimney" data-v="2" data-m="8" data-mat="eng"></div>
+    <div class="item-desc"><b>دودکش</b>روی کشتی موتوری؛ از آن دود بلند می‌شود.</div>
+</div>
+
+</div>
+<div id="work-area" ondrop="dp(event)" ondragover="al(event)"><div id="ocean"></div>
+<div id="notebook" class="placed" draggable="true" ondragstart="dg(event)">
+  <div class="book-title">📒 دفترچه راهنمای کشتی</div>
+  <div class="page">
+    <h3>⚓ شبیه‌ساز کشتی</h3>
+    <p>کشتی بساز و شناوری آن را بررسی کن.</p>
+    <h4>🛠 ساخت</h4>
+    <p>هر قطعه توضیح کوتاه خودش را دارد؛ چوب، فوم، فلز و تجهیزات را از سایدبار بکش.</p>
+    <h4>🌊 دریا</h4>
+    <p>شناوری بر اساس چگالی کل (میانگین وزنی) تعیین می‌شود.</p>
+    <h4>🎮 کنترل</h4>
+    <p>➡️ راست / ⬅️ چپ</p>
+    <h4>📊 اطلاعات</h4>
+    <p>جرم، حجم، چگالی، نیرو، انرژی مصرفی.</p>
+    <b><p>نکته: جرم و حجم همهٔ قطعات (چوب، فوم، فلز و تجهیزات مهندسی) در محاسبهٔ چگالی میانگین لحاظ می‌شود.</p></b>
+  </div>
+</div>
+<div class="controls"><button id="btn-l" class="btn" style="background:#0ea5e9" onclick="tk()">🌊 ورود به دریا</button>
+<div class="mobile-controls">
+    <button id="move-right" class="move-btn">➡️</button>
+    <button id="move-left" class="move-btn">⬅️</button>
+</div>
+    <button id="btn-c" class="btn" style="background:#ef4444" onclick="cl()">🗑️ حذف کل</button>
+<div id="trash-can" ondrop="tr(event)" ondragover="al(event)">🚮</div></div></div>
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">بازگشت به صفحه اصلی</a>
+</div>
+<div id="mass-modal" class="modal-overlay">
+    <div class="mass-modal-box">
+        <div class="mass-modal-title">🪵 جرم بلوک چوب</div>
+        <div class="mass-modal-text">جرم هر بلوک چوب را وارد کنید:</div>
+        <div class="mass-input-wrap">
+            <input id="mass-input" type="number" inputmode="decimal" step="0.1" min="0.1" value="0.6" placeholder="مثلاً 0.6">
+            <span>kg</span>
+        </div>
+        <div id="mass-error">لطفاً یک مقدار معتبر وارد کنید.</div>
+        <div class="mass-modal-buttons">
+            <button id="mass-cancel" class="mass-btn cancel">انصراف</button>
+            <button id="mass-confirm" class="mass-btn confirm">تأیید</button>
+        </div>
+    </div>
+</div>
+<div id="delete-modal" class="modal-overlay">
+    <div class="delete-modal-box">
+        <div class="delete-modal-icon">🗑️</div>
+        <div class="delete-modal-title">حذف همه قطعات</div>
+        <div class="delete-modal-text">آیا مطمئن هستید که می‌خواهید تمام قطعات کشتی حذف شوند؟</div>
+        <div class="delete-modal-buttons">
+            <button id="delete-cancel" class="delete-btn cancel">انصراف</button>
+            <button id="delete-confirm" class="delete-btn danger">حذف همه</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let isS=false;
+let tm;
+let dm=null;
+let ks={};
+let gs=[];
+
+let mobileLeft=false;
+let mobileRight=false;
+
+const $=id=>document.getElementById(id);
+const al=e=>e.preventDefault();
+
+window.onkeydown=e=>{ks[e.code]=true;};
+window.onkeyup=e=>{ks[e.code]=false;};
+
+function startMobileMove(dir,e){
+    if(!isS)return;
+    e.preventDefault();
+    if(dir==="left"){mobileLeft=true;}
+    if(dir==="right"){mobileRight=true;}
+    if(e.currentTarget.setPointerCapture){
+        try{e.currentTarget.setPointerCapture(e.pointerId);}catch(err){}
+    }
+}
+function stopMobileMove(dir,e){
+    if(e){e.preventDefault();}
+    if(dir==="left"){mobileLeft=false;}
+    if(dir==="right"){mobileRight=false;}
+}
+
+const leftBtn=$('move-left');
+const rightBtn=$('move-right');
+
+leftBtn.addEventListener('pointerdown',e=>{startMobileMove("left",e);});
+leftBtn.addEventListener('pointerup',e=>{stopMobileMove("left",e);});
+leftBtn.addEventListener('pointercancel',e=>{stopMobileMove("left",e);});
+leftBtn.addEventListener('lostpointercapture',()=>{mobileLeft=false;});
+
+rightBtn.addEventListener('pointerdown',e=>{startMobileMove("right",e);});
+rightBtn.addEventListener('pointerup',e=>{stopMobileMove("right",e);});
+rightBtn.addEventListener('pointercancel',e=>{stopMobileMove("right",e);});
+rightBtn.addEventListener('lostpointercapture',()=>{mobileRight=false;});
+
+function dg(e){
+if(isS)return;
+let t=e.target.closest('.item,.placed,#notebook');
+if(!t)return;
+e.dataTransfer.setData("dat",JSON.stringify({...t.dataset,id:t.id,book:t.id=="notebook"}));
+let r=t.getBoundingClientRect();
+e.dataTransfer.setData("ox",e.clientX-r.left);
+e.dataTransfer.setData("oy",e.clientY-r.top);
+}
+
+function dp(e){
+e.preventDefault();
+if(isS)return;
+let d=JSON.parse(e.dataTransfer.getData("dat")),
+ox=parseFloat(e.dataTransfer.getData("ox"))||20,
+oy=parseFloat(e.dataTransfer.getData("oy"))||20;
+placeItemAt(d,e.clientX,e.clientY,ox,oy);
+}
+
+function placeItemAt(d,clientX,clientY,ox,oy){
+    let r=$('work-area').getBoundingClientRect(),
+    x=Math.round((clientX-r.left-ox)/40)*40,
+    y=Math.round((clientY-r.top-oy)/40)*40;
+
+    if(d.book){
+        let el=$('notebook');
+        el.style.left=x+"px";
+        el.style.top=y+"px";
+        return;
+    }
+    if(d.id){
+        let el=$(d.id);
+        el.style.left=x+"px";
+        el.style.top=y+"px";
+        return;
+    }
+    if(d.n=="true" && dm===null){
+        openMassModal(d,x,y);
+        return;
+    }
+    let m=d.n=="true"?dm:parseFloat(d.m);
+    if(isNaN(m))return;
+    createPlacedItem(d,x,y,m);
+}
+
+function createPlacedItem(d,x,y,m){
+    let el=document.createElement("div");
+    el.id="p"+Date.now()+Math.random().toString(36).slice(2,6);
+    let matClass = d.n=="true" ? "wood" : (d.mat || "heavy");
+    el.className = "placed "+d.t+" "+matClass;
+    Object.assign(el.dataset,{mass:m,vol:d.v,type:d.t,mat:matClass});
+    el.draggable=true;
+    el.ondragstart=dg;
+    bindTouchDrag(el);
+    el.style.left=x+"px";
+    el.style.top=y+"px";
+    let h=`<span class="mass-tag">${m}k</span>`;
+    if(d.t=="motor") h+="⚙️";
+    if(d.t=="sail") h+="⛵";
+    if(d.t=="propeller") h+="🌀";
+    if(d.t=="rudder") h+="🎯";
+    if(d.t=="chimney") h+='<div class="steam"></div><div class="steam" style="animation-delay:.5s"></div>';
+    el.innerHTML=h;
+    $('work-area').appendChild(el);
+}
+
+let pendingWood=null;
+
+function openMassModal(d,x,y){
+    pendingWood={d,x,y};
+    let modal=$('mass-modal');
+    let input=$('mass-input');
+    input.value=dm!==null?dm:0.6;
+    $('mass-error').style.display="none";
+    modal.classList.add("show");
+    setTimeout(()=>{input.focus();input.select();},100);
+}
+
+function closeMassModal(){
+    $('mass-modal').classList.remove("show");
+    pendingWood=null;
+}
+
+function confirmMass(){
+    let input=$('mass-input');
+    let value=parseFloat(input.value.replace(",","."));
+    if(!Number.isFinite(value) || value<=0){
+        $('mass-error').style.display="block";
+        input.focus();
+        return;
+    }
+    dm=value;
+    if(pendingWood){
+        createPlacedItem(pendingWood.d,pendingWood.x,pendingWood.y,dm);
+    }
+    closeMassModal();
+}
+
+$('mass-confirm').addEventListener('click',confirmMass);
+$('mass-cancel').addEventListener('click',closeMassModal);
+$('mass-modal').addEventListener('click',e=>{if(e.target.id==="mass-modal"){closeMassModal();}});
+$('mass-input').addEventListener('keydown',e=>{
+    if(e.key==="Enter"){confirmMass();}
+    if(e.key==="Escape"){closeMassModal();}
+});
+
+function tr(e){
+e.preventDefault();
+let d=JSON.parse(e.dataTransfer.getData("dat"));
+removeItem(d);
+}
+function removeItem(d){
+if(d.id && d.id!="notebook")$(d.id)?.remove();
+}
+
+let touchDragData=null, touchOffX=0, touchOffY=0, touchGhost=null;
+
+function startTouchDrag(t,touch){
+if(isS)return;
+touchDragData={...t.dataset,id:t.id,book:t.id=="notebook"};
+let r=t.getBoundingClientRect();
+touchOffX=touch.clientX-r.left;
+touchOffY=touch.clientY-r.top;
+touchGhost=t.cloneNode(true);
+touchGhost.style.position="fixed";
+touchGhost.style.left=r.left+"px";
+touchGhost.style.top=r.top+"px";
+touchGhost.style.width=r.width+"px";
+touchGhost.style.height=r.height+"px";
+touchGhost.style.margin="0";
+touchGhost.style.opacity="0.85";
+touchGhost.style.pointerEvents="none";
+touchGhost.style.zIndex="99999";
+document.body.appendChild(touchGhost);
+}
+function moveTouchDrag(touch){
+if(!touchGhost)return;
+touchGhost.style.left=(touch.clientX-touchOffX)+"px";
+touchGhost.style.top=(touch.clientY-touchOffY)+"px";
+}
+function endTouchDrag(touch){
+if(!touchDragData){touchGhost?.remove();touchGhost=null;return;}
+if(touchGhost){touchGhost.remove();touchGhost=null;}
+let el=document.elementFromPoint(touch.clientX,touch.clientY);
+if(el && (el.closest("#trash-can"))){removeItem(touchDragData);}
+else if(el && el.closest("#work-area")){
+placeItemAt(touchDragData,touch.clientX,touch.clientY,touchOffX,touchOffY);
+}
+touchDragData=null;
+}
+
+function bindTouchDrag(el){
+el.addEventListener("touchstart",e=>{
+if(isS)return;
+let t=e.target.closest('.item,.placed,#notebook');
+if(!t)return;
+if(e.touches.length!==1)return;
+startTouchDrag(t,e.touches[0]);
+},{passive:true});
+}
+
+document.addEventListener("touchmove",e=>{
+    if(isS){e.preventDefault();return;}
+    if(touchDragData && e.touches.length===1){
+        e.preventDefault();
+        moveTouchDrag(e.touches[0]);
+    }
+},{passive:false});
+
+document.addEventListener("touchend",e=>{
+if(touchDragData){endTouchDrag(e.changedTouches[0]);}
+});
+document.addEventListener("touchcancel",()=>{
+touchGhost?.remove();touchGhost=null;touchDragData=null;
+});
+
+document.querySelectorAll('.item,.placed,#notebook').forEach(bindTouchDrag);
+
+function cl(){$('delete-modal').classList.add('show');}
+function closeDeleteModal(){$('delete-modal').classList.remove('show');}
+function confirmDelete(){
+    document.querySelectorAll('.placed:not(#notebook)').forEach(p=>p.remove());
+    dm=null;
+    closeDeleteModal();
+}
+$('delete-confirm').addEventListener('click',confirmDelete);
+$('delete-cancel').addEventListener('click',closeDeleteModal);
+$('delete-modal').addEventListener('click',e=>{if(e.target.id==="delete-modal"){closeDeleteModal();}});
+
+function tk(){
+isS=!isS;
+$('ocean').style.display=$('stats').style.display=isS?'block':'none';
+$('sidebar').style.transform=isS?'translateX(300px)':'none';
+$('btn-c').classList.toggle('hidden');
+$('trash-can').classList.toggle('hidden');
+let b=$('btn-l');
+if(isS){
+$('work-area').style.touchAction='none';
+document.body.style.touchAction='none';
+$('move-right').parentElement.style.display='flex';
+$('notebook').style.display="none";
+b.innerText="🛠️ کارگاه";
+b.style.background="#f59e0b";
+fg();lp();
+}else{
+$('move-right').parentElement.style.display='none';
+$('notebook').style.display="block";
+cancelAnimationFrame(tm);
+b.innerText="🌊 ورود به دریا";
+b.style.background="#0ea5e9";
+document.querySelectorAll('.placed').forEach(p=>{
+p.style.transform='none';
+p.draggable=true;
+p.classList.remove('smoking');
+});
+}
+}
+
+function fg(){
+gs=[];
+let ps=Array.from(document.querySelectorAll('.placed:not(#notebook)')),
+v=new Set();
+ps.forEach(p=>{
+if(!v.has(p.id)){
+let g=[],q=[p],tm=0,tv=0;
+v.add(p.id);
+while(q.length){
+let c=q.shift();
+g.push(c);
+tm+=parseFloat(c.dataset.mass);
+tv+=parseFloat(c.dataset.vol);
+let r1={
+l:parseInt(c.style.left),
+t:parseInt(c.style.top),
+r:parseInt(c.style.left)+c.offsetWidth,
+b:parseInt(c.style.top)+c.offsetHeight
+};
+ps.forEach(o=>{
+if(!v.has(o.id)){
+let r2={
+l:parseInt(o.style.left),
+t:parseInt(o.style.top),
+r:parseInt(o.style.left)+o.offsetWidth,
+b:parseInt(o.style.top)+o.offsetHeight
+};
+if(!(r2.l>r1.r||r2.r<r1.l||r2.t>r1.b||r2.b<r1.t)){
+v.add(o.id);
+q.push(o);
+}
+}
+});
+}
+let fb=0;
+g.forEach(x=>{
+let b=parseInt(x.style.top)+x.offsetHeight;
+if(b>fb)fb=b;
+});
+let mt=g.filter(x=>x.dataset.type=="motor").length;
+let sl=g.filter(x=>x.dataset.type=="sail").length;
+if(mt>0){
+g.forEach(p=>{
+if(p.dataset.type=="chimney")
+p.classList.add("smoking");
+});
+}
+let avgDensity = tv>0 ? tm/tv : 999;
+let floating = avgDensity < 1.0;
+gs.push({
+p:g,
+h:floating,
+fb:fb,
+o:0,
+v:0,
+x:0,
+pw:mt*10+sl*3,
+m:tm,
+vol:tv,
+d:avgDensity,
+j:0
+});
+}
+});
+}
+
+function lp(){
+let oceanRect = $('ocean').getBoundingClientRect();
+let workRect = $('work-area').getBoundingClientRect();
+let sf = oceanRect.top - workRect.top;
+let w=Math.sin(Date.now()*.003)*15;
+gs.forEach(g=>{
+if(!g.h){
+g.v+=.5;
+g.o+=g.v;
+$('status-text').innerText="وضعیت: غرق شده";
+$('status-text').style.color="#ef4444";
+}else{
+let sp=0;
+if(ks["ArrowRight"] || mobileRight) sp=g.pw;
+if(ks["ArrowLeft"] || mobileLeft) sp=-g.pw;
+g.x+=sp;
+g.j+=Math.abs(sp)*.8;
+let ty=(sf+w)-g.fb;
+g.o+=(ty-g.o)*.1;
+$('status-text').innerText="وضعیت: شناور";
+$('status-text').style.color="#10b981";
+$('m-val').innerText=g.m.toFixed(1);
+$('v-val').innerText=g.vol.toFixed(1);
+$('d-val').innerText=g.d.toFixed(2);
+$('f-val').innerText=g.pw;
+$('s-val').innerText=Math.abs(sp).toFixed(1);
+$('j-val').innerText=Math.floor(g.j);
+}
+g.p.forEach(x=>{
+x.style.transform=`translate(${g.x}px,${g.o}px)`;
+x.draggable=false;
+});
+});
+if(isS) tm=requestAnimationFrame(lp);
+}
+</script><script src="MusicPlayer.js"></script>
+</body></html>

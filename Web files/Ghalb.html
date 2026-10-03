@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شبیه‌ساز قلب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #07070c;
+            --heart-deep: #2a0202;
+            --heart-bright: #820b0b;
+            --blue: #00d2ff;
+            --red: #ff3355;
+            --panel: rgba(18, 18, 26, 0.92);
+            --line: rgba(255,255,255,0.1);
+        }
+        * { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background:
+                radial-gradient(700px 320px at 50% 0%, rgba(120, 20, 40, 0.28), transparent 60%),
+                var(--bg);
+            color: #fff;
+            font-family: Vazirmatn, Tahoma, sans-serif;
+            overflow: hidden;
+        }
+        .topbar {
+            position: fixed; top: 14px; right: 14px; left: 14px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 30; pointer-events: none;
+        }
+        .title { pointer-events: none; }
+        .title b { display: block; font-size: 16px; }
+        .title span { color: #9aa3b2; font-size: 12px; }
+        .home-btn {
+            pointer-events: auto;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #00b4d8, #0066ff);
+            color: white; text-decoration: none; font-weight: 700; font-size: 13px;
+            border-radius: 12px;
+            box-shadow: 0 8px 18px rgba(0, 119, 255, .28);
+        }
+        .stage {
+            height: 100%;
+            padding: 64px 12px 168px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        svg { width: min(980px, 100%); height: 100%; filter: drop-shadow(0 0 20px rgba(100,0,0,0.2)); }
+        .heart-muscle { transform-origin: 500px 450px; }
+        .heart-muscle.beat { animation: beat .45s ease; }
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            35% { transform: scale(1.045); }
+        }
+        .vessel { fill: none; stroke: #1a1a1a; stroke-width: 40; stroke-linecap: round; stroke-linejoin: round; }
+        .blood-pulse {
+            fill: none; stroke-width: 18; stroke-linecap: round;
+            stroke-dasharray: 50, 1500;
+            animation: flowAnim 6s linear forwards;
+            pointer-events: none;
+        }
+        @keyframes flowAnim {
+            0% { stroke-dashoffset: 1500; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .label-box { fill: rgba(0, 0, 0, 0.85); stroke: #444; stroke-width: 1; }
+        .label-text { font-size: 13px; fill: #eee; font-weight: bold; text-anchor: middle; }
+        .chamber-text { font-size: 18px; fill: rgba(255,255,255,0.4); font-weight: 900; text-anchor: middle; }
+        #valves line { transition: .25s; filter: drop-shadow(0 0 3px #ffff99); }
+
+        .dock {
+            position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+            width: min(860px, calc(100% - 20px));
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 12px;
+            box-shadow: 0 16px 40px rgba(0,0,0,.35);
+            backdrop-filter: blur(10px);
+            z-index: 30;
+        }
+        .dock-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+        }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        button, .chip {
+            font-family: inherit; cursor: pointer; border: 1px solid transparent; color: #fff;
+        }
+        .btn {
+            height: 42px; padding: 0 16px; border-radius: 12px; font-size: 14px; font-weight: 700;
+            background: #1c1c28; border-color: #343448;
+        }
+        .btn:hover { border-color: #666; }
+        .btn.primary { background: linear-gradient(180deg, #9d1830, #6d1022); border-color: #c23a52; }
+        .btn.auto.on { background: linear-gradient(180deg, #0e6b4d, #0b4d38); border-color: #1faf7a; }
+        .btn:disabled { opacity: .45; cursor: not-allowed; }
+        .btn.stop { background: #2a1218; border-color: #7a2436; color: #ffb4c0; }
+        .stat {
+            min-width: 132px; height: 42px; border-radius: 12px;
+            background: #101018; border: 1px solid #2c2c3a;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 12px; gap: 10px;
+        }
+        .stat small { color: #9aa3b2; font-size: 11px; }
+        .stat b { font-size: 18px; color: #ff8fa3; }
+        .stat em { font-style: normal; font-size: 11px; color: #c9d0da; }
+        .activities {
+            display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
+            gap: 8px; flex-wrap: wrap;
+        }
+        .activities.show { display: flex; }
+        .chip {
+            height: 36px; padding: 0 12px; border-radius: 999px;
+            background: #14141e; border-color: #2e2e3d; font-size: 13px; font-weight: 600;
+        }
+        .chip span { color: #8d97a8; font-weight: 500; margin-right: 6px; font-size: 11px; }
+        .chip.active { background: #17324a; border-color: #3aa0ff; color: #eaf6ff; }
+        .chip.active span { color: #9fd2ff; }
+        @media (max-width: 700px) {
+            .stage { padding-bottom: 230px; }
+            .stat { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="title">
+            <b>شبیه‌ساز گردش خون</b>
+            <span>مسیر خون آبی و قرمز را در قلب دنبال کن</span>
+        </div>
+        <a href="../index.html" class="home-btn">بازگشت به صفحه اصلی</a>
+    </div>
+
+    <div class="stage">
+        <svg viewBox="0 0 1000 800" id="mainSvg">
+            <defs>
+                <radialGradient id="heartGradient" cx="50%" cy="40%" r="60%">
+                    <stop offset="0%" stop-color="var(--heart-bright)" />
+                    <stop offset="70%" stop-color="var(--heart-deep)" />
+                    <stop offset="100%" stop-color="#000" />
+                </radialGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+            </defs>
+            <g id="vesselsLayer">
+                <path id="path_upper" class="vessel" d="M430,20 L430,350" />
+                <path id="path_lower" class="vessel" d="M300,780 C300,650 430,550 430,440" />
+                <path id="path_to_lung" class="vessel" d="M430,440 L430,520 L150,520" />
+                <path id="path_from_lung" class="vessel" d="M150,520 C150,120 570,80 570,350" />
+                <path id="path_aorta" class="vessel" d="M570,440 L570,550 C570,680 650,780 850,780" />
+            </g>
+            <g class="heart-muscle" id="heart">
+                <path d="M500,280 C350,280 320,580 500,680 C680,580 650,280 500,280 Z" fill="url(#heartGradient)" stroke="#200" stroke-width="3" />
+                <path d="M470,350 Q430,450 380,550" fill="none" stroke="#ff4d4d" stroke-width="1.5" opacity="0.3" />
+                <path d="M530,380 Q570,480 620,580" fill="none" stroke="#ff4d4d" stroke-width="1.5" opacity="0.3" />
+                <line x1="500" y1="290" x2="500" y2="670" stroke="rgba(0,0,0,0.4)" stroke-width="4" />
+                <line x1="360" y1="440" x2="640" y2="440" stroke="rgba(0,0,0,0.4)" stroke-width="2" />
+            </g>
+            <g id="bloodLayer" filter="url(#glow)"></g>
+            <g id="labels">
+                <rect x="250" y="30" width="140" height="25" rx="5" class="label-box" />
+                <text x="320" y="47" class="label-text">بزرگ‌سیاهرگ بالایی</text>
+                <rect x="130" y="750" width="140" height="25" rx="5" class="label-box" />
+                <text x="200" y="767" class="label-text">بزرگ‌سیاهرگ زیرین</text>
+                <rect x="200" y="540" width="100" height="25" rx="5" class="label-box" />
+                <text x="250" y="557" class="label-text">سرخرگ ششی</text>
+                <rect x="520" y="100" width="100" height="25" rx="5" class="label-box" />
+                <text x="570" y="117" class="label-text">سیاهرگ ششی</text>
+                <rect x="710" y="750" width="140" height="25" rx="5" class="label-box" />
+                <text x="780" y="767" class="label-text">سرخرگ آئورت</text>
+                <text x="430" y="400" class="chamber-text">دهلیز راست</text>
+                <text x="570" y="400" class="chamber-text">دهلیز چپ</text>
+                <text x="430" y="600" class="chamber-text">بطن راست</text>
+                <text x="570" y="600" class="chamber-text">بطن چپ</text>
+            </g>
+            <rect x="70" y="485" width="80" height="70" fill="#111" stroke="#ff0044" rx="10" />
+            <text x="110" y="525" style="fill:#ff8fa3; font-size:14px; font-weight:bold; text-anchor:middle;">شش</text>
+            <g id="valves">
+                <text x="390" y="430" fill="#ffe95c" font-size="12" font-weight="bold">دریچه سه‌لختی</text>
+                <text x="540" y="430" fill="#ffe95c" font-size="12" font-weight="bold">دریچه میترال</text>
+                <line id="tri1" x1="420" y1="438" x2="410" y2="455" stroke="#ffe95c" stroke-width="4" stroke-linecap="round"/>
+                <line id="tri2" x1="440" y1="438" x2="450" y2="455" stroke="#ffe95c" stroke-width="4" stroke-linecap="round"/>
+                <line id="mit1" x1="560" y1="438" x2="550" y2="455" stroke="#ffe95c" stroke-width="4" stroke-linecap="round"/>
+                <line id="mit2" x1="580" y1="438" x2="590" y2="455" stroke="#ffe95c" stroke-width="4" stroke-linecap="round"/>
+            </g>
+        </svg>
+    </div>
+
+    <div class="dock">
+        <div class="dock-row">
+            <div class="actions">
+                <button class="btn primary" id="manualBtn" onclick="sendBloodPulse()">ضربان دستی</button>
+                <button class="btn auto" id="autoBtn" onclick="toggleAuto()">حالت خودکار</button>
+                <button class="btn stop" id="stopBtn" onclick="stopAuto()" hidden>خاموش کردن</button>
+            </div>
+            <div class="stat">
+                <small id="modeLabel">دستی</small>
+                <b id="bpmLabel">۷۲</b>
+                <em>ضربان</em>
+            </div>
+        </div>
+        <div class="activities" id="autoPanel">
+            <button class="chip" data-mode="sleep" data-bpm="55">خواب <span>۵۵</span></button>
+            <button class="chip active" data-mode="rest" data-bpm="72">استراحت <span>۷۲</span></button>
+            <button class="chip" data-mode="walk" data-bpm="95">راه‌رفتن <span>۹۵</span></button>
+            <button class="chip" data-mode="run" data-bpm="135">دویدن <span>۱۳۵</span></button>
+            <button class="chip" data-mode="sport" data-bpm="170">ورزش شدید <span>۱۷۰</span></button>
+            <button class="chip" data-mode="stress" data-bpm="110">استرس <span>۱۱۰</span></button>
+            <button class="chip" data-mode="fear" data-bpm="145">ترس <span>۱۴۵</span></button>
+        </div>
+    </div>
+
+    <script>
+        const bloodLayer = document.getElementById("bloodLayer");
+        const tri1 = document.getElementById("tri1");
+        const tri2 = document.getElementById("tri2");
+        const mit1 = document.getElementById("mit1");
+        const mit2 = document.getElementById("mit2");
+        const heart = document.getElementById("heart");
+        const fa = new Intl.NumberFormat("fa-IR");
+
+        function createPathElement(d, color, delay = 0) {
+            const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            p.setAttribute("d", d);
+            p.setAttribute("class", "blood-pulse");
+            p.style.stroke = color;
+            p.style.animationDelay = delay + "s";
+            bloodLayer.appendChild(p);
+            setTimeout(() => p.remove(), 7000);
+        }
+        function openTricuspid() {
+            tri1.setAttribute("x2", "390"); tri1.setAttribute("y2", "475");
+            tri2.setAttribute("x2", "470"); tri2.setAttribute("y2", "475");
+        }
+        function closeTricuspid() {
+            tri1.setAttribute("x2", "410"); tri1.setAttribute("y2", "455");
+            tri2.setAttribute("x2", "450"); tri2.setAttribute("y2", "455");
+        }
+        function openMitral() {
+            mit1.setAttribute("x2", "530"); mit1.setAttribute("y2", "475");
+            mit2.setAttribute("x2", "610"); mit2.setAttribute("y2", "475");
+        }
+        function closeMitral() {
+            mit1.setAttribute("x2", "550"); mit1.setAttribute("y2", "455");
+            mit2.setAttribute("x2", "590"); mit2.setAttribute("y2", "455");
+        }
+        function pulseHeart() {
+            heart.classList.remove("beat");
+            void heart.offsetWidth;
+            heart.classList.add("beat");
+        }
+        function sendBloodPulse() {
+            pulseHeart();
+            createPathElement("M430,20 L430,440 L430,520 L150,520", "var(--blue)");
+            createPathElement("M300,780 C300,650 430,550 430,440 L430,520 L150,520", "var(--blue)");
+            createPathElement("M150,520 C150,120 570,80 570,440 L570,550 C570,680 650,780 850,780", "var(--red)", 2.5);
+            setTimeout(openTricuspid, 300);
+            setTimeout(closeTricuspid, 900);
+            setTimeout(openMitral, 4000);
+            setTimeout(closeMitral, 4700);
+        }
+
+        let autoTimer = null;
+        let bpm = 72;
+        let autoOn = false;
+        function bpmToMs(value) { return 60000 / value; }
+        function renderBpm() {
+            document.getElementById("bpmLabel").textContent = autoOn ? fa.format(bpm) : "—";
+            document.getElementById("modeLabel").textContent = autoOn ? "خودکار" : "دستی";
+        }
+        function toggleAuto() {
+            if (autoOn) return stopAuto();
+            autoOn = true;
+            document.getElementById("autoPanel").classList.add("show");
+            document.getElementById("manualBtn").disabled = true;
+            document.getElementById("autoBtn").classList.add("on");
+            document.getElementById("autoBtn").textContent = "خودکار روشن است";
+            document.getElementById("stopBtn").hidden = false;
+            renderBpm();
+            startAuto();
+        }
+        function startAuto() {
+            if (autoTimer) clearInterval(autoTimer);
+            sendBloodPulse();
+            autoTimer = setInterval(sendBloodPulse, bpmToMs(bpm));
+        }
+        function stopAuto() {
+            clearInterval(autoTimer);
+            autoTimer = null;
+            autoOn = false;
+            document.getElementById("autoPanel").classList.remove("show");
+            document.getElementById("manualBtn").disabled = false;
+            document.getElementById("autoBtn").classList.remove("on");
+            document.getElementById("autoBtn").textContent = "حالت خودکار";
+            document.getElementById("stopBtn").hidden = true;
+            renderBpm();
+        }
+        function setActivity(button) {
+            document.querySelectorAll(".chip").forEach((chip) => chip.classList.remove("active"));
+            button.classList.add("active");
+            bpm = Number(button.dataset.bpm);
+            renderBpm();
+            if (autoOn) startAuto();
+        }
+        document.querySelectorAll(".chip").forEach((chip) => {
+            chip.addEventListener("click", () => setActivity(chip));
+        });
+        renderBpm();
+    </script>
+    <script src="MusicPlayer.js"></script>
+</body>
+</html>

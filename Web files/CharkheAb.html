@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>چرخه آب نهایی </title>
+    <style>
+        :root {
+            --sky: #87CEEB;
+            --ocean: #1e90ff;
+            --land: #2ecc71;
+            --dirt: #5d4037;
+            --water: #3498db;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #000; color: #fff; font-family: 'Tahoma', sans-serif;
+            overflow: hidden; display: flex; flex-direction: column; align-items: center;
+        }
+
+        svg { width: 95%; height: 85%; background: var(--sky); border-radius: 20px; margin-top: 10px; }
+
+        .rain { fill: #fff; opacity: 0; }
+        .raining .rain { animation: drop 0.8s linear infinite; opacity: 1; }
+        @keyframes drop { to { transform: translateY(350px); } }
+
+        #mountainRunoff { stroke: #fff; stroke-width: 0; fill: none; stroke-dasharray: 10, 20; transition: 1s; }
+        .raining #mountainRunoff { stroke-width: 5; animation: flowDown 1s linear infinite; }
+        @keyframes flowDown { from { stroke-dashoffset: 30; } to { stroke-dashoffset: 0; } }
+
+        .ocean-wave { fill: var(--ocean); animation: waveAnim 3s ease-in-out infinite; }
+        @keyframes waveAnim {
+            0%, 100% { d: path("M750,400 Q875,380 1000,400 L1000,600 L750,600 Z"); }
+            50% { d: path("M750,400 Q875,420 1000,400 L1000,600 L750,600 Z"); }
+        }
+
+        #river { transition: stroke-width 2s; }
+        #waterTableGroup { transition: transform 3s; } 
+        #saturationZone { transition: height 3s, y 3s; }
+        #saturationLabel { transition: transform 3s; }
+        #zoomWater { transition: transform 3s; }
+
+        .label { font-size: 11px; fill: white; font-weight: bold; text-anchor: middle; pointer-events: none; }
+        .ui-btn { 
+            position: absolute; bottom: 20px; padding: 15px 40px; 
+            background: #2980b9; border: none; color: white; border-radius: 50px; 
+            cursor: pointer; font-size: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .home-btn{
+    position:fixed;
+    top:15px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00a7cc,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0, 165, 202, 0.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0, 164, 201, 0.9);
+}
+    </style>
+</head>
+<body>
+
+    <svg viewBox="0 0 1000 600" id="world">
+        <!-- خورشید -->
+        <circle cx="80" cy="80" r="30" fill="#f1c40f" />
+
+        <!-- زمین و زیرزمین -->
+        <rect x="0" y="400" width="1000" height="200" fill="var(--dirt)" />
+
+        <!-- منطقه اشباع -->
+        <rect id="saturationZone" x="0" y="550" width="1000" height="50" fill="var(--water)" opacity="0.6" />
+        <text id="saturationLabel" x="500" y="580" class="label" style="font-size:14px;">منطقه اشباع</text>
+
+        <!-- گروه سطح ایستابی (خط + متن در وسط) -->
+        <g id="waterTableGroup">
+            <line x1="0" y1="550" x2="1000" y2="550" stroke="cyan" stroke-width="2" stroke-dasharray="5,3" />
+            <rect x="430" y="535" width="140" height="20" fill="rgba(0,255,255,0.2)" rx="5" />
+
+            <text x="500" y="550" class="label" style="fill:cyan; font-size:13px;">سطح ایستابی</text>
+        </g>
+
+        <!-- کوه و مسیر لغزش -->
+        <path d="M0,400 L200,150 L450,400 Z" fill="#7f8c8d" />
+        <path id="mountainRunoff" d="M120,250 L350,400" />
+
+        <!-- خشکی و دریا -->
+        <rect x="450" y="400" width="300" height="15" fill="var(--land)" />
+        <path class="ocean-wave" d="M750,400 Q875,380 1000,400 L1000,600 L750,600 Z" />
+
+        <!-- رودخانه -->
+        <path id="river" d="M400,405 Q580,440 750,430" fill="none" stroke="var(--ocean)" stroke-width="4" />
+
+        <!-- نمای زوم (پایین سمت چپ) -->
+        <g transform="translate(120, 500)">
+            <circle r="60" fill="#3d2b19" stroke="#fff" stroke-width="4" />
+            <clipPath id="zoomClip"><circle r="58" /></clipPath>
+            <g clip-path="url(#zoomClip)">
+                <circle cx="-30" cy="-30" r="12" fill="#2d1b09" />
+                <circle cx="10" cy="-35" r="15" fill="#2d1b09" />
+                <circle cx="35" cy="-10" r="10" fill="#2d1b09" />
+                <circle cx="-15" cy="10" r="14" fill="#2d1b09" />
+                <circle cx="25" cy="30" r="13" fill="#2d1b09" />
+                <circle cx="-35" cy="40" r="11" fill="#2d1b09" />
+                <rect id="zoomWater" x="-60" y="20" width="120" height="120" fill="var(--water)" opacity="0.7" />
+            </g>
+            <text y="75" class="label" style="font-size:12px">زوم: ذرات خاک</text>
+        </g>
+
+        <!-- ابرها و باران -->
+        <g id="cloudGroup">
+            <ellipse cx="280" cy="100" rx="55" ry="25" fill="white" />
+            <ellipse cx="650" cy="90" rx="65" ry="30" fill="white" />
+        </g>
+        <g id="rainLayer"></g>
+
+        <!-- سایر متون ثابت -->
+        <text x="580" y="460" class="label" style="fill:#000">رودخانه</text>
+        <text x="875" y="550" class="label">دریا</text>
+    </svg>
+
+    <button class="ui-btn" onclick="startCycle()">🌧️ شروع بارش و تغییر تراز آب</button>
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+    <script>
+        const rainLayer = document.getElementById('rainLayer');
+        const world = document.getElementById('world');
+        const saturationZone = document.getElementById('saturationZone');
+        const saturationLabel = document.getElementById('saturationLabel');
+        const waterTableGroup = document.getElementById('waterTableGroup');
+        const zoomWater = document.getElementById('zoomWater');
+        const river = document.getElementById('river');
+
+        // ایجاد قطرات باران
+        for(let i=0; i<70; i++) {
+            const r = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            r.setAttribute("r", 2);
+            r.setAttribute("cx", 150 + Math.random() * 750);
+            r.setAttribute("cy", 100 + Math.random() * 50);
+            r.setAttribute("class", "rain");
+            r.style.animationDelay = (Math.random() * 1.5) + "s";
+            rainLayer.appendChild(r);
+        }
+
+        function startCycle() {
+            world.classList.add('raining');
+
+            // هماهنگی تمام بخش‌ها
+            setTimeout(() => {
+                waterTableGroup.style.transform = "translateY(-70px)"; // خط و متن وسط با هم بالا می‌روند
+                saturationZone.setAttribute("y", "480");
+                saturationZone.setAttribute("height", "120");
+                saturationLabel.style.transform = "translateY(-35px)"; // متن منطقه اشباع بالا می‌آید تا در مرکز بماند
+                river.style.strokeWidth = "14";
+                zoomWater.style.transform = "translateY(-60px)"; 
+            }, 500);
+
+            // بازگشت به حالت عادی بعد از ۸ ثانیه
+            setTimeout(() => {
+                world.classList.remove('raining');
+
+                // افکت تبخیر
+                for(let i=0; i<10; i++) {
+
+                    const v = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    v.setAttribute("r", 4); v.setAttribute("cx", 800 + Math.random() * 150);
+                    v.setAttribute("cy", 390); v.setAttribute("fill", "#fff"); v.setAttribute("opacity", "0.5");
+                    world.appendChild(v);
+                    const anim = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+                    anim.setAttribute("attributeName", "cy"); anim.setAttribute("from", "390"); anim.setAttribute("to", "100"); anim.setAttribute("dur", "2s");
+                    v.appendChild(anim);
+                    setTimeout(() => v.remove(), 2000);
+                }
+
+                setTimeout(() => {
+                    waterTableGroup.style.transform = "translateY(0px)";
+                    saturationZone.setAttribute("y", "550");
+                    saturationZone.setAttribute("height", "50");
+                    saturationLabel.style.transform = "translateY(0px)";
+                    river.style.strokeWidth = "4";
+                    zoomWater.style.transform = "translateY(0px)"; 
+                }, 2000);
+            }, 8000);
+        }
+    </script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

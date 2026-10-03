@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <style>
+        body { background: #020617; color: white; font-family: 'Segoe UI', Tahoma; display: flex; flex-direction: column; align-items: center; padding: 20px; overflow-x: hidden; }
+
+        @keyframes cellLiving {
+            0% { border-radius: 40% 60% 50% 50%; transform: scale(1); }
+            50% { border-radius: 55% 45% 65% 35%; transform: scale(1.01); }
+            100% { border-radius: 40% 60% 50% 50%; transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { translate: 0px 0px; rotate: 0deg; }
+            33% { translate: 5px -5px; rotate: 2deg; }
+            66% { translate: -5px 5px; rotate: -2deg; }
+            100% { translate: 0px 0px; rotate: 0deg; }
+        }
+
+        #cell-container {
+            position: relative; width: 550px; height: 550px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.15), rgba(2, 6, 23, 0.6));
+            border: 6px solid #38bdf8;
+            box-shadow: 0 0 60px rgba(56, 189, 248, 0.4), inset 0 0 50px rgba(56, 189, 248, 0.2);
+            animation: cellLiving 10s infinite ease-in-out;
+            display: flex; justify-content: center; align-items: center;
+            margin: 20px 0;
+        }
+
+        #nucleus {
+            width: 130px; height: 130px;
+            background: radial-gradient(circle, #f43f5e, #881337);
+            border-radius: 50%; border: 3px solid #fb7185;
+            z-index: 10; cursor: pointer;
+            box-shadow: 0 0 30px rgba(244, 63, 94, 0.4);
+            animation: float 4s infinite ease-in-out;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .er-network {
+            position: absolute; width: 260px; height: 220px;
+            border: 10px double rgba(168, 85, 247, 0.4);
+            border-radius: 50%; z-index: 5; pointer-events: none;
+            animation: float 8s infinite reverse;
+        }
+
+        .mitochondria {
+            width: 70px; height: 35px; background: #f59e0b;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute; border: 2px solid #78350f;
+            display: flex; justify-content: center; align-items: center;
+            animation: float 5s infinite ease-in-out;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+        }
+        .mitochondria::after { content: "~~~~"; color: #78350f; font-weight: bold; }
+
+        .golgi {
+            position: absolute; width: 110px; height: 18px;
+            background: #10b981; border-radius: 20px;
+            box-shadow: 0 8px 0 #064e3b, 0 16px 0 #10b981, 0 24px 0 #064e3b;
+            right: 120px; top: 160px; transform: rotate(-15deg);
+            animation: float 6s infinite ease-in-out;
+        }
+
+        .vacuole {
+            width: 90px; height: 100px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            position: absolute; left: 100px; bottom: 120px;
+            animation: float 7s infinite alternate;
+        }
+
+
+        /* رناتن‌ها (پخش شده و لرزان) */
+        .ribosome {
+            width: 6px; height: 6px; background: #fff; border-radius: 50%;
+            position: absolute; box-shadow: 0 0 8px #fff;
+            animation: float 2s infinite ease-in-out;
+        }
+
+        #info-card {
+            background: rgba(30, 41, 59, 0.9); padding: 25px;
+            border-radius: 20px; border: 2px solid #38bdf8;
+            width: 80%; max-width: 600px; text-align: justify;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .part-name { color: #38bdf8; font-size: 26px; border-bottom: 2px solid #38bdf8; margin-bottom: 15px; }
+
+        .organelle:hover { filter: brightness(1.5) contrast(1.2); cursor: pointer; transition: 0.3s; }
+    
+        .home-btn{
+    position:fixed;
+    top:15px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+    </style>
+</head>
+<body>
+
+    <h1 style="color:#38bdf8">زیست‌بوم مینیاتوری یاخته 🧬</h1>
+    <p>یاخته در حال فعالیت است. برای تحلیل علمی روی هر اندامک کلیک کنید.</p>
+
+    <div id="cell-container" class="organelle" onclick="updateInfo('غشا و میان‌یاخته (سیتوپلاسم)', 'غشا مانند یک نگهبان هوشمند عمل می‌کند که نفوذپذیری انتخابی دارد؛ یعنی فقط به مواد مورد نیاز اجازه ورود می‌دهد. میان‌یاخته (سیتوپلاسم) نیز محیطی نیمه‌مایع است که تمامی فعالیت‌های شیمیایی و سوخت‌وساز یاخته در این بستر حیاتی انجام می‌شود.')">
+
+        <div class="er-network"></div>
+
+        <div id="nucleus" class="organelle" onclick="event.stopPropagation(); updateInfo('هسته (Nucleus)', 'هسته بزرگترین اندامک و مرکز فرماندهی یاخته است. درون آن رشته‌های کروماتین (DNA) قرار دارند که نقشه ساخت تمام پروتئین‌ها و دستورات حیاتی یاخته را در خود جای داده‌اند. بدون هسته، یاخته قادر به تقسیم و بازسازی نخواهد بود.')">
+            <div style="width: 30px; height: 30px; background: #4c0519; border-radius: 50%; opacity: 0.8"></div>
+        </div>
+
+        <div class="golgi organelle" onclick="event.stopPropagation(); updateInfo('دستگاه گلژی (Golgi)', 'این اندامک در واقع واحد بسته‌بندی و پست یاخته است! پروتئین‌هایی که در شبکه در میان‌یاخته‌ای ساخته می‌شوند، اینجا تغییر کرده، نهایی شده و درون کیسه‌های کوچکی به نام وزیکول برای ارسال به نقاط مختلف یا خارج از یاخته آماده می‌شوند.')"></div>
+
+        <div class="vacuole organelle" onclick="event.stopPropagation(); updateInfo('کریچه (Vacuole)', 'کریچه انبار ذخیره‌سازی یاخته است. این کیسه غشایی وظیفه نگهداری آب، مواد معدنی و گاهی دفع مواد زائد را بر عهده دارد. توازن فشار اسمزی و شادابی یاخته تا حد زیادی به سلامت کریچه‌ها بستگی دارد.')"></div>
+
+        <div class="mitochondria organelle" style="top: 80px; left: 150px; rotate: 45deg;" onclick="event.stopPropagation(); updateInfo('راکیزه (Mitochondria)', 'راکیزه‌ها نیروگاه‌های تولید انرژی هستند. طی فرآیند تنفس سلولی، انرژی نهفته در مواد غذایی (مانند گلوکز) را استخراج کرده و به مولکول قابل استفاده انرژی یعنی ATP تبدیل می‌کنند. تعداد آن‌ها در یاخته‌های پرکار مثل ماهیچه‌ها بسیار زیاد است.')"></div>
+
+
+        <div class="mitochondria organelle" style="bottom: 100px; right: 120px; rotate: -40deg;" onclick="event.stopPropagation(); updateInfo('راکیزه (میتوکندری)', 'راکیزه دارای دو غشا است که غشای داخلی آن برای افزایش سطح تولید انرژی، چین‌خوردگی‌های زیادی دارد. این اندامک حتی DNA مخصوص به خود را دارد!')"></div>
+
+        <div class="ribosome organelle" style="top: 150px; right: 200px;" onclick="event.stopPropagation(); updateInfo('رناتن (Ribosome)', 'رناتن‌ها کارخانه‌های کوچک پروتئین‌سازی هستند. آن‌ها همان نقاط ریزی هستند که کدورت‌های ژنتیکی را خوانده و با سرعت بالا آمینواسیدها را به هم می‌چسبانند تا زنجیره‌های پروتئینی ساخته شود.')"></div>
+        <div class="ribosome" style="top: 300px; left: 180px;"></div>
+        <div class="ribosome" style="bottom: 180px; right: 150px;"></div>
+    </div>
+
+    <div id="info-card">
+        <div id="p-name" class="part-name">سیستم آماده به کار</div>
+        <div id="p-desc">یاخته در وضعیت پایدار قرار دارد. برای دریافت گزارش علمی از هر اندامک، مستقیماً روی آن کلیک کنید تا جزئیات مشاهده شود.</div>
+    </div>
+
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+    <script>
+        function updateInfo(name, desc) {
+            const nElement = document.getElementById('p-name');
+            const dElement = document.getElementById('p-desc');
+
+            nElement.style.opacity = 0;
+            dElement.style.opacity = 0;
+
+            setTimeout(() => {
+                nElement.innerText = name;
+                dElement.innerText = desc;
+                nElement.style.opacity = 1;
+                dElement.style.opacity = 1;
+            }, 200);
+        }
+    </script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

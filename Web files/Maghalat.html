@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3ecdf">
+<title>کتابخانه مقاله‌ها</title>
+<style>
+  :root {
+    --paper: #f3ecdf;
+    --paper-2: #efe6d4;
+    --ink: #241c16;
+    --ink-soft: #5c4e43;
+    --line: rgba(36,28,22,.12);
+    --card: #fffaf2;
+    --accent: #9a3b24;
+    --accent-2: #2f4f45;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: Tahoma, "Segoe UI", sans-serif;
+    background: radial-gradient(ellipse at 12% 0%, rgba(176,137,62,.12), transparent 42%), var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+  .wrap { width: min(1100px, calc(100% - 28px)); margin: 0 auto; padding: 20px 0 96px; }
+  header.hero { padding: 8px 0 22px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .eyebrow { letter-spacing: .16em; font-size: 11px; color: var(--accent); margin-bottom: 8px; }
+  h1 { font-size: clamp(28px, 7vw, 52px); line-height: 1.2; }
+  .lead { margin-top: 10px; color: var(--ink-soft); line-height: 1.9; font-size: 14px; max-width: 560px; }
+  .hero-aside { display: none; }
+  .toolbar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .cats { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cat {
+    border: 1px solid var(--line); background: transparent; color: var(--ink-soft);
+    padding: 8px 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 13px;
+  }
+  .cat.on { background: var(--ink); color: #f3ecdf; border-color: var(--ink); }
+  .search input {
+    width: 100%; border: 1px solid var(--line); background: #fffaf2; color: var(--ink);
+    padding: 10px 14px; border-radius: 999px; font: inherit; font-size: 14px; outline: none;
+  }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    text-decoration: none; color: inherit; display: flex; flex-direction: column;
+    overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(36,28,22,.14);
+    border-color: rgba(36,28,22,.22);
+  }
+
+  /* ==== تغییر اصلی: عکس کل کادر را پر می‌کند ==== */
+  .card .media {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: var(--paper-2);
+    overflow: hidden;
+    position: relative;
+  }
+  .card .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;      /* ← کل کادر را پر می‌کند */
+    object-position: center;
+    display: block;
+    transition: transform .4s ease;
+  }
+  .card:hover .media img {
+    transform: scale(1.05);  /* ← زوم ملایم هنگام هاور */
+  }
+
+  .card .body { padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .kicker { font-size: 11px; color: var(--accent); }
+  .card h2 { font-size: 18px; line-height: 1.5; }
+  .card p { color: var(--ink-soft); line-height: 1.8; font-size: 13px; }
+  .go { margin-top: auto; padding-top: 10px; font-size: 13px; color: var(--accent-2); }
+  .go i { font-style: normal; border-bottom: 1px solid currentColor; }
+  .empty { text-align: center; padding: 48px 16px; color: var(--ink-soft); border: 1px dashed var(--line); }
+  .home-btn {
+    position: fixed; z-index: 50; top: 10px; left: 10px;
+    padding: 8px 12px; background: var(--ink); color: #f3ecdf;
+    text-decoration: none; font-weight: 700; font-size: 12px; border-radius: 12px;
+  }
+@media (min-width: 700px) {
+  .wrap { padding: 28px 0 80px; }
+  header.hero { display: grid; grid-template-columns: 1.4fr .6fr; gap: 24px; align-items: end; }
+  .hero-aside {
+    display: flex; flex-direction: column; justify-content: space-between;
+    border: 1px solid var(--line); background: rgba(255,250,242,.55); padding: 16px; min-height: 120px;
+  }
+  .hero-aside b { font-size: 28px; color: var(--accent-2); }
+  .hero-aside span { color: var(--ink-soft); font-size: 13px; line-height: 1.8; }
+  .toolbar { flex-direction: row; justify-content: space-between; align-items: center; }
+  .search { width: 260px; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* ==== کارت پهن: عکس دست‌نخورده و کامل ==== */
+  .card.wide {
+    grid-column: span 2;
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .card.wide .media {
+    width: 42%;
+    min-width: 42%;
+    aspect-ratio: auto;
+    height: auto;
+    align-self: stretch;
+    background: var(--paper-2);
+  }
+  .card.wide .media img {
+    object-fit: contain;   /* ← عکس بدون برش، کامل نمایش داده می‌شود */
+    object-position: center;
+    background: var(--paper-2);
+    padding: 10px;
+  }
+  .card.wide:hover .media img {
+    transform: none;       /* بدون زوم برای کارت پهن */
+  }
+  .card.wide .body { padding: 20px; }
+  .card h2 { font-size: 22px; }
+
+  .home-btn { top: auto; left: 0; bottom: 18px; border-radius: 0 14px 14px 0; padding: 11px 18px; }
+}
+@media (min-width: 980px) {
+  .grid { grid-template-columns: 1fr 1fr 1fr; }
+  .card.wide { grid-column: span 2; }
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">ARCHIVE</div>
+        <h1>کتابخانهٔ مقاله‌ها</h1>
+        <p class="lead">مقاله‌ها را از روی دسته پیدا کن. هر کارت به پروندهٔ همان مطلب می‌رود.</p>
+      </div>
+      <aside class="hero-aside">
+        <div><b id="count">0</b><span>مقاله در بایگانی</span></div>
+        <span id="catCount">۰ دسته</span>
+      </aside>
+    </header>
+    <div class="toolbar">
+      <div class="cats" id="cats"></div>
+      <div class="search"><input id="q" type="search" placeholder="جست‌وجوی عنوان مقاله..." autocomplete="off"></div>
+    </div>
+    <section class="grid" id="grid"></section>
+  </div>
+  <a class="home-btn" href="../index.html">بازگشت به صفحه اصلی</a>
+<script>
+const ARTICLES = [
+{ title: 'اگر تا هستهٔ زمین حفر کنیم و اقیانوس را داخلش بریزیم چه می‌شود؟',
+  category: 'زمین‌شناسی',
+  url: 'Maghalat/AbDarHaste.html',
+  image: 'Maghalat/images/AbDarHaste.png',
+  summary: 'یک آزمایش فکری از کف اقیانوس تا هسته؛ گرما، فشار، بخار و هیدروژن.' },
+
+{ title: 'اگر گرانش یک ثانیه از کل جهان حذف شود چه می‌شود؟',
+  category: 'فیزیک',
+  url: 'Maghalat/GhatJazebe.html',
+  image: 'Maghalat/images/GhatJazebe.png',
+  summary: 'اقیانوس، پوسته، جو و مدار سیاره‌ها در یک ثانیه بدون گرانش.' },
+
+{ title: 'آیا یک نانوثانیه روی سطح خورشید دوام می‌آوریم؟',
+  category: 'فیزیک',
+  url: 'Maghalat/TeleportKhorshid.html',
+  image: 'Maghalat/images/TeleportKhorshid.png',
+  summary: 'فوتوسفر، تابش و منطقهٔ طلایی زمین.' },
+
+{ title: 'اگر سیارک ماه را بشکند و تکه‌اش به زمین بخورد چه می‌شود؟',
+  category: 'زمین‌شناسی',
+  url: 'Maghalat/BarkhordMah.html',
+  image: 'Maghalat/images/BarkhordMah.png',
+  summary: 'برخورد سیارک با ماه، تکهٔ ۱۰ کیلومتری و زندگی بدون ماه.' },
+
+{ title: 'اگر اورست ده برابر بلندتر بود چه می‌شد؟',
+  category: 'زمین‌شناسی',
+  url: 'Maghalat/KohBozorg.html',
+  image: 'Maghalat/images/KohBozorg.png',
+  summary: 'قلهٔ ۸۸ کیلومتری، لایه‌های جو، آب‌وهوا و گرانش محلی.' },
+
+{ title: 'چرا ماه آرام‌آرام زمین را ترک می‌کند؟',
+  category: 'فیزیک',
+  url: 'Maghalat/DoorShodanMah.html',
+  image: 'Maghalat/images/DoorShodanMah.png',
+  summary: 'جزر و مد، دور شدن سالی ۳٫۸ سانتی‌متر و محور زمین.' },
+
+{ title: 'اگر همه دایناسورها با هم بپرند چه می‌شود؟',
+  category: 'زمین‌شناسی',
+  url: 'Maghalat/PareshDaiinasor.html',
+  image: 'Maghalat/images/PareshDaiinasor.png',
+  summary: 'یک میلیارد پرش، بیابان استرالیا و پوسته‌ای که حتی تکان نمی‌خورد.' },
+
+{ title: 'اگر بخواهیم زمین را از مدارش تکان بدهیم چند سفینه لازم است؟',
+  category: 'فیزیک',
+  url: 'Maghalat/JabejaiiZamin.html',
+  image: 'Maghalat/images/JabejaiiZamin.png',
+  summary: 'شش تریلیون سفینه، انرژی هسته‌ای و طنابی به طول شعاع زمین.' },
+
+{ title: 'اگر زمین غیرقابل سکونت شود و مجبور شویم برویم چه می‌شود؟',
+  category: 'فضا',
+  url: 'Maghalat/TarkZamin.html',
+  image: 'Maghalat/images/TarkZamin.png',
+  summary: 'شهر چرخان برای صد هزار نفر، غذا، آب بازیافتی و سفر چندنسله.' },
+
+{ title: 'اگر سرعت نور و صدا با هم عوض شود چه می‌شود؟',
+  category: 'فیزیک',
+  url: 'Maghalat/JabejaiiNoorSeda.html',
+  image: 'Maghalat/images/JabejaiiNoorSeda.png',
+  summary: 'سلامی به طول ۳۰۰ کیلومتر، و نور خورشید که ۱۴ سال در راه است.' },
+
+{ title: 'اگر زباله‌ها را در آتشفشان بریزیم چه می‌شود؟',
+  category: 'زمین',
+  url: 'Maghalat/ZobaleDarAtashfeshan.html',
+  image: 'Maghalat/images/ZobaleDarAtashfeshan.png',
+  summary: 'انفجار بخار، گاز سمی، باران اسیدی و زباله‌ای بیشتر از ظرفیت هر دهانه‌ای.' },
+
+{ title: 'اگر درختی به بلندی اورست وجود داشت چه می‌شد؟',
+  category: 'زیست',
+  url: 'Maghalat/DerakhtBoland.html',
+  image: 'Maghalat/images/DerakhtBoland.png',
+  summary: 'هایپریون ۱۱۵ متر است؛ این یکی آب، تنه و شصت هزار سال می‌خواهد.' },
+
+{ title: 'اگر زمین از اول مکعب بود چه می‌شد؟',
+  category: 'فیزیک',
+  url: 'Maghalat/ZaminMokaab.html',
+  image: 'Maghalat/images/ZaminMokaab.png',
+  summary: 'شیب نامرئی تا لبه‌ها، شش اقیانوس مربعی.' },
+
+{ title: 'اگر ۸ میلیارد آدم همزمان کف بزنند چه می‌شود؟',
+  category: 'فیزیک',
+  url: 'Maghalat/DastZadan.html',
+  image: 'Maghalat/images/DastZadan.png',
+  summary: 'دشتی ۶۳ کیلومتری، صدایی بالای ۲۰۰ دسی‌بل، و انرژی‌ای کوچک‌تر از یک صاعقه.' },
+
+{ title: 'اگر همهٔ باران یک ابر یک قطره می‌شد چه می‌شد؟',
+  category: 'فیزیک',
+  url: 'Maghalat/GhatreBozorg.html',
+  image: 'Maghalat/images/GhatreBozorg.png',
+  summary: 'قطره‌ای ۱۲۴ متری از یک میلیون تن آب، و دلیلی که هوا نمی‌گذارد چاق شود.' },
+  
+{ title: 'اگر زلزلهٔ بزرگ تهران بیاید چه می‌شود؟',
+  category: 'زمین',
+  url: 'Maghalat/ZelzeleTehran.html',
+  image: 'Maghalat/images/ZelzeleTehran.png',
+  summary: 'سه سناریو از گسل مشا، ری و شمال تهران؛ از ترک کابینت تا شهر ۱۳ میلیونی.' },
+
+{ title: 'اگر زمین ده برابر بزرگ‌تر بود چه می‌شد؟',
+  category: 'فیزیک',
+  url: 'Maghalat/ZaminBozorgtar.html',
+  image: 'Maghalat/images/ZaminBozorgtar.png',
+  summary: 'جاذبهٔ ده‌برابر، وزن ۷۰۰ کیلو، و سرعت فراری که موشک به آن نمی‌رسد.' },
+
+{ title: 'اگر همهٔ عناصر جدول تناوبی را با هم قاطی کنیم چه می‌شود؟',
+  category: 'شیمی',
+  url: 'Maghalat/TarkibJadval.html',
+  image: 'Maghalat/images/TarkibJadval.png',
+  summary: '۱۱۸ عنصر در یک ظرف، از انفجار سدیم تا پلاسما و راکتور طبیعی اوکلو.' },
+
+{ title: 'اگر به جای ماه یک سیارهٔ زنده بود چه می‌شد؟',
+  category: 'فضا',
+  url: 'Maghalat/MahDigar.html',
+  image: 'Maghalat/images/MahDigar.png',
+  summary: 'کرهٔ آبی‌سبز به جای ماه، شب روشن، جزر و مد دوطرفه و سفری سه‌روزه.' },
+
+  
+
+
+];
+const state = { cat: 'همه', q: '' };
+function cats(){ return ['همه', ...Array.from(new Set(ARTICLES.map(a=>a.category)))]; }
+function filtered(){
+  const q=state.q.trim();
+  return ARTICLES.filter(a => (state.cat==='همه'||a.category===state.cat) && (!q || a.title.includes(q) || a.summary.includes(q)));
+}
+function render(){
+  const list=cats();
+  document.getElementById('cats').innerHTML=list.map(c=>`<button class="cat ${c===state.cat?'on':''}" data-cat="${c}">${c}</button>`).join('');
+  document.getElementById('count').textContent=ARTICLES.length;
+  document.getElementById('catCount').textContent=(list.length-1)+' دسته';
+  const items=filtered();
+  document.getElementById('grid').innerHTML = items.length ? items.map((a,i)=>`
+    <a class="card ${i===0&&state.cat==='همه'&&!state.q?'wide':''}" href="${a.url}">
+      ${a.image?`<div class="media"><img src="${a.image}" alt=""></div>`:''}
+      <div class="body">
+        <div class="kicker">${a.category}</div>
+        <h2>${a.title}</h2>
+        <p>${a.summary||''}</p>
+        <div class="go"><i>خواندن مقاله</i></div>
+      </div>
+    </a>`).join('') : '<div class="empty">مقاله‌ای پیدا نشد.</div>';
+}
+document.getElementById('cats').addEventListener('click', e=>{
+  const b=e.target.closest('[data-cat]'); if(!b) return; state.cat=b.dataset.cat; render();
+});
+document.getElementById('q').addEventListener('input', e=>{ state.q=e.target.value; render(); });
+render();
+</script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

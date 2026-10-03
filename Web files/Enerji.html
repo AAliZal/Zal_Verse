@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>شبیه‌سازی منابع انرژی</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef3f8;
+    --card: #ffffff;
+    --ink: #1a2b3c;
+    --muted: #5c6b7a;
+    --line: #e6edf3;
+    --shadow: 0 10px 28px rgba(21, 60, 90, 0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(900px 420px at 100% -10%, #d7f3ff 0%, transparent 60%),
+      radial-gradient(800px 380px at 0% 0%, #e7f8ef 0%, transparent 55%),
+      var(--bg);
+    color: var(--ink);
+    font-family: Vazirmatn, Tahoma, sans-serif;
+  }
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 22px;
+    background: rgba(255,255,255,.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,.7);
+  }
+  .topbar h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .topbar p {
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #00b4d8, #0077ff);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 12px;
+    box-shadow: 0 8px 18px rgba(0, 119, 255, .28);
+    transition: .25s;
+  }
+  .home-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0, 119, 255, .38); }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 22px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 680px) {
+    .grid { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: stretch; }
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid #e7eef5;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    min-height: 460px;
+  }
+  .stage {
+    height: 210px;
+    position: relative;
+    overflow: hidden;
+    flex: none;
+  }
+  .body { padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0b6aa2;
+    background: #e8f6ff;
+    border-radius: 999px;
+    padding: 3px 8px;
+    width: fit-content;
+  }
+  h2 { margin: 0; font-size: 16px; }
+  .sub { margin: 0; font-size: 12px; color: var(--muted); }
+  label { font-size: 12px; font-weight: 600; color: #314556; }
+  input[type="range"] { width: 100%; accent-color: #0288d1; cursor: pointer; }
+  .note {
+    margin: 4px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    color: #4d5d6c;
+    font-size: 12px;
+    line-height: 1.85;
+    text-align: justify;
+  }
+  .meter {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 11px;
+    color: #3d5163;
+    background: #f5f9fc;
+    border-radius: 10px;
+    padding: 7px 9px;
+  }
+  .meter b { color: #01579b; }
+
+  /* wind */
+  .wind { background: linear-gradient(#8ecdf5, #e8f7ff 70%, #d9f2c8); }
+  .hill { position: absolute; left: -10%; right: -10%; bottom: -18px; height: 70px; background: #67b35a; border-radius: 50% 50% 0 0; }
+  .tower { position: absolute; left: 50%; bottom: 28px; width: 6px; height: 92px; background: linear-gradient(#cfd8dc, #78909c); transform: translateX(-50%); border-radius: 3px; }
+  .hub {
+    position: absolute; left: 50%; bottom: 112px; width: 16px; height: 16px; margin-left: -8px;
+    background: #546e7a; border-radius: 50%; z-index: 3;
+  }
+  .rotor { position: absolute; left: 50%; bottom: 120px; width: 0; height: 0; z-index: 2; }
+  .blade {
+    position: absolute; left: -5px; bottom: 0; width: 10px; height: 58px;
+    background: linear-gradient(#fff, #e3f2fd); border: 1px solid #cfd8dc; border-radius: 8px;
+    transform-origin: 50% 100%;
+  }
+  .blade:nth-child(2) { transform: rotate(120deg); }
+  .blade:nth-child(3) { transform: rotate(240deg); }
+
+  /* solar */
+  .solar { background: #07233f; transition: background .3s; }
+  .sun {
+    position: absolute; width: 34px; height: 34px; border-radius: 50%;
+    background: #ffe082; box-shadow: 0 0 18px #ffb300; z-index: 2;
+  }
+  .panel {
+    position: absolute; left: 50%; bottom: 28px; width: 118px; height: 72px;
+    transform: translateX(-50%) perspective(120px) rotateX(42deg);
+    background: #071525; border: 2px solid #7fd7ff; display: grid;
+    grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 5px; z-index: 3;
+  }
+  .cell { background: #1565c0; border-radius: 2px; transition: .25s; }
+  .ground-line { position: absolute; left: 0; right: 0; bottom: 0; height: 28px; background: #2e7d32; }
+
+  /* river */
+  .river { background: linear-gradient(#b3e5fc, #e1f5fe 40%, #e1f5fe); }
+  .flow, .ripples {
+    position: absolute; bottom: 0; height: 118px; width: 200%;
+  }
+  .flow {
+    background: repeating-linear-gradient(90deg, #0277bd 0 36px, #039be5 36px 72px);
+    opacity: .85;
+  }
+  .ripples { border-top: 3px dashed rgba(255,255,255,.55); bottom: 78px; height: 0; }
+  .axle { position: absolute; left: 50%; top: 48px; width: 8px; height: 92px; background: #455a64; transform: translateX(-50%); z-index: 2; }
+  .wheel {
+    position: absolute; left: 50%; top: 18px; width: 132px; height: 132px; margin-left: -66px; z-index: 4;
+  }
+  .wheel .cap {
+    position: absolute; left: 50%; top: 50%; width: 28px; height: 28px; border-radius: 50%;
+    background: #37474f; border: 3px solid #eceff1; transform: translate(-50%, -50%); z-index: 2;
+  }
+  .spoke { position: absolute; left: 50%; top: 0; width: 4px; height: 100%; background: #607d8b; transform: translateX(-50%); }
+  .bucket {
+    position: absolute; background: #90a4ae; border: 1px solid #37474f;
+  }
+
+  /* fossil */
+  .fossil { background: #314048; }
+  .stack {
+    position: absolute; right: 22px; bottom: 0; width: 34px; height: 132px;
+    background: linear-gradient(90deg, #263238, #546e7a); border-radius: 4px 4px 0 0;
+  }
+  .smoke {
+    position: absolute; top: -18px; left: 4px; width: 26px; height: 22px;
+    background: #b0bec5; filter: blur(6px); border-radius: 50%; opacity: 0;
+  }
+  .boiler {
+    position: absolute; right: 62px; bottom: 16px; width: 86px; height: 92px;
+    background: #263238; border: 3px solid #607d8b; border-radius: 10px; z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .firebox { width: 52px; height: 40px; background: #111; border-radius: 4px; position: relative; overflow: hidden; }
+  .fire {
+    position: absolute; left: 50%; bottom: -8px; width: 36px; height: 0;
+    transform: translateX(-50%); border-radius: 40% 40% 0 0;
+    background: radial-gradient(circle at 50% 80%, #fff59d, #ff6d00 60%, transparent 72%);
+  }
+  .steam-pipe {
+    position: absolute; right: 104px; top: 78px; width: 92px; height: 12px;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.28); border-radius: 8px;
+  }
+  .dot { position: absolute; top: 2px; width: 7px; height: 7px; border-radius: 50%; background: #fff; filter: blur(1px); opacity: 0; }
+  .gen {
+    position: absolute; left: 18px; bottom: 22px; width: 78px; height: 78px; border-radius: 50%;
+    background: #cfd8dc; border: 6px double #263238; display: flex; align-items: center; justify-content: center;
+  }
+  .gen-rotor { width: 58px; height: 58px; border: 4px dashed #455a64; border-radius: 50%; position: relative; }
+  .gen-rotor i { position: absolute; background: #455a64; }
+  .gen-rotor i.h { left: 0; top: 50%; width: 100%; height: 2px; }
+  .gen-rotor i.v { top: 0; left: 50%; width: 2px; height: 100%; }
+  .glow { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(255,235,59,.55), transparent 65%); opacity: 0; }
+
+  /* nuclear */
+  .nuke { background: #24343c; }
+  .reactor {
+    position: absolute; left: 18px; top: 78px; width: 62px; height: 86px;
+    background: #37474f; border: 3px solid #90a4ae; border-radius: 6px; z-index: 2;
+  }
+  .core { position: absolute; inset: 8px; background: #00e5ff; filter: blur(12px); opacity: 0; }
+  .rods { position: absolute; top: 14px; left: 8px; right: 8px; display: flex; justify-content: space-around; }
+  .rod { width: 6px; height: 42px; background: #b0bec5; border-radius: 2px; }
+  .tag { position: absolute; bottom: 6px; width: 100%; text-align: center; color: #fff; font-size: 10px; }
+  .n-turbine {
+    position: absolute; right: 24px; top: 36px; width: 64px; height: 64px; border-radius: 50%;
+    background: #455a64; border: 3px solid #b0bec5; display: flex; align-items: center; justify-content: center; z-index: 2;
+  }
+  .n-blade { width: 46px; height: 46px; border: 4px dashed #fff; border-radius: 50%; opacity: .3; }
+
+  /* geo */
+  .geo { background: #5d4037; }
+  .hotrock {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 54px;
+    background: linear-gradient(#e65100, #3e2723);
+  }
+  .hotrock span { position: absolute; bottom: 8px; width: 100%; text-align: center; color: #ffccbc; font-size: 11px; }
+  .geo-box {
+    position: absolute; left: 78px; top: 34px; width: 70px; height: 58px; background: #eceff1;
+    border: 2px solid #455a64; border-radius: 6px; display: flex; align-items: center; justify-content: center; z-index: 3;
+  }
+  .geo-fan { width: 40px; height: 40px; border: 4px dashed #37474f; border-radius: 50%; }
+
+  /* wave */
+  .sea { background: #81d4fa; transition: background .4s; }
+  .sea-sun {
+    position: absolute; top: 16px; left: 18px; width: 42px; height: 42px; border-radius: 50%;
+    background: #fff59d; box-shadow: 0 0 18px #fff; z-index: 1;
+  }
+  .sea svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* dam */
+  .dam {
+    background: linear-gradient(#b3e5fc 0 46%, #c8e6c9 46% 100%);
+  }
+  .dam-bank {
+    position: absolute; right: 0; bottom: 0; width: 46%; height: 168px;
+    background: #8d6e63; clip-path: polygon(18% 38%, 100% 28%, 100% 100%, 0 100%);
+  }
+  .reservoir {
+    position: absolute; right: 0; bottom: 36px; width: 40%;
+    background: linear-gradient(#4fc3f7, #0277bd);
+    border-top: 2px solid rgba(255,255,255,.85);
+    z-index: 2;
+    overflow: hidden;
+  }
+  .reservoir::after {
+    content: "";
+    position: absolute; left: -20%; top: 6px; width: 140%; height: 8px;
+    background: rgba(255,255,255,.35); border-radius: 10px;
+  }
+  .dam-wall {
+    position: absolute; right: 27%; bottom: 0; width: 22%; height: 176px;
+    background: linear-gradient(90deg, #90a4ae, #546e7a 40%, #455a64);
+    clip-path: polygon(22% 0, 100% 0, 78% 100%, 0 100%);
+    z-index: 5;
+  }
+  .dam-wall::before {
+    content: "";
+    position: absolute; left: 18%; top: 0; bottom: 0; width: 8px;
+    background: rgba(255,255,255,.18);
+  }
+  .penstock {
+    position: absolute; right: 31%; bottom: 62px; width: 34%; height: 12px;
+    background: #263238; border-radius: 6px; transform: rotate(-18deg);
+    transform-origin: right center; z-index: 6; overflow: hidden;
+  }
+  .penstock-water {
+    position: absolute; inset: 2px 2px 2px auto; width: 0; background: #4fc3f7; border-radius: 4px;
+  }
+  .jet {
+    position: absolute; right: 39%; bottom: 52px; width: 10px; height: 0;
+    background: linear-gradient(#81d4fa, rgba(79,195,247,.2));
+    border-radius: 0 0 8px 8px; opacity: 0; z-index: 4;
+    transform: rotate(18deg); transform-origin: top center;
+  }
+  .turbo {
+    position: absolute; left: 18%; bottom: 28px; width: 54px; height: 54px;
+    border-radius: 50%; background: #cfd8dc; border: 4px solid #37474f; z-index: 7;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .turbo-rotor { width: 40px; height: 40px; position: relative; }
+  .turbo-rotor span {
+    position: absolute; left: 50%; top: 50%; width: 8px; height: 40px; margin: -20px 0 0 -4px;
+    background: #37474f; border-radius: 4px;
+  }
+  .turbo-rotor span:nth-child(2) { transform: rotate(60deg); }
+  .turbo-rotor span:nth-child(3) { transform: rotate(120deg); }
+  .tail {
+    position: absolute; left: 0; bottom: 0; width: 52%; height: 34px;
+    background: linear-gradient(#0288d1, #01579b); z-index: 3;
+  }
+  .house {
+    position: absolute; left: 8px; bottom: 34px; width: 28px; height: 22px; background: #ffe082; z-index: 4;
+  }
+  .house::before {
+    content: ""; position: absolute; left: -4px; top: -10px;
+    border-left: 18px solid transparent; border-right: 18px solid transparent; border-bottom: 12px solid #ef6c00;
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div>
+      <h1>شبیه‌سازی تبدیل انرژی</h1>
+      <p>اسلایدر هر کارت را حرکت بده تا فرآیند تولید برق را ببینی.</p>
+    </div>
+    <a href="../index.html" class="home-btn">بازگشت به صفحه اصلی</a>
+  </div>
+
+  <div class="wrap">
+    <div class="grid">
+
+      <article class="card">
+        <div class="stage wind">
+          <div class="hill"></div>
+          <div class="tower"></div>
+          <div class="rotor" id="wind-rotor">
+            <div class="blade"></div>
+            <div class="blade"></div>
+            <div class="blade"></div>
+          </div>
+          <div class="hub"></div>
+        </div>
+        <div class="body">
+          <span class="kicker">انرژی تجدیدپذیر</span>
+          <h2>انرژی بادی</h2>
+          <p class="sub">تبدیل انرژی جنبشی باد به انرژی الکتریکی</p>
+          <label for="wind">میزان سرعت باد</label>
+          <input id="wind" type="range" min="0" max="40" value="12">
+          <div class="meter"><span>سرعت باد</span><b id="wind-out">۱۲ متر بر ثانیه</b></div>
+          <p class="note">توربین بادی با نیروی باد می‌چرخد و ژنراتور را به حرکت درمی‌آورد تا برق تولید شود. هرچه باد سریع‌تر باشد، پره‌ها تندتر می‌چرخند.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="stage solar" id="sky">
+          <div class="sun" id="sun"></div>
+          <div class="ground-line"></div>
+          <div class="panel" id="panel">
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+          </div>
+        </div>
+        <div class="body">
+          <span class="kicker">انرژی تجدیدپذیر</span>
+          <h2>پنل خورشیدی</h2>
+          <p class="sub">تبدیل انرژی نورانی به انرژی الکتریکی</p>
+          <label for="sun-slider">زاویه خورشید</label>
+          <input id="sun-slider" type="range" min="0" max="100" value="55">
+          <div class="meter"><span>تابش مؤثر</span><b id="sun-out">زیاد</b></div>
+          <p class="note">در مرکز خورشید پیوسته واکنش‌هایی رخ می‌دهد و انرژی زیادی آزاد می‌شود. صفحه‌های خورشیدی بخشی از این انرژی نورانی را به برق تبدیل می‌کنند. وقتی خورشید بالاتر باشد، سلول‌ها روشن‌تر می‌شوند.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="stage river">
+          <div class="flow" id="river"></div>
+          <div class="ripples" id="ripples"></div>
+          <div class="axle"></div>
+          <div class="wheel" id="wheel">
+            <div class="spoke"></div>
+            <div class="spoke" style="transform:translateX(-50%) rotate(90deg)"></div>
+            <div class="spoke" style="transform:translateX(-50%) rotate(45deg)"></div>
+            <div class="spoke" style="transform:translateX(-50%) rotate(-45deg)"></div>
+            <div class="bucket" style="top:0;left:50%;width:28px;height:14px;border-radius:0 0 14px 14px;transform:translateX(-50%)"></div>
+            <div class="bucket" style="bottom:0;left:50%;width:28px;height:14px;border-radius:14px 14px 0 0;transform:translateX(-50%)"></div>
+            <div class="bucket" style="left:0;top:50%;width:14px;height:28px;border-radius:0 14px 14px 0;transform:translateY(-50%)"></div>
+            <div class="bucket" style="right:0;top:50%;width:14px;height:28px;border-radius:14px 0 0 14px;transform:translateY(-50%)"></div>
+            <div class="cap"></div>
+          </div>
+        </div>
+        <div class="body">
+          <span class="kicker">انرژی تجدیدپذیر</span>
+          <h2>توربین آبی رودخانه</h2>
+          <p class="sub">تبدیل انرژی جنبشی آب جاری به برق</p>
+          <label for="river-slider">میزان سرعت آب</label>
+          <input id="river-slider" type="range" min="0" max="100" value="35">
+          <div class="meter"><span>جریان رودخانه</span><b id="river-out">متوسط</b></div>
+          <p class="note">پره‌های پایین چرخ در آب قرار می‌گیرند و فشار افقی رودخانه آن‌ها را می‌چرخاند. این روش برای رودخانه‌های کم‌عمق با جریان پیوسته مناسب است.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="stage fossil">
+          <div class="stack"><div class="smoke" id="smoke"></div></div>
+          <div class="steam-pipe">
+            <div class="dot" id="sp1"></div>
+            <div class="dot" id="sp2"></div>
+          </div>
+          <div class="boiler">
+            <div class="firebox"><div class="fire" id="fire"></div></div>
+          </div>
+          <div class="gen">
+            <div class="gen-rotor" id="fossil-rotor"><i class="h"></i><i class="v"></i></div>
+            <div class="glow" id="fossil-glow"></div>
+          </div>
+        </div>
+        <div class="body">
+          <span class="kicker">انرژی تجدیدناپذیر</span>
+          <h2>نیروگاه حرارتی فسیلی</h2>
+          <p class="sub">تبدیل انرژی شیمیایی سوخت به برق</p>
+          <label for="fuel">میزان سوختن سوخت</label>
+          <input id="fuel" type="range" min="0" max="100" value="0">
+          <div class="meter"><span>شدت شعله</span><b id="fuel-out">خاموش</b></div>
+          <p class="note">انرژی شیمیایی سوخت به گرما تبدیل می‌شود و بخار پرفشار می‌سازد. بخار توربین را می‌چرخاند. این روش پرکاربرد است، اما دود و آلودگی هم تولید می‌کند.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="stage nuke">
+          <svg id="nuke-svg" viewBox="0 0 300 210" style="position:absolute;inset:0;width:100%;height:100%;z-index:1">
+            <path d="M78 118 H214 V62" stroke="#607d8b" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path id="heat-flow" d="M78 118 H214 V62" stroke="#ff5252" stroke-width="4" fill="none" opacity="0.15"/>
+            <circle id="particle" r="4.5" cx="78" cy="118" fill="#ffeb3b" opacity="0"/>
+          </svg>
+          <div class="reactor">
+            <div class="core" id="core"></div>
+            <div class="rods"><div class="rod" id="rod1"></div><div class="rod" id="rod2"></div></div>
+            <div class="tag">رآکتور</div>
+          </div>
+          <div class="n-turbine">
+            <div class="n-blade" id="n-blade"></div>
+          </div>
+        </div>
+        <div class="body">
+          <span class="kicker">انرژی هسته‌ای</span>
+          <h2>نیروگاه هسته‌ای</h2>
+          <p class="sub">تبدیل انرژی هسته‌ای به انرژی الکتریکی</p>
+          <label for="nuke">شدت واکنش زنجیره‌ای</label>
+          <input id="nuke" type="range" min="0" max="100" value="0">
+          <div class="meter"><span>گرمای رآکتور</span><b id="nuke-out">خاموش</b></div>
+          <p class="note">در رآکتور، هسته اتم‌های سوخت به هسته‌های سبک‌تر تبدیل می‌شود و گرمای زیادی آزاد می‌کند. این گرما آب را به بخار تبدیل می‌کند و بخار توربین را برای تولید برق می‌چرخاند.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="stage geo">
+          <div class="hotrock"><span>سنگ‌های داغ زیر زمین</span></div>
+          <svg viewBox="0 0 300 210" style="position:absolute;inset:0;width:100%;height:100%;z-index:2">
+            <rect x="70" y="78" width="7" height="132" rx="3" fill="#0277bd"/>
+            <path d="M198 210 V78 H150" stroke="#fbc02d" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <circle id="drop1" r="3.2" fill="#b3e5fc" opacity="0"/>
+            <circle id="drop2" r="3.2" fill="#b3e5fc" opacity="0"/>
+            <circle id="steam1" r="3.2" fill="#fff" opacity="0"/>
+            <circle id="steam2" r="3.2" fill="#fff" opacity="0"/>
+          </svg>
+          <div class="geo-box"><div class="geo-fan" id="geo-fan"></div></div>
+        </div>
+        <div class="body">
+          <span class="kicker">انرژی تجدیدپذیر</span>
+          <h2>انرژی زمین‌گرمایی</h2>
+          <p class="sub">استفاده از گرمای درون زمین برای تولید برق</p>
+          <label for="geo">میزان سرعت بخار</label>
+          <input id="geo" type="range" min="0" max="100" value="0">
+          <div class="meter"><span>جریان بخار</span><b id="geo-out">متوقف</b></div>
+          <p class="note">آب سرد به عمق زمین فرستاده می‌شود. پس از تماس با سنگ‌های داغ، به بخار پرفشار تبدیل می‌شود و از چاه تولید بالا می‌آید تا توربین را بچرخاند.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="stage sea" id="sea">
+          <div class="sea-sun" id="sea-sun"></div>
+          <svg viewBox="0 0 300 210" preserveAspectRatio="none">
+            <path id="waveB" fill="#0288d1" opacity="0.4"/>
+            <g id="pelamis">
+              <rect id="p1" width="46" height="12" rx="6" fill="#d32f2f" stroke="#333"/>
+              <rect id="p2" width="46" height="12" rx="6" fill="#e53935" stroke="#333"/>
+              <rect id="p3" width="46" height="12" rx="6" fill="#d32f2f" stroke="#333"/>
+            </g>
+            <path id="waveF" fill="#01579b" fill-opacity="0.9"/>
+          </svg>
+        </div>
+        <div class="body">
+          <span class="kicker">انرژی تجدیدپذیر</span>
+          <h2>انرژی موج دریا</h2>
+          <p class="sub">تبدیل انرژی جنبشی امواج به برق</p>
+          <label for="wave">شدت موج</label>
+          <input id="wave" type="range" min="5" max="80" value="28">
+          <div class="meter"><span>وضعیت دریا</span><b id="wave-out">موج ملایم</b></div>
+          <p class="note">مبدل‌های شناور مانند پلامیس روی موج خم می‌شوند و با همین حرکت، ژنراتور را به کار می‌اندازند. پرتغال یکی از کشورهایی است که از توربین‌های دریایی در ساحل خود استفاده کرده است.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="stage dam" id="dam-stage">
+          <svg viewBox="0 0 340 210" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <rect x="0" y="0" width="340" height="118" fill="#b3e5fc"/>
+            <path d="M150 92 C190 70 230 78 270 60 L340 78 L340 210 L150 210 Z" fill="#a1887f"/>
+            <path d="M0 150 C40 142 70 146 110 138 L160 186 L0 186 Z" fill="#81c784"/>
+            <rect id="res-water" x="196" y="42" width="144" height="136" fill="#0288d1"/>
+            <path id="res-line" d="M196 42 H340" stroke="rgba(255,255,255,.85)" stroke-width="2"/>
+            <polygon points="176,34 232,34 214,186 138,186" fill="#607d8b"/>
+            <polygon points="188,34 198,34 190,186 176,186" fill="rgba(255,255,255,.16)"/>
+            <path d="M202 124 L96 158" stroke="#263238" stroke-width="14" fill="none" stroke-linecap="round"/>
+            <path id="pipe-water" d="M202 124 L96 158" stroke="#4fc3f7" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="120" stroke-dashoffset="120"/>
+            <path id="jet" d="M96 158 C88 168 82 176 78 184" stroke="#4fc3f7" stroke-width="0" fill="none" stroke-linecap="round" opacity="0"/>
+            <rect id="tail-water" x="0" y="176" width="150" height="34" fill="#01579b"/>
+            <rect x="18" y="154" width="26" height="18" fill="#ffe082"/>
+            <polygon points="14,154 48,154 31,142" fill="#ef6c00"/>
+            <g transform="translate(78,168)">
+              <circle r="26" fill="#cfd8dc" stroke="#37474f" stroke-width="4"/>
+              <g id="turbo">
+                <rect x="-4" y="-20" width="8" height="40" rx="2" fill="#37474f"/>
+                <rect x="-4" y="-20" width="8" height="40" rx="2" fill="#37474f" transform="rotate(60)"/>
+                <rect x="-4" y="-20" width="8" height="40" rx="2" fill="#37474f" transform="rotate(120)"/>
+              </g>
+              <circle r="6" fill="#546e7a"/>
+            </g>
+          </svg>
+        </div>
+        <div class="body">
+          <span class="kicker">انرژی تجدیدپذیر</span>
+          <h2>برق‌آبی پشت سد</h2>
+          <p class="sub">تبدیل انرژی پتانسیل آب ذخیره به برق</p>
+          <label for="gate">میزان باز بودن دریچه</label>
+          <input id="gate" type="range" min="0" max="100" value="0">
+          <div class="meter">
+            <span>مخزن <b id="level-out">۱۰۰٪</b></span>
+            <span>توان توربین <b id="power-out">۰٪</b></span>
+          </div>
+          <p class="note">آب پشت سد انرژی پتانسیل گرانشی دارد. با باز شدن دریچه، آب از لوله به توربین می‌رسد، آن را می‌چرخاند و برق تولید می‌شود. اگر دریچه بسته بماند، مخزن دوباره پر می‌شود و توربین می‌ایستد.</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+
+<script src="MusicPlayer.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  const wind = $("wind");
+  const sunSlider = $("sun-slider");
+  const riverSlider = $("river-slider");
+  const fuel = $("fuel");
+  const nuke = $("nuke");
+  const geo = $("geo");
+  const wave = $("wave");
+  const gate = $("gate");
+
+  let windAngle = 0, wheelAngle = 0, fossilAngle = 0, nukeT = 0, geoT = 0, turboAngle = 0;
+  let riverX = 0, smokeY = 0, steamX = 0;
+  let level = 150;
+  let waveTick = 0;
+
+  function label(value, words) {
+    if (value < 8) return words[0];
+    if (value < 40) return words[1];
+    if (value < 75) return words[2];
+    return words[3];
+  }
+
+  function tick() {
+    const w = +wind.value;
+    windAngle += w * 0.55;
+    $("wind-rotor").style.transform = "translateX(-50%) rotate(" + windAngle + "deg)";
+    $("wind-out").textContent = w + " متر بر ثانیه";
+
+    const sv = +sunSlider.value;
+    const height = Math.sin((sv / 100) * Math.PI) * 78;
+    const sun = $("sun");
+    sun.style.right = (6 + sv * 0.78) + "%";
+    sun.style.top = (108 - height) + "px";
+    const br = Math.floor(height * 2.1);
+    $("sky").style.background = "rgb(" + Math.floor(br / 3) + "," + Math.floor(br * 0.75) + "," + Math.min(255, br + 70) + ")";
+    const hot = height > 42;
+    document.querySelectorAll(".cell").forEach((cell) => {
+      cell.style.background = hot ? "#7fdbff" : "#1565c0";
+      cell.style.boxShadow = hot ? "0 0 10px #7fdbff" : "none";
+    });
+    $("sun-out").textContent = height > 55 ? "زیاد" : height > 25 ? "متوسط" : "کم";
+
+    const rv = +riverSlider.value;
+    wheelAngle += rv / 4.2;
+    riverX -= rv / 2.4;
+    $("wheel").style.transform = "rotate(" + wheelAngle + "deg)";
+    $("river").style.left = (riverX % 72) + "px";
+    $("ripples").style.left = (riverX % 90) + "px";
+    $("river-out").textContent = label(rv, ["ساکن", "آرام", "متوسط", "تند"]);
+
+    const fv = +fuel.value;
+    fossilAngle += fv / 4.5;
+    smokeY -= fv / 12;
+    steamX += fv / 8;
+    $("fire").style.height = (fv / 2.3) + "px";
+    $("smoke").style.opacity = fv / 100;
+    $("smoke").style.transform = "translateY(" + (smokeY % 36) + "px) scale(" + (1 + Math.abs(smokeY % 36) / 28) + ")";
+    $("fossil-rotor").style.transform = "rotate(" + fossilAngle + "deg)";
+    $("fossil-glow").style.opacity = fv / 140;
+    ["sp1", "sp2"].forEach((id, i) => {
+      const dot = $(id);
+      dot.style.opacity = fv / 100;
+      dot.style.right = ((steamX + i * 46) % 86) + "px";
+    });
+    $("fuel-out").textContent = label(fv, ["خاموش", "کم", "متوسط", "زیاد"]);
+
+    const nv = +nuke.value;
+    $("core").style.opacity = nv / 100;
+    $("heat-flow").style.opacity = 0.15 + nv / 140;
+    $("rod1").style.background = nv > 20 ? "#00e5ff" : "#b0bec5";
+    $("rod2").style.background = nv > 55 ? "#00e5ff" : "#b0bec5";
+    $("n-blade").style.opacity = 0.25 + nv / 120;
+    const particle = $("particle");
+    if (nv > 0) {
+      nukeT += nv / 7;
+      $("n-blade").style.transform = "rotate(" + (nukeT * 2.2) + "deg)";
+      particle.style.opacity = 1;
+      const m = nukeT % 168;
+      if (m < 136) particle.setAttribute("cx", 78 + m), particle.setAttribute("cy", 118);
+      else particle.setAttribute("cx", 214), particle.setAttribute("cy", 118 - (m - 136));
+    } else {
+      particle.style.opacity = 0;
+    }
+    $("nuke-out").textContent = label(nv, ["خاموش", "کم", "پایدار", "زیاد"]);
+
+    const gv = +geo.value;
+    if (gv > 0) {
+      geoT += gv / 10;
+      $("geo-fan").style.transform = "rotate(" + (geoT * 2.4) + "deg)";
+      [1, 2].forEach((i) => {
+        const drop = $("drop" + i);
+        drop.style.opacity = 1;
+        const m = (geoT + i * 58) % 126;
+        drop.setAttribute("cx", 73.5);
+        drop.setAttribute("cy", 78 + m);
+        const st = $("steam" + i);
+        st.style.opacity = 1;
+        const s = (geoT + i * 70) % 176;
+        if (s < 132) { st.setAttribute("cx", 198); st.setAttribute("cy", 210 - s); }
+        else { st.setAttribute("cx", 198 - (s - 132)); st.setAttribute("cy", 78); }
+      });
+    } else {
+      ["drop1", "drop2", "steam1", "steam2"].forEach((id) => { $(id).style.opacity = 0; });
+    }
+    $("geo-out").textContent = label(gv, ["متوقف", "کم", "پایدار", "قوی"]);
+
+    const waveV = +wave.value;
+    waveTick += 0.03 + waveV * 0.0006;
+    const amp = waveV * 0.42;
+    const freq = 0.028 + waveV * 0.00012;
+    const base = 132;
+    const pathOf = (offset, yBase) => {
+      let d = "M0 " + yBase;
+      for (let x = 0; x <= 300; x += 8) {
+        d += " L" + x + " " + (yBase + Math.sin(x * freq + waveTick + offset) * amp);
+      }
+      return d + " V210 H0 Z";
+    };
+    $("waveF").setAttribute("d", pathOf(0, base));
+    $("waveB").setAttribute("d", pathOf(1.4, base - 8));
+    const attach = (el, x1) => {
+      const x2 = x1 + 46;
+      const y1 = base + Math.sin(x1 * freq + waveTick) * amp;
+      const y2 = base + Math.sin(x2 * freq + waveTick) * amp;
+      const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+      el.setAttribute("transform", "translate(" + x1 + "," + (y1 - 8) + ") rotate(" + angle + ")");
+    };
+    attach($("p1"), 48);
+    attach($("p2"), 96);
+    attach($("p3"), 144);
+    const dark = 190 - waveV * 1.35;
+    $("sea").style.background = "rgb(" + (dark + 16) + "," + (dark + 48) + "," + (dark + 78) + ")";
+    $("sea-sun").style.opacity = Math.max(0.15, 1 - waveV / 100);
+    $("wave-out").textContent = waveV < 25 ? "موج ملایم" : waveV < 55 ? "موج متوسط" : "دریای طوفانی";
+
+    const g = +gate.value / 100;
+    const head = Math.max(0, (level - 78) / 72);
+    const flow = g * head;
+    if (flow > 0.04) level -= flow * 0.55;
+    else level += 0.28;
+    level = Math.max(78, Math.min(150, level));
+    turboAngle += flow * 22;
+
+    const waterH = 46 + ((level - 78) / 72) * 90;
+    const res = $("res-water");
+    res.setAttribute("y", 178 - waterH);
+    res.setAttribute("height", waterH);
+    $("res-line").setAttribute("d", "M196 " + (178 - waterH) + " H340");
+    $("pipe-water").style.strokeDashoffset = String(120 - flow * 120);
+    const jet = $("jet");
+    jet.style.opacity = flow > 0.05 ? 0.9 : 0;
+    jet.style.strokeWidth = String(3 + flow * 8);
+    $("turbo").setAttribute("transform", "rotate(" + turboAngle + ")");
+    const tail = $("tail-water");
+    const tailH = 28 + flow * 18;
+    tail.setAttribute("y", 210 - tailH);
+    tail.setAttribute("height", tailH);
+    const pct = Math.round(((level - 78) / 72) * 100);
+    $("level-out").textContent = pct + "٪";
+    $("power-out").textContent = Math.round(flow * 100) + "٪";
+  }
+
+  sunSlider.dispatchEvent(new Event("input"));
+  setInterval(tick, 30);
+})();
+</script>
+</body>
+</html>

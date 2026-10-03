@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>شبیه ساز چشم انسان</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:
+    radial-gradient(circle,#172554,#020617);
+    color:white;
+    font-family:tahoma;
+    min-height:100vh;
+}
+
+
+.container{
+    display:flex;
+    gap:30px;
+    padding:30px;
+    justify-content:center;
+    align-items:center;
+}
+
+
+/* پنل چشم */
+
+.eye-box{
+
+    width:700px;
+    height:420px;
+    background:#050b18;
+    border-radius:20px;
+    border:2px solid #38bdf8;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 0 40px #0284c7;
+}
+
+
+
+/* کره چشم برش خورده */
+
+.eye{
+
+    position:absolute;
+    width:520px;
+    height:330px;
+
+    right:80px;
+    top:45px;
+
+    border-radius:50%;
+    background:
+    linear-gradient(90deg,#dbeafe,#fff);
+
+    border:5px solid #94a3b8;
+
+    overflow:hidden;
+}
+
+
+/* قرنیه */
+
+.cornea{
+
+    position:absolute;
+
+    left:-20px;
+    top:80px;
+
+    width:90px;
+    height:170px;
+
+    border-radius:50%;
+
+    background:
+    linear-gradient(90deg,#7dd3fc,#e0f2fe);
+
+    border:3px solid #0284c7;
+
+}
+
+
+
+/* عنبیه */
+
+.iris{
+
+    position:absolute;
+
+    left:70px;
+    top:110px;
+
+    width:110px;
+    height:110px;
+
+    border-radius:50%;
+
+    background:
+    radial-gradient(circle,#020617 20%,#0ea5e9 25%,#0369a1 60%);
+
+    border:8px solid #075985;
+
+    transition:.3s;
+
+}
+
+
+/* مردمک */
+
+.pupil{
+
+    position:absolute;
+
+    width:35px;
+    height:35px;
+
+    left:30px;
+    top:30px;
+
+    background:black;
+
+    border-radius:50%;
+
+    transition:.3s;
+
+}
+
+
+
+/* عدسی */
+
+.lens{
+
+    position:absolute;
+
+    left:190px;
+    top:95px;
+
+    width:75px;
+    height:140px;
+
+    border-radius:50%;
+
+    background:
+    radial-gradient(circle,#bae6fd,#38bdf8);
+
+    opacity:.8;
+
+    transition:.5s;
+
+}
+
+
+
+/* شبکیه */
+
+.retina{
+
+    position:absolute;
+
+    right:20px;
+
+    width:35px;
+    height:250px;
+
+    top:40px;
+
+    background:
+    linear-gradient(#ef4444,#991b1b);
+
+    border-radius:50% 0 0 50%;
+
+}
+
+
+
+/* عصب بینایی */
+
+.nerve{
+
+    position:absolute;
+
+    right:-80px;
+    top:130px;
+
+    width:100px;
+    height:60px;
+
+    background:#facc15;
+
+    border-radius:50%;
+
+}
+
+
+
+/* نورها */
+
+
+.ray{
+
+    position:absolute;
+
+    height:4px;
+
+    background:#fde047;
+
+    left:0;
+
+    width:450px;
+
+    top:210px;
+
+    box-shadow:0 0 10px yellow;
+
+}
+
+
+
+/* پنل کنترل */
+
+
+.controls{
+
+    width:300px;
+
+    background:#0f172a;
+
+    border:1px solid #38bdf8;
+
+    border-radius:20px;
+
+    padding:20px;
+
+}
+
+
+label{
+
+display:block;
+margin-top:15px;
+
+}
+
+
+input,select{
+
+width:100%;
+margin-top:8px;
+
+}
+
+
+.value{
+
+color:#38bdf8;
+
+}
+
+
+.title{
+
+text-align:center;
+
+font-size:28px;
+
+margin-top:20px;
+
+}
+
+
+.info{
+
+background:#020617;
+padding:10px;
+border-radius:10px;
+margin-top:15px;
+
+}
+
+.home-btn{
+    position:fixed;
+    top:15px;
+    left:0;
+    z-index:9999;
+
+    padding:12px 25px;
+    background:linear-gradient(135deg,#00d2ff,#0066ff);
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    border-radius:0 15px 15px 0;
+
+    box-shadow:0 0 15px rgba(0,210,255,.5);
+    transition:.3s;
+}
+
+.home-btn:hover{
+    padding-right:35px;
+    box-shadow:0 0 25px rgba(0,210,255,.9);
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1 class="title">
+🧠 شبیه‌ساز آموزشی چشم انسان
+</h1>
+
+
+
+<div class="container">
+
+
+
+<div class="eye-box">
+
+
+<div class="ray"></div>
+
+
+<div class="eye">
+
+
+<div class="cornea"></div>
+
+
+<div class="iris">
+
+<div class="pupil"></div>
+
+</div>
+
+
+
+<div class="lens"></div>
+
+
+<div class="retina"></div>
+
+
+<div class="nerve"></div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="controls">
+
+
+<h2>کنترل چشم</h2>
+
+
+<label>
+شدت نور محیط:
+<span class="value" id="lightValue">
+50%
+</span>
+</label>
+
+<input id="light"
+type="range"
+min="0"
+max="100"
+value="50">
+
+
+
+<label>
+نوع دید:
+</label>
+
+<select id="vision">
+
+<option value="normal">
+طبیعی
+</option>
+
+<option value="myopia">
+نزدیک‌بینی
+</option>
+
+
+<option value="hyperopia">
+دوربینی
+</option>
+
+
+</select>
+
+
+
+<label>
+تمرکز عدسی:
+</label>
+
+
+<input id="focus"
+type="range"
+min="0"
+max="100"
+value="50">
+
+
+
+<div class="info">
+
+🔵 قرنیه:
+ورود نور
+
+<br><br>
+
+🟢 عنبیه:
+کنترل مقدار نور
+
+<br><br>
+
+🟣 عدسی:
+تمرکز تصویر
+
+<br><br>
+
+🔴 شبکیه:
+دریافت تصویر
+
+<br><br>
+
+🟡 عصب بینایی:
+ارسال پیام به مغز
+
+</div>
+
+
+</div>
+
+
+</div>
+
+<div style="text-align:center;margin-top:15px;">
+    <a href="../index.html" class="home-btn">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+<script>
+const light = document.getElementById("light");
+const lightValue = document.getElementById("lightValue");
+
+const pupil = document.querySelector(".pupil");
+const iris = document.querySelector(".iris");
+
+const lens = document.querySelector(".lens");
+
+const vision = document.getElementById("vision");
+
+const focus = document.getElementById("focus");
+
+const ray = document.querySelector(".ray");
+
+
+
+
+// =======================
+// کنترل نور و مردمک
+// =======================
+
+
+light.addEventListener("input",()=>{
+
+
+let value = light.value;
+
+
+lightValue.innerHTML=value+"%";
+
+
+// نور زیاد = مردمک کوچک
+// نور کم = مردمک بزرگ
+
+
+let size = 60 - (value * 0.4);
+
+
+if(size < 15)
+size=15;
+
+
+pupil.style.width=size+"px";
+pupil.style.height=size+"px";
+
+
+// تنظیم جای مردمک وسط عنبیه
+
+pupil.style.left=(55-size/2)+"px";
+pupil.style.top=(55-size/2)+"px";
+
+
+
+});
+
+
+
+
+
+
+// =======================
+// تغییر شکل عدسی
+// =======================
+
+
+focus.addEventListener("input",()=>{
+
+
+let value = focus.value;
+
+
+// نزدیک = عدسی گردتر
+// دور = عدسی صاف‌تر
+
+
+let height = 100 + value*0.7;
+
+let width = 55 + value*0.3;
+
+
+
+lens.style.height=height+"px";
+lens.style.width=width+"px";
+
+
+
+lens.style.top =
+170-height/2
++
+"px";
+
+
+
+});
+
+
+
+
+
+
+// =======================
+// نزدیک بینی و دوربینی
+// =======================
+
+
+vision.addEventListener("change",()=>{
+
+
+let type=vision.value;
+
+
+
+if(type==="normal"){
+
+
+    lens.style.transform="scaleX(1)";
+    ray.style.background="#fde047";
+
+
+}
+
+
+
+
+if(type==="myopia"){
+
+
+
+// در نزدیک بینی فوکوس جلوتر می افتد
+
+
+lens.style.transform=
+"scaleX(1.15)";
+
+
+ray.style.background="#ef4444";
+
+
+}
+
+
+
+if(type==="hyperopia"){
+
+
+
+// دوربینی = فوکوس پشت شبکیه
+
+
+lens.style.transform=
+"scaleX(.85)";
+
+
+ray.style.background="#22c55e";
+
+
+}
+
+
+
+
+});
+
+
+
+
+
+
+
+// =======================
+// تغییر خودکار عدسی هنگام فوکوس
+// =======================
+
+
+setInterval(()=>{
+
+
+let value=focus.value;
+
+
+
+if(value>70){
+
+// نگاه نزدیک
+
+lens.style.borderRadius="45%";
+
+
+}
+
+
+else{
+
+
+// نگاه دور
+
+lens.style.borderRadius="50%";
+
+
+}
+
+
+
+},200);
+// =======================
+// ساخت چند پرتو نور
+// =======================
+
+
+const eyeBox = document.querySelector(".eye-box");
+
+
+let rays=[];
+
+
+for(let i=0;i<5;i++){
+
+    let r=document.createElement("div");
+
+    r.className="light-ray";
+
+    r.style.top=(150+i*25)+"px";
+
+    eyeBox.appendChild(r);
+
+    rays.push(r);
+
+}
+
+
+
+
+// =======================
+// ظاهر پرتوها
+// =======================
+
+
+const style=document.createElement("style");
+
+
+style.innerHTML=`
+
+.light-ray{
+
+position:absolute;
+
+left:-450px;
+
+width:450px;
+
+height:3px;
+
+background:#facc15;
+
+box-shadow:
+0 0 12px yellow;
+
+animation:
+moveLight 2s linear infinite;
+
+}
+
+
+@keyframes moveLight{
+
+
+0%{
+
+transform:translateX(0);
+
+opacity:0;
+
+}
+
+
+20%{
+
+opacity:1;
+
+}
+
+
+100%{
+
+transform:translateX(1100px);
+
+opacity:0;
+
+}
+
+
+}
+
+
+`;
+
+document.head.appendChild(style);
+
+
+
+
+
+
+
+// =======================
+// تغییر مسیر نور با نوع چشم
+// =======================
+
+
+function updateFocus(){
+
+
+let type=vision.value;
+
+
+rays.forEach((r,index)=>{
+
+
+if(type==="normal"){
+
+
+r.style.transform=
+"rotate(0deg)";
+
+
+}
+
+
+else if(type==="myopia"){
+
+
+// تمرکز جلوتر از شبکیه
+
+r.style.transform=
+"rotate("+
+(-8+index*4)
++"deg)";
+
+
+}
+
+
+
+else if(type==="hyperopia"){
+
+
+// تمرکز عقب‌تر از شبکیه
+
+r.style.transform=
+"rotate("+
+(8-index*4)
++"deg)";
+
+
+}
+
+
+
+});
+
+
+
+}
+
+
+
+vision.addEventListener(
+"change",
+updateFocus
+);
+
+
+
+updateFocus();
+
+
+
+
+
+
+
+// =======================
+// نمایش وضعیت چشم
+// =======================
+
+
+let status=document.createElement("div");
+
+status.className="info";
+
+status.style.marginTop="10px";
+
+document.querySelector(".controls")
+.appendChild(status);
+
+
+
+function updateStatus(){
+
+
+let type=vision.value;
+
+
+let text="";
+
+
+
+if(type==="normal"){
+
+text=
+"✅ چشم سالم است. نور دقیقا روی شبکیه فوکوس می‌شود.";
+
+}
+
+
+if(type==="myopia"){
+
+text=
+"🔴 نزدیک‌بینی: تصویر قبل از شبکیه تشکیل می‌شود.";
+
+}
+
+
+if(type==="hyperopia"){
+
+text=
+"🟢 دوربینی: تصویر پشت شبکیه تشکیل می‌شود.";
+
+}
+
+
+
+status.innerHTML=text;
+
+
+}
+
+
+
+vision.addEventListener(
+"change",
+updateStatus
+);
+
+
+updateStatus();
+
+</script>
+
+
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

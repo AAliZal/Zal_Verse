@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3ecdf">
+<title>آیا یک نانوثانیه روی سطح خورشید دوام می‌آوریم؟</title>
+<style>
+  :root {
+    --paper: #f3ecdf; --ink: #241c16; --ink-soft: #5c4e43; --line: rgba(36,28,22,.14);
+    --accent: #9a3b24; --accent-2: #2f4f45; --gold: #b0893e; --card: #fffaf2; --paper-2: #efe6d4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: Tahoma, "Segoe UI", sans-serif;
+    background: radial-gradient(ellipse at 8% 0%, rgba(176,137,62,.11), transparent 40%), var(--paper);
+    color: var(--ink); line-height: 1.95; overflow-x: hidden;
+  }
+  .bar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(243,236,223,.94);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-in {
+    width: min(760px, calc(100% - 24px));
+    margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; font-size: 13px; gap: 10px;
+  }
+  .bar a { color: var(--accent-2); text-decoration: none; white-space: nowrap; }
+  .wrap { width: min(760px, calc(100% - 24px)); margin: 0 auto; padding: 18px 0 92px; }
+  .kicker { color: var(--accent); font-size: 12px; }
+  h1 { font-size: clamp(22px, 6.4vw, 40px); line-height: 1.4; margin: 8px 0 10px; }
+  .meta { color: var(--ink-soft); font-size: 13px; margin-bottom: 14px; }
+  .lead { font-size: clamp(15px, 3.6vw, 18px); color: var(--ink-soft); margin-bottom: 16px; }
+  h2 { font-size: clamp(18px, 4.5vw, 22px); margin: 26px 0 8px; }
+  p { margin-bottom: 12px; font-size: clamp(15px, 3.5vw, 16px); }
+  .frame {
+    width: 100%;
+    margin: 14px 0 20px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+  }
+  .frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .photo-slot {
+    width: 100%;
+    margin: 14px 0 20px;
+    border: 1px dashed rgba(154,59,36,.35);
+    background: repeating-linear-gradient(-45deg, rgba(176,137,62,.06), rgba(176,137,62,.06) 8px, transparent 8px, transparent 16px), #fffaf2;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 12px;
+    color: var(--ink-soft);
+  }
+  .photo-slot b { color: var(--accent); display: block; margin-bottom: 4px; font-size: 14px; }
+  .photo-slot span { font-size: 12px; line-height: 1.7; }
+  .photo-slot:has(img) {
+    aspect-ratio: auto;
+    height: auto;
+    padding: 0;
+    border-style: solid;
+    background: var(--paper-2);
+    display: block;
+  }
+  .photo-slot img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .note {
+    background: var(--card); border: 1px solid var(--line); border-right: 4px solid var(--gold);
+    padding: 12px 14px; margin: 8px 0 18px; font-size: 14px;
+  }
+  .home-btn {
+    position: fixed; z-index: 40; top: 52px; left: 10px;
+    padding: 8px 12px; background: var(--ink); color: #f3ecdf;
+    text-decoration: none; font-weight: 700; font-size: 12px; border-radius: 12px;
+  }
+  @media (min-width: 700px) {
+    .wrap { padding: 28px 0 90px; }
+    .home-btn { top: auto; bottom: 18px; left: 0; border-radius: 0 14px 14px 0; padding: 11px 18px; }
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-in">
+      <span>زمین‌شناسی</span>
+      <a href="../Maghalat.html">بازگشت به مقاله‌ها</a>
+    </div>
+  </div>
+  <article class="wrap">
+    <div class="kicker">فیزیک · خورشید</div>
+    <h1>آیا یک نانوثانیه روی سطح خورشید دوام می‌آوریم؟</h1>
+    <div class="meta">یک آزمایش فکری دربارهٔ گرما، تابش و زمان خیلی کوتاه</div>
+    <div class="frame">
+      <img src="images/TeleportKhorshid.png" alt="خورشید">
+    </div>
+    <p class="lead">سؤال این است: آیا می‌شود یک نانوثانیه روی سطح خورشید ماند؟ کرم ضدآفتاب به کار نمی‌آید و پیشرفته‌ترین ابزار زمین هم کافی نیست. موضوع اما یک نانوثانیه است؛ زمانی بسیار کوتاه.</p>
+
+    <h2>نانوثانیه چقدر کوتاه است؟</h2>
+    <p>یک نانوثانیه یعنی <b>یک میلیاردم ثانیه</b>. در همین مدت نور حدود <b>۳۰ سانتی‌متر</b> جلو می‌رود؛ تقریباً به اندازهٔ یک خط‌کش کوچک. پس زمان واقعاً ناچیز است. با این حال سطح خورشید یک آفتاب‌گرفتن معمولی نیست.</p>
+    <h2>فوتوسفر چقدر داغ است؟</h2>
+    <p>سطح مرئی خورشید را فوتوسفر می‌گویند. دمای میانگین آن حدود <b>۵۵۰۰ درجه سلسیوس</b> است؛ خیلی بیشتر از کوره، آتشفشان یا آذرخش روی زمین.</p>
+    <p>شاید بگویی فقط یک نانوثانیه است، مگر چقدر خطر دارد؟ برای جابه‌جایی گرما همین زمان هم کافی است که بخشی از انرژی برسد. گرما سه راه اصلی دارد: رسانایی، همرفت و تابش. روی خورشید کار اصلی با <b>تابش</b> است.</p>
+    <h2>هجوم فوتون‌ها</h2>
+    <p>تابش خورشید بمباران پیوسته‌ای از فوتون است؛ ذره‌های کوچک حامل انرژی نور. خورشید هر ثانیه حدود <b>۳٫۸ × ۱۰<sup>۲۶</sup> وات</b> انرژی می‌فرستد. این از همهٔ انرژی انفجارهایی که انسان ساخته خیلی بیشتر است.</p>
+    <p>نزدیک فوتوسفر، تابش آن‌قدر شدید است که مواد معمولی دوام نمی‌آورند. خورشید پر از پلاسماست؛ گاز بسیار داغ از ذره‌های باردار. پس راه ساده‌ای برای قایم شدن از گرما وجود ندارد.</p>
+    <p>یک تصویر کمکی: تکه یخ در آتش چند ثانیه طول می‌کشد تا آب شود. حالا آتش را ۵۵۰۰ درجه بگیر. شدت انرژی آن‌قدر بالاست که حتی مواد خیلی سخت هم تاب نمی‌آورند.</p>
+
+    <h2>اگر سپر داشتیم چه؟</h2>
+    <p>حتی فلزهایی مثل تنگستن یا سرامیک‌های پیشرفته فقط تا چند هزار درجه دوام می‌آورند؛ نه برای ماندن روی فوتوسفر. اگر کسی را در لایهٔ تنگستن بپیچی، گرما خیلی زود از سپر رد می‌شود.</p>
+    <p>نور خورشید فقط نور مرئی نیست. بخش فرابنفش و پرتو ایکس می‌تواند در ماده فرو برود. برای همین یک نانوثانیه روی خورشید مثل ایستادن جلوی شمار بسیار زیادی شعله نیست؛ مسئله انرژی و تابشی است که از سطح می‌آید.</p>
+    <p>نزدیک شدن عادی هم ممکن نیست. هر سفینه خیلی قبل از رسیدن به فوتوسفر آسیب می‌بیند. کاوشگر پارکر ناسا نزدیک‌ترین ساختهٔ بشر به خورشید است و باز هم میلیون‌ها کیلومتر با سطح فاصله دارد؛ در همان فاصله هم دما برای قطعه‌ها بسیار بالاست.</p>
+
+    <h2>پس چه چیزی دوام می‌آورد؟</h2>
+    <p>تقریباً هیچ چیز زنده‌ای آنجا دوام نمی‌آورد؛ مخصوصاً ما که گرمای تابستان ۳۰ یا ۴۰ درجه برایمان زیاد است. باید خوشحال باشیم که زمین در <b>منطقهٔ طلایی</b> است: نه آن‌قدر دور که یخ بزند و نه آن‌قدر نزدیک که بسوزد. کرم ضدآفتاب را همین‌جا می‌زنیم و خورشید را از همین فاصله تماشا می‌کنیم.</p>
+    <p>این آزمایش فکری کمک می‌کند بفهمیم نانوثانیه کوتاه است، اما شدت تابش خورشید کوتاه بودن زمان را جبران می‌کند. تا فکر بعدی، کنجکاو بمان.</p>
+  </article>
+  <a class="home-btn" href="../Maghalat.html">بازگشت به مقاله‌ها</a>
+<script src="../MusicPlayer.js"></script>
+</body>
+</html>
