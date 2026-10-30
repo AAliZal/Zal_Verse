@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>موشک جوشان — آزمایشگاه مجازی</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0} 
+  body{
+    font-family: "Vazirmatn","Segoe UI",Tahoma,sans-serif;
+    background: radial-gradient(circle at 50% -10%, #1b2b46, #070d18 70%);
+    color:#e6eefc; overflow:hidden; user-select:none;
+  }
+  .app{display:flex;gap:10px;padding:10px;height:100vh}
+  .panel{
+    flex:0 0 240px; overflow-y:auto; padding:12px;
+    background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+    border:1px solid rgba(255,255,255,.1); border-radius:18px;
+    backdrop-filter:blur(8px);
+  }
+  .panel.right{flex:0 0 250px}
+  .panel::-webkit-scrollbar{width:6px}
+  .panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:8px}
+  h1{font-size:15px;margin:0 0 4px;letter-spacing:.2px}
+  h2{font-size:13px;margin:14px 0 8px;opacity:.75;font-weight:700}
+  .sub{font-size:11px;opacity:.58;margin-bottom:12px;line-height:1.7}
+  .stage{
+    flex:1 1 auto; position:relative; border-radius:18px; overflow:hidden;
+    border:1px solid rgba(255,255,255,.1); background:#0b1424;
+    box-shadow:0 20px 60px rgba(0,0,0,.5) inset;
+  }
+  canvas{display:block;width:100%;height:100%;touch-action:none;cursor:default}
+  .home-btn{
+    position:fixed;z-index:20;top:14px;right:14px;display:inline-flex;align-items:center;gap:9px;
+    padding:10px 15px;border-radius:14px;text-decoration:none;color:#f5fbff;font-size:12px;font-weight:800;
+    background:linear-gradient(135deg,rgba(25,91,150,.96),rgba(16,39,75,.96));
+    border:1px solid rgba(160,220,255,.55);box-shadow:0 8px 24px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.2);
+    backdrop-filter:blur(10px);transition:transform .18s,box-shadow .18s,border-color .18s;
+  }
+  .home-btn::before{content:'⌂';font-size:18px;line-height:1;color:#9de4ff}
+  .home-btn:hover{transform:translateY(-2px);border-color:#a8e7ff;box-shadow:0 12px 28px rgba(0,0,0,.35),0 0 18px rgba(60,170,255,.18)}
+  .home-btn:active{transform:translateY(0) scale(.98)}
+  .action-tools{display:none;margin-top:10px;padding:10px;border-radius:13px;border:1px solid rgba(120,210,255,.3);background:rgba(25,105,155,.16);text-align:center}
+  .action-tools.active{display:block}
+  #actionTimer{font-size:22px;font-weight:900;color:#a9e8ff;text-shadow:0 0 16px rgba(70,190,255,.45)}
+  @media(max-width:900px){.home-btn{top:8px;right:8px;padding:8px 11px;font-size:11px}}
+
+  /* ---- کارت آیتم‌ها ---- */
+  .card{
+    display:flex;align-items:center;gap:9px;padding:8px;margin-bottom:8px;
+    border-radius:14px;background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    cursor:pointer;user-select:none;touch-action:none;
+    transition:transform .12s, background .15s, border-color .15s, box-shadow .15s;
+  }
+  .card:hover{background:rgba(255,255,255,.11);transform:translateY(-1px)}
+  .card.pouring{
+    background:rgba(90,200,255,.16);
+    border-color:rgba(120,220,255,.75);
+    box-shadow:0 0 0 1px rgba(120,220,255,.35), 0 0 22px rgba(90,200,255,.35);
+    transform:translateY(-1px) scale(1.015);
+  }
+  .card.pouring .thumb{box-shadow:0 0 18px rgba(120,220,255,.55)}
+
+  .card.selected{
+    background:rgba(90,200,255,.18);
+    border-color:rgba(120,220,255,.8);
+    box-shadow:0 0 0 1px rgba(120,220,255,.4), 0 0 16px rgba(90,200,255,.3);
+  }
+  .card.selected .thumb{box-shadow:0 0 12px rgba(120,220,255,.5)}
+
+  .thumb{
+    width:42px;height:42px;flex:0 0 auto;border-radius:11px;overflow:hidden;
+    display:grid;place-items:center;font-size:23px;background:rgba(0,0,0,.28);
+    transition:box-shadow .15s;
+  }
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .meta{min-width:0;flex:1}
+  .name{font-size:12.5px;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tag{font-size:10px;opacity:.55}
+  .up{position:relative;cursor:pointer;font-size:15px;opacity:.55;padding:5px;border-radius:8px}
+  .up:hover{opacity:1;background:rgba(255,255,255,.1)}
+  .up input{display:none}
+
+  /* ---- آمار ---- */
+  .stat{display:flex;justify-content:space-between;font-size:12px;margin:8px 0 4px;opacity:.9}
+  .stat b{font-weight:800;color:#8ad4ff}
+  .bar{height:8px;border-radius:8px;background:rgba(255,255,255,.09);overflow:hidden;margin-bottom:6px}
+  .bar i{display:block;height:100%;width:0%;border-radius:8px;transition:width .12s linear}
+  #barFill i{background:linear-gradient(90deg,#3aa0ff,#7de3ff)}
+  #barPress{background:rgba(255,255,255,.09)}
+  #barPress i{background:linear-gradient(90deg,#ffb03a,#ff4b3a)}
+
+  button{
+    width:100%;margin-top:8px;padding:10px 8px;border-radius:12px;cursor:pointer;
+    font-family:inherit;font-size:12.5px;font-weight:700;color:#eaf4ff;
+    background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.16);transition:.15s;
+  }
+  button:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}
+  button:active{transform:translateY(0)}
+  button.primary{background:linear-gradient(180deg,#ff8a4c,#e2542a);border-color:#ff9a63}
+
+  .help{font-size:11px;line-height:1.9;opacity:.62;margin-top:14px;border-top:1px dashed rgba(255,255,255,.14);padding-top:10px}
+  .help b{color:#8ad4ff}
+
+  #toast{
+    position:absolute;bottom:16px;left:50%;transform:translate(-50%,20px);
+    background:rgba(10,20,35,.9);border:1px solid rgba(140,200,255,.35);
+    color:#dff0ff;padding:9px 18px;border-radius:12px;font-size:13px;font-weight:600;
+    opacity:0;pointer-events:none;transition:.25s;white-space:nowrap;
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:900px){
+    .panel{flex:0 0 170px}
+    .panel.right{flex:0 0 180px}
+  }
+</style>
+</head>
+<body>
+<a class="home-btn" href="../index.html">↩ برگشت به صفحه اصلی</a>
+<div class="app">
+
+  <!-- پنل مواد -->
+  <aside class="panel left">
+    <h1>🧪 مواد آزمایش</h1>
+    <div class="sub">
+      روی ماده <b>کلیک کن</b> تا انتخاب شود.<br>
+      سپس روی صفحه <b>کلیک/نگه دار</b> تا همان‌جا به پایین ریخته شود.<br>
+      مایع‌ها → بطری &nbsp;|&nbsp; جامدها → استوانه
+    </div>
+    <div id="items"></div>
+  </aside>
+
+  <!-- صحنه -->
+  <main class="stage">
+    <canvas id="cv"></canvas>
+    <div id="toast"></div>
+  </main>
+
+  <!-- پنل کنترل -->
+  <aside class="panel right">
+    <h1>📊 وضعیت</h1>
+
+    <div class="stat"><span>مایع بطری</span><b id="stFill">۰٪</b></div>
+    <div class="bar" id="barFill"><i></i></div>
+
+    <div class="stat"><span>مواد استوانه</span><b id="stLoad">۰</b></div>
+    <div class="stat"><span>فشار گاز</span><b id="stPress">۰٪</b></div>
+    <div class="bar" id="barPress"><i></i></div>
+
+    <button id="btnAuto" class="primary">🔄 چرخاندن استوانه</button>
+    <button id="btnDetach">🔓 جدا کردن استوانه</button>
+    <button id="btnReset">♻️ ریست کامل</button>
+    <div id="actionTools" class="action-tools">
+      <div id="actionTimer"></div>
+    </div>
+    <div id="flightResult"></div>
+
+    <div class="help">
+      <b>راهنمای مرحله‌به‌مرحله</b><br>
+      <b>۱. ریختن مایع:</b> از پنل مواد، نوشابه یا سرکه را انتخاب کن؛ نشانگر را روی بطری ببر و کلیک را نگه دار تا مایع وارد آن شود. سپس رها کن.<br>
+      <b>۲. پرکردن موشک:</b> یک مادهٔ جامد مثل قرص جوشان، جوش‌شیرین یا منتوس را انتخاب کن؛ روی بدنهٔ موشک کلیک را نگه دار تا مواد داخلش قرار بگیرند. بعد از رهاکردن، انتخاب ماده پاک می‌شود تا بتوانی موشک را جابه‌جا کنی.<br>
+      <b>۳. جای‌گذاری:</b> موشک را با ماوس یا انگشت بگیر و روی دهانهٔ بطری بکش تا به آن متصل شود.<br>
+      <b>۴. برعکس و صاف‌کردن:</b> وقتی موشک به بطری چفت شد، آن را بگیر و افقی به چپ یا راست بکش تا بچرخد؛ با دکمهٔ «چرخاندن استوانه» هم می‌توانی چرخش خودکار را اجرا کنی.<br>
+      <b>۵. محکم‌کردن:</b> پس از صاف‌شدن، ۵ ثانیه فرصت داری روی خود موشک کلیک کنی. حلقهٔ سبز کنار دهانهٔ بطری نشان می‌دهد که چفت شده است.<br>
+      <b>۶. هم‌زدن:</b> در همان ۵ ثانیه روی بطری کلیک را نگه دار و چند بار چپ‌وراست بکش؛ در گوشی با انگشت همین حرکت را انجام بده.<br>
+      <b>۷. نتیجه:</b> واکنش به‌طور خودکار شروع می‌شود؛ ارتفاع پرواز حداکثر ۴۵۰ سانتی‌متر است. هر بار نتیجه می‌تواند کمی فرق کند. 🚀
+    </div>
+  </aside>
+</div>
+
+<script>
+/* =========================================================
+   تنظیمات پایه
+   ========================================================= */
+const cv  = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+
+const W = 1000, H = 700, GROUND = 620;
+const GRAV = 1100;
+const POUR_NEED   = Math.PI;    // رادیان چرخش لازم برای ریختن مواد
+const SOLID_STEP  = 0.32;   // ثانیه بین هر جامد
+
+let scale = 1, offx = 0, offy = 0;
+const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+function resize(){
+  const r = cv.getBoundingClientRect();
+  cv.width  = Math.max(1, Math.round(r.width  * dpr));
+  cv.height = Math.max(1, Math.round(r.height * dpr));
+  scale = Math.min(cv.width / W, cv.height / H);
+  offx  = (cv.width  - W * scale) / 2;
+  offy  = (cv.height - H * scale) / 2;
+}
+window.addEventListener('resize', resize);
+
+function toWorld(clientX, clientY){
+  const r = cv.getBoundingClientRect();
+  const px = (clientX - r.left) * (cv.width  / r.width);
+  const py = (clientY - r.top ) * (cv.height / r.height);
+  const rs = scale * cameraZoom;
+  const tx = (cv.width - W * rs) / 2;
+  const ty = (cv.height - H * rs) / 2;
+  return { x:(px - tx)/rs, y:(py - ty)/rs };
+}
+
+/* =========================================================
+   تعریف مواد
+   ========================================================= */
+const ITEMS = {
+  soda:    { label:'نوشابه',              icon:'🥤', kind:'liquid', color:'#5b3418', gas:1.0, pourRate:0.55 },
+  vinegar: { label:'سرکه',                icon:'🍶', kind:'liquid', color:'#e3dfae', gas:0.9, pourRate:0.45 },
+  mintA:   { label:'قرص نعنا Compass',    icon:'🟢', kind:'solid',  color:'#31a24c', gas:0.9 },
+  mintB:   { label:'قرص نعنا Me.nami',    icon:'🔵', kind:'solid',  color:'#2f7fd6', gas:0.9 },
+  fizz:    { label:'قرص جوشان',           icon:'🟠', kind:'solid',  color:'#f0902a', gas:2.8 },
+  mentos:  { label:'منتوس',               icon:'⚪', kind:'solid',  color:'#ededed', gas:1.5 },
+  baking:  { label:'جوش شیرین (پودر)',    icon:'🧂', kind:'solid',  color:'#f5f5f5', gas:2.2 },
+};
+for (const k in ITEMS) ITEMS[k].img = null;
+
+/* =========================================================
+   وضعیت بازی
+   ========================================================= */
+const bottle = {
+  cx: 470, bottom: GROUND,
+  bodyW: 132, bodyH: 250, neckW: 52, neckH: 46,
+  fill: 0, liquids: [], color: '#8a5a2b', shake: 0
+};
+
+const rocket = {
+  x: 830, y: GROUND - 65,
+  vx: 0, vy: 0,
+  angle: Math.PI, av: 0,
+  w: 58, h: 130,
+  load: [],
+  state: 'idle',      // idle | held | attached | flying | landed
+  pour: 0,
+  thrust: 0
+};
+
+let particles = [];
+let reaction  = null;
+let time      = 0;
+let autoRotate = false;
+let selectedItem = null;   // آیتم انتخاب‌شده از منو
+let actionWindow = 0, sealed = false, shaken = false;
+let flightStartY = 0, maxFlightY = 0, flightResultShown = false;
+let cameraZoom = 1;
+let cameraZoomTarget = 1;
+
+/* جریان ریختن (نگه داشتن ماوس روی کارت) */
+let feed = null;   // { id, kind, color, entry?, timer, dripTimer, card }
+
+function bottleGeom(){
+  const b = bottle.bottom;
+  return {
+    cx: bottle.cx, b,
+    bw: bottle.bodyW, bh: bottle.bodyH,
+    nw: bottle.neckW, nh: bottle.neckH,
+    bodyTop: b - bottle.bodyH,
+    neckTop: b - bottle.bodyH - bottle.neckH
+  };
+}
+
+/* =========================================================
+   ساخت کارت‌ها
+   ========================================================= */
+const itemsEl = document.getElementById('items');
+
+for (const [id, it] of Object.entries(ITEMS)){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = id;
+  card.innerHTML = `
+    <div class="thumb">${it.icon}</div>
+    <div class="meta">
+      <div class="name">${it.label}</div>
+      <div class="tag">${it.kind === 'liquid' ? 'مایع' : 'جامد'} · انتخاب کن</div>
+    </div>
+    <label class="up" title="گذاشتن عکس">🖼<input type="file" accept="image/*"></label>
+  `;
+
+  const upLabel = card.querySelector('.up');
+  const inp = card.querySelector('input');
+
+  upLabel.addEventListener('pointerdown', e => e.stopPropagation());
+  upLabel.addEventListener('click', e => e.stopPropagation());
+  inp.addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      it.img = rd.result;
+      card.querySelector('.thumb').innerHTML = `<img src="${it.img}" alt="">`;
+      toast('عکس «' + it.label + '» ثبت شد ✔');
+    };
+    rd.readAsDataURL(f);
+  });
+
+  /* انتخاب آیتم با کلیک */
+  card.addEventListener('click', e => {
+    if (e.target.closest('.up')) return;
+    // deselect others
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    if (selectedItem === id){
+      selectedItem = null;
+    } else {
+      selectedItem = id;
+      card.classList.add('selected');
+      toast('«' + it.label + '» انتخاب شد — روی صفحه کلیک کن تا بریزی');
+    }
+  });
+
+  itemsEl.appendChild(card);
+}
+
+/* =========================================================
+   جریان ریختن (Feed) — کم‌کم و پیوسته
+   ========================================================= */
+function startFeed(id, pos){
+  if (feed) return;
+  const it = ITEMS[id];
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+
+  if (it.kind === 'liquid'){
+    if (bottle.fill >= 0.985){ toast('بطری پُر است!'); return; }
+    const entry = { color: it.color, amount: 0 };
+    bottle.liquids.push(entry);
+    bottle.color = mixColors(bottle.liquids);
+    feed = { id, kind:'liquid', color: it.color, entry, dripTimer: 0, card, pos };
+  } else {
+    if (rocket.state === 'flying'){ toast('موشک در حال پرواز است! 🚀'); return; }
+    if (rocket.load.length >= 8){ toast('استوانه پُر است!'); return; }
+    const overRocket = Math.hypot(pos.x - rocket.x, pos.y - rocket.y) < 90;
+    if (overRocket) {
+      rocket.load.push(it);
+      if (rocket.load.length >= 8) {
+        selectedItem = null;
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+      }
+    }
+    spawnSolidSplashAt(it.color, pos.x, pos.y);
+    if (rocket.load.length >= 8){ toast('استوانه پُر شد'); return; }
+    feed = { id, kind:'solid', color: it.color, timer: 0, card, pos };
+  }
+  if (card) card.classList.add('pouring');
+}
+
+function endFeed(){
+  if (!feed) return;
+  if (feed.card) feed.card.classList.remove('pouring');
+  if (feed.kind === 'liquid' && feed.entry){
+    if (feed.entry.amount < 0.004){
+      const i = bottle.liquids.indexOf(feed.entry);
+      if (i >= 0) bottle.liquids.splice(i, 1);
+      bottle.color = mixColors(bottle.liquids);
+    }
+  }
+  feed = null;
+}
+
+function updateFeed(dt){
+  if (!feed) return;
+  const it = ITEMS[feed.id];
+
+  if (feed.kind === 'liquid'){
+    const g = bottleGeom();
+    const overBottle = Math.abs(feed.pos.x - g.cx) < g.bw * 0.7 && feed.pos.y > g.neckTop - 40 && feed.pos.y < g.b + 20;
+    const room = 1 - bottle.fill;
+    if (room <= 0.001){ selectedItem = null; document.querySelectorAll('.card').forEach(c => c.classList.remove('selected')); toast('بطری پُر شد'); endFeed(); return; }
+
+    if (overBottle){
+      const add = Math.min(room, it.pourRate * dt);
+      bottle.fill += add;
+      feed.entry.amount += add;
+      bottle.color = mixColors(bottle.liquids);
+    }
+
+    feed.dripTimer += dt;
+    while (feed.dripTimer > 0.045){
+      feed.dripTimer -= 0.045;
+      spawnDripAt(feed.color, feed.pos.x, feed.pos.y);
+    }
+
+    if (bottle.fill >= 0.985){ selectedItem = null; document.querySelectorAll('.card').forEach(c => c.classList.remove('selected')); toast('بطری پُر شد'); endFeed(); }
+
+  } else {
+    if (rocket.state === 'flying'){ endFeed(); return; }
+
+    const overRocket = Math.hypot(feed.pos.x - rocket.x, feed.pos.y - rocket.y) < 90;
+    feed.timer += dt;
+    while (feed.timer >= SOLID_STEP){
+      feed.timer -= SOLID_STEP;
+
+      if (rocket.load.length >= 8){ toast('استوانه پُر شد'); endFeed(); return; }
+      if (overRocket){
+        rocket.load.push(it);
+        spawnSolidSplashAt(it.color, feed.pos.x, feed.pos.y);
+        if (rocket.load.length >= 8) {
+          selectedItem = null;
+          document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+        }
+      } else {
+        // فقط پاشیدن بصری اگر روی استوانه نباشد
+        spawnSolidSplashAt(it.color, feed.pos.x, feed.pos.y);
+      }
+
+      if (rocket.load.length >= 8){ toast('استوانه پُر شد'); endFeed(); return; }
+    }
+  }
+}
+
+/* آزاد کردن در هر جای صفحه */
+window.addEventListener('pointerup',    endFeed);
+window.addEventListener('pointercancel', endFeed);
+window.addEventListener('blur',          endFeed);
+document.addEventListener('visibilitychange', () => { if (document.hidden) endFeed(); });
+
+/* =========================================================
+   ذرات
+   ========================================================= */
+function spawnDrip(color){
+  const g = bottleGeom();
+  const x = g.cx + (Math.random() - 0.5) * 22;
+  particles.push({
+    type:'drip',
+    x, y: g.neckTop - 8,
+    vx:(Math.random() - 0.5) * 12,
+    vy: 60 + Math.random() * 70,
+    r: 2 + Math.random() * 2.6,
+    life: 1.2, t: 0,
+    color
+  });
+}
+
+function spawnSolidSplash(color){
+  spawnSolidSplashAt(color, rocket.x, rocket.y - rocket.h/2 - 10);
+}
+
+function spawnDripAt(color, x, y){
+  particles.push({
+    type:'drip',
+    x: x + (Math.random() - 0.5) * 18,
+    y: y,
+    vx:(Math.random() - 0.5) * 20,
+    vy: 80 + Math.random() * 60,
+    r: 2 + Math.random() * 2.6,
+    life: 1.4, t: 0,
+    color
+  });
+}
+
+function spawnSolidSplashAt(color, x, y){
+  for (let i = 0; i < 7; i++){
+    particles.push({
+      type:'splash',
+      x: x + (Math.random() - 0.5) * 30,
+      y: y,
+      vx:(Math.random() - 0.5) * 90,
+      vy: 50 + Math.random() * 110,
+      r: 2 + Math.random() * 2.4,
+      life: 0.7, t: 0,
+      color
+    });
+  }
+}
+
+/* =========================================================
+   رنگ مخلوط
+   ========================================================= */
+function mixColors(list){
+  let r = 0, g = 0, b = 0, n = 0;
+  for (const l of list){
+    const c = l.color;
+    r += parseInt(c.slice(1,3),16) * l.amount;
+    g += parseInt(c.slice(3,5),16) * l.amount;
+    b += parseInt(c.slice(5,7),16) * l.amount;
+    n += l.amount;
+  }
+  if (n <= 0.0001) return '#8a5a2b';
+  return `rgb(${Math.round(r/n)},${Math.round(g/n)},${Math.round(b/n)})`;
+}
+
+/* بازهٔ کوتاه تعامل پس از صاف شدن موشک */
+function beginActionWindow(){
+  actionWindow = 5;
+  sealed = false;
+  shaken = false;
+  bottle.shake = 0;
+  document.getElementById('actionTools').classList.add('active');
+  document.getElementById('actionTimer').textContent = '۵';
+}
+
+/* =========================================================
+   فیزیک راکت
+   ========================================================= */
+function updateRocket(dt){
+  if (rocket.state === 'attached'){
+    const g = bottleGeom();
+    const pivot = { x: g.cx, y: g.neckTop + 10 };
+    const d = rocket.h/2 - 10;
+    rocket.x = pivot.x + Math.sin(rocket.angle) * d;
+    rocket.y = pivot.y - Math.cos(rocket.angle) * d;
+
+    if (autoRotate){
+      const da = 6.5 * dt;
+      rocket.angle = Math.max(0, rocket.angle - da);
+      rocket.pour = Math.PI - rocket.angle;
+    }
+    if (rocket.angle <= 0.002 && rocket.pour >= POUR_NEED - 0.002){
+      rocket.angle = 0;
+      rocket.pour = Math.PI;
+      autoRotate = false;
+      if (!actionWindow && !reaction) beginActionWindow();
+    }
+    if (actionWindow > 0){
+      // در مهلت پنج‌ثانیه‌ای، محلول به‌آرامی شروع به کف‌کردن می‌کند.
+      if (bottle.fill > 0.01 && Math.random() < (0.12 + (rocket.load.length / 8) * 0.22)) spawnBubble();
+      actionWindow = Math.max(0, actionWindow - dt);
+      document.getElementById('actionTimer').textContent = faDigits(Math.ceil(actionWindow));
+      if (actionWindow <= 0) {
+        actionWindow = 0;
+        document.getElementById('actionTools').classList.remove('active');
+        document.getElementById('actionTimer').textContent = '';
+        // پایان مهلت همیشه یک بار مواد را وارد مرحله واکنش می‌کند.
+        if (!reaction && rocket.state === 'attached') pourContents();
+      }
+    }
+    return;
+  }
+
+  if (rocket.state === 'held') return;
+
+  rocket.vy += GRAV * dt;
+
+  if (rocket.thrust > 0){
+    rocket.thrust -= dt;
+    rocket.vy -= 3200 * dt;
+    if (Math.random() < 0.7){
+      particles.push({
+        type:'smoke',
+        x: rocket.x + (Math.random() - 0.5) * 20,
+        y: rocket.y + rocket.h/2 + 8,
+        vx:(Math.random() - 0.5) * 60,
+        vy: 120 + Math.random() * 140,
+        r: 6 + Math.random() * 8,
+        life: 0.8, t: 0,
+        color:'rgba(230,240,255,0.75)'
+      });
+    }
+  }
+
+  rocket.x += rocket.vx * dt;
+  rocket.y += rocket.vy * dt;
+  const halfH = rocket.h / 2;
+  if (rocket.state === 'flying') {
+    const maxHeightWorld = 450 / 0.25;
+    const ceilingY = GROUND - halfH - maxHeightWorld;
+    if (rocket.y < ceilingY) {
+      rocket.y = ceilingY;
+      if (rocket.vy < 0) rocket.vy = 0;
+    }
+    maxFlightY = Math.min(maxFlightY, rocket.y);
+  }
+  rocket.angle += rocket.av * dt;
+
+  rocket.vx *= (1 - 0.55 * dt);
+  rocket.av *= (1 - 0.35 * dt);
+
+  if (rocket.y + halfH >= GROUND){
+    rocket.y = GROUND - halfH;
+    if (Math.abs(rocket.vy) > 130) rocket.vy = -rocket.vy * 0.42;
+    else rocket.vy = 0;
+    rocket.vx *= 0.82;
+    rocket.av *= 0.8;
+
+    if (rocket.state === 'flying' &&
+        Math.abs(rocket.vy) < 45 && Math.abs(rocket.vx) < 40){
+      rocket.state = 'landed';
+      cameraZoomTarget = 1;
+      if (!flightResultShown){
+        flightResultShown = true;
+        const cm = Math.min(450, Math.max(0, Math.round((GROUND - rocket.h/2 - maxFlightY) * 0.25)));
+        document.getElementById('flightResult').textContent = 'ارتفاع پرواز این آزمایش: ' + faDigits(cm) + ' سانتی‌متر';
+        toast('آزمایش تمام شد؛ ارتفاع ثبت شد.');
+      }
+    }
+    if (rocket.state === 'idle' || rocket.state === 'landed'){
+      rocket.angle += (Math.PI - rocket.angle) * Math.min(1, 7 * dt);
+      rocket.av = 0;
+    }
+  }
+
+  if (rocket.x < 65){ rocket.x = 65; rocket.vx = Math.abs(rocket.vx) * 0.5; }
+  if (rocket.x > W - 65){ rocket.x = W - 65; rocket.vx = -Math.abs(rocket.vx) * 0.5; }
+}
+
+function updateParticles(dt){
+  for (let i = particles.length - 1; i >= 0; i--){
+    const p = particles[i];
+    p.t += dt;
+    if (p.t > p.life){ particles.splice(i,1); continue; }
+
+    if (p.type === 'bubble')      p.vy -= 130 * dt;
+    else if (p.type === 'smoke')  p.vy -= 20 * dt;
+    else                          p.vy += 900 * dt;
+
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+
+    if (p.type === 'bubble' || p.type === 'drip'){
+      const g = bottleGeom();
+      const surf = g.b - bottle.fill * (g.bh + g.nh);
+      if (p.y < surf + 4 && p.type === 'bubble'){ particles.splice(i,1); continue; }
+      if (p.y >= surf && p.type === 'drip'){ particles.splice(i,1); continue; }
+    }
+
+    if (p.y > GROUND + 30){ particles.splice(i,1); continue; }
+  }
+}
+
+function updateReaction(dt){
+  if (!reaction) return;
+  reaction.t += dt;
+
+  bottle.shake = Math.sin(reaction.t * 45) * 3.2 * Math.max(0, 1 - reaction.t * 0.6);
+
+  if (Math.random() < 0.95) spawnBubble();
+  if (Math.random() < 0.45) spawnSpark();
+
+  // پرتاب خودکار فقط وقتی فشار به اندازه کافی رسید و موشک چفت است
+  // اگر فشار خیلی زیاد شد ولی موشک محکم چفت نشده باشد پرتاب نمی‌شود
+  const pressureReady = reaction.t > 1.8;
+  if (!reaction.launched && reaction.launchAllowed && pressureReady && rocket.state === 'attached' && reaction.gas > 0){
+    reaction.launched = true;
+    launchRocket();
+  }
+  if (reaction.t > 5){
+    reaction = null;
+    bottle.shake = 0;
+  }
+}
+
+function spawnBubble(){
+  const g = bottleGeom();
+  particles.push({
+    type:'bubble',
+    x: g.cx + (Math.random() - 0.5) * (bottle.bodyW - 34),
+    y: bottle.bottom - 12 - Math.random() * 30,
+    vx:(Math.random() - 0.5) * 25,
+    vy:-70 - Math.random() * 130,
+    r: 2 + Math.random() * 4.5,
+    life: 1.6, t: 0,
+    color:'rgba(255,255,255,.85)'
+  });
+}
+
+function spawnSpark(){
+  const g = bottleGeom();
+  particles.push({
+    type:'spark',
+    x: g.cx + (Math.random() - 0.5) * 44,
+    y: g.neckTop - 8,
+    vx:(Math.random() - 0.5) * 190,
+    vy:-230 - Math.random() * 300,
+    r: 2 + Math.random() * 3,
+    life: 1.2, t: 0,
+    color:'rgba(255,255,255,.92)'
+  });
+}
+
+/* =========================================================
+   ریختن و پرتاب
+   ========================================================= */
+function pourContents(){
+  const fizzCount = rocket.load.filter(it => it === ITEMS.fizz).length;
+  const bakingCount = rocket.load.filter(it => it === ITEMS.baking).length;
+  const mentosCount = rocket.load.filter(it => it === ITEMS.mentos).length;
+  const enoughActive = fizzCount >= 1 || bakingCount >= 1 || mentosCount >= 2;
+  const enoughLiquid = bottle.fill >= 0.05;
+  const hasSoda = bottle.liquids.some(l => l.color === '#5b3418');
+  const hasVinegar = bottle.liquids.some(l => l.color === '#e3dfae');
+
+  // حتی ترکیب ضعیف هم واکنش و کف متناسب با مقدار مواد دارد، اما الزاماً پرتاب ایجاد نمی‌کند.
+  let gas = rocket.load.reduce((sum, it) => sum + it.gas, 0);
+  const materialFactor = Math.min(1, rocket.load.length / 8);
+  const liquidFactor = Math.min(1, bottle.fill / 0.45);
+  gas *= materialFactor * liquidFactor;
+  if (hasSoda && hasVinegar) gas *= 1.65;
+  if (shaken) gas *= 1.2;
+  gas *= 0.85 + Math.random() * 0.3;
+
+  const launchAllowed = enoughActive && enoughLiquid && sealed;
+  reaction = { t: 0, gas: Math.max(0.08, gas), launched: false, launchAllowed };
+  actionWindow = 0;
+  document.getElementById('actionTools').classList.remove('active');
+  document.getElementById('actionTimer').textContent = '';
+
+  if (launchAllowed){
+    toast('واکنش شیمیایی شروع شد! 🧪💨');
+  }
+  // مواد پس از ورود به واکنش مصرف می‌شوند؛ کف حاصل از مقدار واقعی آن‌هاست.
+  rocket.load = [];
+  rocket.pour = 0;
+}
+
+function launchRocket(){
+  const g = bottleGeom();
+  rocket.state  = 'flying';
+  cameraZoomTarget = 0.18;
+  flightStartY = rocket.y; maxFlightY = rocket.y; flightResultShown = false;
+  actionWindow = 0;
+  document.getElementById('actionTools').classList.remove('active');
+  rocket.x      = g.cx;
+  rocket.y      = g.neckTop - rocket.h/2 + 10;
+  rocket.angle  = 0;
+  rocket.vy     = -(350 + 170 * Math.min(reaction.gas, 6)) * (0.88 + Math.random() * 0.24);
+  rocket.vx     = (Math.random() - 0.5) * 170;
+  rocket.av     = (Math.random() < 0.5 ? -1 : 1) * (4 + Math.random() * 5);
+  rocket.thrust = 0.25 + Math.random() * 0.3;
+
+  bottle.fill *= 0.55;
+  bottle.liquids = bottle.liquids.map(l => ({ ...l, amount: l.amount * 0.55 }));
+  bottle.color = mixColors(bottle.liquids);
+
+  toast('🚀 پرتاب شد!!');
+}
+
+/* =========================================================
+   تعامل با ماوس روی استوانه (جابه‌جایی و چرخش)
+   ========================================================= */
+let grab = null;
+let rot  = null;
+let actionGesture = null;
+let pressFlash = 0;
+
+cv.addEventListener('pointerdown', e => {
+  const p = toWorld(e.clientX, e.clientY);
+  if (rocket.state === 'flying') return;
+
+  if (actionWindow > 0 && rocket.state === 'attached'){
+    const dRocket = Math.hypot(p.x - rocket.x, p.y - rocket.y);
+    const g = bottleGeom();
+    const onBottle = p.x >= g.cx - 100 && p.x <= g.cx + 100 && p.y >= g.bodyTop - 15 && p.y <= g.b + 12;
+    if (dRocket <= 90){
+      sealed = true;
+      pressFlash = 0.22;
+      cv.setPointerCapture(e.pointerId);
+      return;
+    }
+    if (onBottle){
+      actionGesture = { x:p.x, lastX:p.x, moved:0 };
+      cv.setPointerCapture(e.pointerId);
+      return;
+    }
+  }
+
+  // اگر آیتمی انتخاب شده، ریختن در محل موس شروع شود
+  if (selectedItem && !feed){
+    startFeed(selectedItem, p);
+    cv.setPointerCapture(e.pointerId);
+    return;
+  }
+
+  const d = Math.hypot(p.x - rocket.x, p.y - rocket.y);
+  if (d > 115) return;
+
+  if (rocket.state === 'attached'){
+    const g = bottleGeom();
+    const pivot = { x: g.cx, y: g.neckTop + 10 };
+    rot = {
+      pivot,
+      startX: p.x,
+      base: rocket.angle,
+      prev: rocket.angle
+    };
+  } else {
+    grab = { dx: p.x - rocket.x, dy: p.y - rocket.y,
+             px: p.x, py: p.y, vx: 0, vy: 0, t: performance.now() };
+    rocket.state = 'held';
+    rocket.vx = 0; rocket.vy = 0; rocket.av = 0;
+  }
+  cv.setPointerCapture(e.pointerId);
+});
+
+cv.addEventListener('pointermove', e => {
+  const p = toWorld(e.clientX, e.clientY);
+
+  if (feed){
+    feed.pos = p;
+    return;
+  }
+
+  if (actionGesture){
+    const dx = p.x - actionGesture.lastX;
+    actionGesture.moved += Math.abs(p.x - actionGesture.lastX);
+    actionGesture.lastX = p.x;
+    bottle.shake = Math.max(-18, Math.min(18, dx * 1.5));
+    if (actionGesture.moved >= 18) shaken = true;
+    return;
+  }
+
+  if (rot){
+    // چرخش ساده‌تر: کشیدن افقی موشک حدود ۱۵۰ واحد، نیم‌دور کامل می‌سازد.
+    const dx = p.x - rot.startX;
+    const na = Math.max(0, Math.min(Math.PI, rot.base - dx * Math.PI / 190));
+    rocket.angle = na;
+    rocket.pour = Math.PI - na;
+    rot.prev = na;
+    if (na <= 0.002){
+      rocket.angle = 0;
+      rocket.pour = Math.PI;
+      autoRotate = false;
+      rot = null;
+      if (!actionWindow && !reaction) beginActionWindow();
+    }
+    return;
+  }
+
+  if (grab){
+    rocket.x = Math.max(65, Math.min(W - 65, p.x - grab.dx));
+    rocket.y = Math.max(70, Math.min(GROUND - rocket.h/2, p.y - grab.dy));
+
+    const now = performance.now();
+    const dt  = Math.max(1, now - grab.t) / 1000;
+    grab.vx = (p.x - grab.px) / dt;
+    grab.vy = (p.y - grab.py) / dt;
+    grab.px = p.x; grab.py = p.y; grab.t = now;
+  }
+});
+
+function endPointer(){
+  if (feed){ endFeed(); return; }
+  if (actionGesture){
+    actionGesture = null;
+    bottle.shake = 0;
+    return;
+  }
+  if (rot){ rot = null; return; }
+  if (!grab) return;
+
+  const gv = { vx: grab.vx, vy: grab.vy };
+  grab = null; actionGesture = null;
+
+  const g = bottleGeom();
+  const bottom = rocket.y + rocket.h / 2;
+  const top = rocket.y - rocket.h / 2;
+  const nearX = Math.abs(rocket.x - g.cx) < 110;
+  const nearMouth = Math.abs(bottom - g.neckTop) < 100 || Math.abs(top - g.neckTop) < 90;
+
+  // اگر نزدیک دهانه باشد و تقریباً عمود یا برعکس باشد، بچسبد
+
+  if (nearX && nearMouth){
+    rocket.state = 'attached';
+    rocket.angle = Math.PI;
+    rocket.av    = 0;
+    rocket.vx    = 0;
+    rocket.vy    = 0;
+    rocket.pour  = 0;
+    autoRotate = false;
+  } else {
+    rocket.state = 'idle';
+    rocket.vx = Math.max(-800, Math.min(800, gv.vx || 0));
+    rocket.vy = Math.max(-800, Math.min(800, gv.vy || 0));
+  }
+}
+cv.addEventListener('pointerup', endPointer);
+cv.addEventListener('pointercancel', endPointer);
+
+/* =========================================================
+   دکمه‌ها
+   ========================================================= */
+document.getElementById('btnAuto').addEventListener('click', () => {
+  if (rocket.state !== 'attached'){
+    return;
+  }
+  autoRotate = true;
+
+});
+
+document.getElementById('btnDetach').addEventListener('click', () => {
+  if (rocket.state === 'attached'){
+    rocket.state = 'idle';
+    rocket.angle = 0;
+    rocket.pour  = 0;
+    toast('استوانه جدا شد.');
+  }
+});
+
+document.getElementById('btnReset').addEventListener('click', resetAll);
+
+function resetAll(){
+  if (feed){ feed.card.classList.remove('pouring'); feed = null; }
+
+  bottle.fill = 0;
+  bottle.liquids = [];
+  bottle.color = '#8a5a2b';
+  bottle.shake = 0;
+
+  rocket.x = 830;
+  rocket.y = GROUND - rocket.h / 2;
+  rocket.vx = 0; rocket.vy = 0;
+  rocket.angle = Math.PI; rocket.av = 0;
+  rocket.load = [];
+  rocket.state = 'idle';
+  rocket.pour = 0;
+  rocket.thrust = 0;
+
+  particles = [];
+  reaction = null;
+  autoRotate = false;
+  actionWindow = 0; sealed = false; shaken = false; pressFlash = 0;
+  cameraZoom = 1; cameraZoomTarget = 1; flightResultShown = false;
+  document.getElementById('actionTools').classList.remove('active');
+  document.getElementById('actionTimer').textContent = '';
+  document.getElementById('flightResult').textContent = '';
+  grab = null; actionGesture = null;
+  rot = null;
+
+  toast('همه چیز ریست شد ♻️');
+}
+
+/* =========================================================
+   رسم
+   ========================================================= */
+function roundRect(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y,     x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x,     y + h, r);
+  ctx.arcTo(x,     y + h, x,     y,     r);
+  ctx.arcTo(x,     y,     x + w, y,     r);
+  ctx.closePath();
+}
+
+function drawSky(){
+  // آسمان با آبیِ واضح؛ گرادیان در نمای خیلی دور هم به رنگ آبی باقی می‌ماند.
+  const g = ctx.createLinearGradient(0, -2600, 0, GROUND + 80);
+  g.addColorStop(0, '#2388df');
+  g.addColorStop(0.38, '#55acef');
+  g.addColorStop(0.78, '#9bd8ff');
+  g.addColorStop(1, '#e2f5ff');
+  ctx.fillStyle = g;
+  ctx.fillRect(-100000, -100000, 200000, 100000 + GROUND + 100000);
+
+  // خورشید و هاله
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+  const sg = ctx.createRadialGradient(140, 110, 8, 140, 110, 110);
+  sg.addColorStop(0, 'rgba(255,248,205,1)');
+  sg.addColorStop(1, 'rgba(255,248,205,0)');
+  ctx.fillStyle = sg;
+  ctx.beginPath(); ctx.arc(140, 110, 110, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff4bd';
+  ctx.beginPath(); ctx.arc(140, 110, 35, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // ابرهای تکرارشونده در پهنای زیاد تا هنگام عقب رفتن دوربین هم دیده شوند.
+  ctx.fillStyle = 'rgba(255,255,255,.78)';
+  const baseClouds = [
+    {x:70,y:90,s:.85},{x:310,y:190,s:1.05},{x:610,y:80,s:1.2},
+    {x:850,y:245,s:.78},{x:440,y:360,s:.65},{x:140,y:430,s:.72}
+  ];
+  for (let band = -12; band <= 12; band++){
+    for (const c of baseClouds){
+      const x = c.x + band * 1000 + Math.sin(time * .12 + band) * 18;
+      const y = c.y + Math.sin(time * .18 + c.x) * 5;
+      const r = c.s;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 52*r, 23*r, 0, 0, Math.PI*2);
+      ctx.ellipse(x + 39*r, y - 13*r, 39*r, 20*r, 0, 0, Math.PI*2);
+      ctx.ellipse(x - 43*r, y + 4*r, 35*r, 17*r, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawGround(){
+  const g = ctx.createLinearGradient(0, GROUND, 0, GROUND + 100000);
+  g.addColorStop(0, '#7dc46a');
+  g.addColorStop(1, '#3f8a44');
+  ctx.fillStyle = g;
+  ctx.fillRect(-100000, GROUND, 200000, 100000);
+
+  ctx.strokeStyle = 'rgba(255,255,255,.35)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-100000, GROUND + 0.5);
+  ctx.lineTo(100000, GROUND + 0.5);
+  ctx.stroke();
+}
+
+function bottlePath(g){
+  const { cx, b, bw, bh, nw, neckTop, bodyTop } = g;
+  const w2 = bw/2, n2 = nw/2, r = 24;
+  ctx.beginPath();
+  ctx.moveTo(cx - w2, b - r);
+  ctx.quadraticCurveTo(cx - w2, b, cx - w2 + r, b);
+  ctx.lineTo(cx + w2 - r, b);
+  ctx.quadraticCurveTo(cx + w2, b, cx + w2, b - r);
+  ctx.lineTo(cx + w2, bodyTop + 48);
+  ctx.quadraticCurveTo(cx + w2, bodyTop, cx + n2, bodyTop - 10);
+  ctx.lineTo(cx + n2, neckTop);
+  ctx.lineTo(cx - n2, neckTop);
+  ctx.lineTo(cx - n2, bodyTop - 10);
+  ctx.quadraticCurveTo(cx - w2, bodyTop, cx - w2, bodyTop + 48);
+  ctx.closePath();
+}
+
+function drawLiquid(g){
+  if (bottle.fill <= 0.002) return;
+  const top = g.b - bottle.fill * (g.bh + g.nh);
+  const yTop = Math.max(g.neckTop + 2, top);
+
+  ctx.beginPath();
+  ctx.moveTo(g.cx - g.bw, yTop);
+  for (let x = -g.bw; x <= g.bw; x += 8){
+    const y = yTop
+            + Math.sin(x * 0.035 + time * 3.2) * 3.5
+            + Math.sin(x * 0.085 - time * 2.1) * 1.8;
+    ctx.lineTo(g.cx + x, y);
+  }
+  ctx.lineTo(g.cx + g.bw, g.b);
+  ctx.lineTo(g.cx - g.bw, g.b);
+  ctx.closePath();
+  ctx.fillStyle = bottle.color;
+  ctx.fill();
+
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(g.cx - g.bw, yTop - 3, g.bw * 2, 3);
+  ctx.globalAlpha = 1;
+
+  if (reaction || actionWindow > 0){
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    for (let i = 0; i < 14; i++){
+      const bx = g.cx + Math.sin(i * 2.1 + time * 3) * (bottle.bodyW * 0.34);
+      const by = g.b - ((time * 130 + i * 47) % Math.max(20, g.b - yTop));
+      ctx.beginPath();
+      ctx.arc(bx, by, 2 + (i % 3), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawBottle(){
+  const g  = bottleGeom();
+  const sh = bottle.shake || 0;
+
+  ctx.save();
+  ctx.translate(sh, 0);
+
+  ctx.fillStyle = 'rgba(0,0,0,.22)';
+  ctx.beginPath();
+  ctx.ellipse(g.cx, g.b + 6, g.bw * 0.66, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  /* بدنه‌ی بطری با کنتراست بیشتر تا در پس‌زمینه گم نشود */
+  bottlePath(g);
+  ctx.fillStyle = 'rgba(75,166,211,.34)';
+  ctx.fill();
+  ctx.save();
+  bottlePath(g);
+  ctx.clip();
+  const glassShade = ctx.createLinearGradient(g.cx-g.bw/2,0,g.cx+g.bw/2,0);
+  glassShade.addColorStop(0,'rgba(8,35,62,.42)');
+  glassShade.addColorStop(.22,'rgba(185,235,255,.16)');
+  glassShade.addColorStop(.52,'rgba(225,248,255,.06)');
+  glassShade.addColorStop(1,'rgba(5,35,62,.38)');
+  ctx.fillStyle = glassShade;
+  ctx.fillRect(g.cx-g.bw/2,g.bodyTop-18,g.bw,g.bh+g.nh+25);
+  ctx.restore();
+
+  ctx.save();
+  bottlePath(g);
+  ctx.clip();
+  /* شیارهای قالب بطری؛ کمک می‌کنند فرم بطری حتی بدون مایع هم مشخص باشد */
+  for (let ry = g.bodyTop + 62; ry < g.b - 24; ry += 48){
+    ctx.beginPath();
+    ctx.moveTo(g.cx-g.bw/2+5, ry);
+    ctx.quadraticCurveTo(g.cx, ry+8, g.cx+g.bw/2-5, ry);
+    ctx.strokeStyle = 'rgba(210,245,255,.34)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+  drawLiquid(g);
+  ctx.restore();
+
+  bottlePath(g);
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = 'rgba(5,28,52,.88)';
+  ctx.stroke();
+  bottlePath(g);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = 'rgba(135,220,255,.98)';
+  ctx.stroke();
+  bottlePath(g);
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(255,255,255,.95)';
+  ctx.stroke();
+
+  ctx.save();
+  bottlePath(g);
+  ctx.clip();
+  const hl = ctx.createLinearGradient(g.cx - g.bw/2, 0, g.cx - g.bw/2 + 34, 0);
+  hl.addColorStop(0, 'rgba(255,255,255,.45)');
+  hl.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = hl;
+  ctx.fillRect(g.cx - g.bw/2 + 10, g.bodyTop + 30, 34, g.bh - 60);
+  ctx.restore();
+
+  /* لبه و حلقه‌ی دهانه برای خواناتر شدن شکل بطری */
+  ctx.fillStyle = 'rgba(20,75,105,.95)';
+  roundRect(g.cx-g.nw/2-5, g.neckTop-8, g.nw+10, 13, 4);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(175,235,255,.98)';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(g.cx-g.nw/2-5, g.neckTop-8, g.nw+10, 13);
+  ctx.beginPath();
+  ctx.ellipse(g.cx, g.neckTop, g.nw/2, 7, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(210,242,255,.35)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(220,246,255,.9)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  /* هایلایت هنگام ریختن مایع */
+  if (feed && feed.kind === 'liquid'){
+    const pulse = 0.35 + 0.28 * Math.sin(time * 8);
+    bottlePath(g);
+    ctx.strokeStyle = `rgba(120,220,255,${pulse})`;
+    ctx.lineWidth = 6;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawRocket(){
+  const w = rocket.w, h = rocket.h;
+  const w2 = w/2, h2 = h/2;
+
+  /* درخشش هنگام ریختن جامد */
+  if (feed && feed.kind === 'solid' && rocket.state !== 'flying'){
+    const pulse = 0.32 + 0.26 * Math.sin(time * 9);
+    const rg = ctx.createRadialGradient(rocket.x, rocket.y, 12, rocket.x, rocket.y, 95);
+    rg.addColorStop(0, `rgba(120,220,255,${pulse * 0.55})`);
+    rg.addColorStop(1, 'rgba(120,220,255,0)');
+    ctx.fillStyle = rg;
+    ctx.fillRect(rocket.x - 100, rocket.y - 100, 200, 200);
+  }
+
+  ctx.save();
+  ctx.translate(rocket.x, rocket.y);
+  ctx.rotate(rocket.angle);
+
+  /* نازل */
+  ctx.fillStyle = '#59636f';
+  ctx.beginPath();
+  ctx.moveTo(-15, h2 - 6);
+  ctx.lineTo( 15, h2 - 6);
+  ctx.lineTo( 22, h2 + 12);
+  ctx.lineTo(-22, h2 + 12);
+  ctx.closePath();
+  ctx.fill();
+
+  /* دو بال */
+  ctx.fillStyle = '#ef6a3d';
+  for (const s of [-1, 1]){
+    ctx.beginPath();
+    ctx.moveTo(s * w2, h * 0.02);
+    ctx.lineTo(s * (w2 + 26), h2 - 4);
+    ctx.lineTo(s * w2, h2 - 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(160,50,20,.7)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  /* بدنه */
+  const grd = ctx.createLinearGradient(-w2, 0, w2, 0);
+  grd.addColorStop(0,    '#8fa0b5');
+  grd.addColorStop(0.32, '#f4f9ff');
+  grd.addColorStop(0.66, '#ccd8e6');
+  grd.addColorStop(1,    '#8393a8');
+  roundRect(-w2, -h2, w, h, 13);
+  ctx.fillStyle = grd;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(35,55,85,.55)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  /* پنجره */
+  const ww = w - 18, wh = h * 0.42;
+  const wx = -ww/2, wy = -h * 0.27;
+  roundRect(wx, wy, ww, wh, 9);
+  ctx.fillStyle = 'rgba(18,28,44,.82)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(160,200,240,.5)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  /* محتویات داخل استوانه */
+  const n = rocket.load.length;
+  for (let i = 0; i < n; i++){
+    const it = rocket.load[i];
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const px = wx + 9 + col * (ww - 18);
+    const py = wy + 11 + row * 14;
+    if (py > wy + wh - 6) break;
+    ctx.beginPath();
+    ctx.arc(px, py, 5.2, 0, Math.PI * 2);
+    ctx.fillStyle = it.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.35)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  /* حلقه بالایی */
+  ctx.beginPath();
+  ctx.moveTo(-w2 + 4, -h2 + 8);
+  ctx.lineTo( w2 - 4, -h2 + 8);
+  ctx.strokeStyle = 'rgba(255,255,255,.85)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // نشانهٔ دیداری چفت شدن: حلقه سبز و درپوش روی سر موشک
+  if (sealed && rocket.state === 'attached'){
+    ctx.save();
+    ctx.shadowColor = '#58ffad';
+    ctx.shadowBlur = 18;
+    ctx.strokeStyle = '#54f5a4';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.ellipse(0, h2 - 3, w2 - 2, 8, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = '#31d985';
+    roundRect(-w2 + 5, h2 - 4, w - 10, 12, 5);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.restore();
+
+  /* نوار پیشرفت ریختن */
+  if (rocket.state === 'attached' && rocket.pour > 0.25){
+    const prog = Math.min(1, rocket.pour / POUR_NEED);
+    const bwid = 92, bx = rocket.x - bwid/2, by = rocket.y - rocket.h/2 - 34;
+    ctx.fillStyle = 'rgba(10,22,38,.75)';
+    roundRect(bx - 4, by - 4, bwid + 8, 16, 8);
+    ctx.fill();
+    ctx.fillStyle = '#4fd2ff';
+    roundRect(bx, by, bwid * prog, 8, 4);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    ctx.font = '11px Tahoma, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ریختن مواد', rocket.x, by - 10);
+    ctx.textAlign = 'start';
+  }
+}
+
+function drawParticles(){
+  for (const p of particles){
+    const a = Math.max(0, 1 - p.t / p.life);
+    ctx.globalAlpha = a;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* =========================================================
+   حلقه اصلی
+   ========================================================= */
+function render(){
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  const bg = ctx.createLinearGradient(0, 0, 0, cv.height);
+  bg.addColorStop(0, '#70b9eb'); bg.addColorStop(1, '#e8f6ff');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, cv.width, cv.height);
+
+  const renderScale = scale * cameraZoom;
+  // صحنه همیشه دقیقاً وسط canvas قرار می‌گیرد؛ مختصات لمس/ماوس هم از همین تبدیل استفاده می‌کند.
+  ctx.setTransform(renderScale, 0, 0, renderScale, (cv.width - W*renderScale)/2, (cv.height - H*renderScale)/2);
+
+  drawSky();
+  drawGround();
+  drawBottle();
+  drawRocket();
+  drawParticles();
+}
+
+let lastT = performance.now();
+
+function loop(now){
+  let dt = (now - lastT) / 1000;
+  lastT = now;
+  dt = Math.min(0.033, Math.max(0.0005, dt));
+
+  time += dt;
+  cameraZoom += (cameraZoomTarget - cameraZoom) * (1 - Math.exp(-2.8 * dt));
+  pressFlash = Math.max(0, pressFlash - dt);
+
+  updateFeed(dt);
+  updateRocket(dt);
+  updateParticles(dt);
+  updateReaction(dt);
+
+  render();
+  updateHUD();
+
+  requestAnimationFrame(loop);
+}
+
+/* =========================================================
+   HUD
+   ========================================================= */
+const elFill    = document.getElementById('stFill');
+const elLoad    = document.getElementById('stLoad');
+const elPress   = document.getElementById('stPress');
+const barFill   = document.querySelector('#barFill i');
+const barPress  = document.querySelector('#barPress i');
+const toastEl   = document.getElementById('toast');
+
+const faDigits = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+function updateHUD(){
+  const f = Math.round(bottle.fill * 100);
+  elFill.textContent = faDigits(f) + '٪';
+  barFill.style.width = f + '%';
+
+  elLoad.textContent = faDigits(rocket.load.length);
+
+  const pr = reaction ? Math.min(1, reaction.t / 1.25) : 0;
+  elPress.textContent = faDigits(Math.round(pr * 100)) + '٪';
+  barPress.style.width = (pr * 100) + '%';
+}
+
+let toastTimer = null;
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+}
+
+/* =========================================================
+   شروع
+   ========================================================= */
+resize();
+resetAll();
+requestAnimationFrame(loop);
+window.addEventListener('load', resize);
+</script>
+<script src="MusicPlayer.js"></script>
+</body>
+</html>

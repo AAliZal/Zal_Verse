@@ -667,7 +667,7 @@ ${cardCount} کارت
 و بیش از
 
 <span class="highlight">
-32000 خط کد
+35000 خط کد
 </span>
 
 تشکیل شده است.
@@ -1197,6 +1197,8 @@ btn.innerHTML="🌄";
             // =============================
             //           ZALBOT
             // =============================
+
+let currentRobotSkin = localStorage.getItem("robotSkin") || "skin_classic";
 let robotCurrentState = "آرام";
 const robotSettings = {
 
@@ -1245,15 +1247,11 @@ function getRobotTime(){
 
 
 
-function changeRobot(state){
-
+function changeRobot(state) {
     let time = getRobotTime();
+    if (!zalbotImage) return;
 
-    if(!zalbotImage) return;
-
-    zalbotImage.src =
-    `Web files/Robot img/${state} - ${time}.png`;
-
+    zalbotImage.src = `Web files/Robot img/${currentRobotSkin}/${state} - ${time}.png`;
 }
 setInterval(()=>{
 
@@ -1263,6 +1261,13 @@ setInterval(()=>{
 
 // نمایش پیام
 let robotMessageTimer = null;
+
+
+document.getElementById("robotSkin").onchange = function () {
+    currentRobotSkin = this.value;
+    localStorage.setItem("robotSkin", currentRobotSkin);
+    changeRobot(robotCurrentState || "آرام");
+};
 
 
 function robotSpeak(text,state="دوستانه"){
@@ -2293,6 +2298,11 @@ function loadRobotSettings(){
     }
 
 
+    let skinSelect = document.getElementById("robotSkin");
+    if (skinSelect && localStorage.getItem("robotSkin")) {
+        skinSelect.value = localStorage.getItem("robotSkin");
+        currentRobotSkin = localStorage.getItem("robotSkin");
+    }
 
     // اندازه ربات
     let size =
